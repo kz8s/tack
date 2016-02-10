@@ -6,3 +6,4 @@ Terraform module for create Kubernetes cluster running on CoreOS in an AWS VPC.
 
 ## References
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
+* [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
