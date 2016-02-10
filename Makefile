@@ -1,7 +1,7 @@
 SHELL += -eu
 
 AWS_REGION := us-west-1
-COREOS_CHANNEL := alpha
+COREOS_CHANNEL := stable
 COREOS_VM_TYPE := hvm
 
 AWS_EC2_KEY_NAME := k8s-testing
@@ -14,39 +14,31 @@ _generated.tf:
 		${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} \
 		> _generated.tf
 
-.PHONY: all
-all: create-key-pair generate apply
+all: create-key-pair generate apply ## generate key-pair, variables and then `terraform apply`
 
-.PHONY: apply
-apply: ## `terraform apply` - will perform a `terraform plan` first
-apply: plan ; terraform apply
+apply: plan ## `terraform apply`
+	terraform apply
 
-.PHONY: clean
-clean: delete-key-pair
+clean: destroy delete-key-pair
 	rm _generated.tf ||:
 	rm -rf .terraform ||:
 
-.PHONY: destroy
-destroy: ## `terraform destroy` - will perform a `terraform plan` first
-destroy: plan ; terraform destroy
+destroy: ## `terraform destroy`
+	terraform destroy
 
-.PHONY: generate
-generate: ## generate `_generated.tf`
-generate: _generated.tf
-
-.PHONY: get
+generate: _generated.tf ## generate variables
+	
 get: ## `terraform get`
-get: .terraform
+	terraform get
 
-help: ## Show this help.
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+help: ## Show this help
+	@fgrep -h "##" $(MAKEFILE_LIST) \
+		| fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-.PHONY: plan
-plan: get ; terraform plan
-
-.PHONY: test
-test: ; echo ${AWS_ACCOUNT_ID}
+plan: get generate ## terraform plan
+	terraform plan -out terraform.tfplan
 
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
+.PHONY: all apply clean destroy generate get help plan

@@ -2,3 +2,4 @@ _generated.tf
 terraform.tfstate*
 .ec2-key-pair
 .terraform
+terraform.tfplan
