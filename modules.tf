@@ -7,6 +7,12 @@ module "vpc" {
   region = "${ var.aws.region }"
 }
 
+module "route53" {
+  source = "./modules/route53"
+  name = "${ var.name }"
+  vpc-id = "${ module.vpc.id }"
+}
+
 module "bastion" {
   source = "./modules/bastion"
 
