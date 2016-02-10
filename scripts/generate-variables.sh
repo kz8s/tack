@@ -5,7 +5,7 @@ function usage {
     echo "  example: $0 us-west-1 stable hvm"
 }
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
     usage
     exit 1
 fi
@@ -13,6 +13,7 @@ fi
 AWS_REGION="$1"
 COREOS_CHANNEL="$2"
 COREOS_VM_TYPE="$3"
+AWS_EC2_KEY_NAME="$4"
 
 COREOS_AMI_ID=`curl -s \
   $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
@@ -33,6 +34,7 @@ variable "aws" {
   default = {
     account-id = "${AWS_ACCOUNT_ID}"
     azs = "${AWS_REGION_AZS}"
+    key-name = "${AWS_EC2_KEY_NAME}"
     region = "${AWS_REGION}"
   }
 }
