@@ -13,3 +13,5 @@ help:
 	{ helpMsg = $$0 }'                              \
 	$(MAKEFILE_LIST) | column -ts $$'\t' |          \
 	grep --color '^[^ ]*'
+
+.PHONY: help
