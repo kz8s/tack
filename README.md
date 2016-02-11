@@ -7,8 +7,10 @@ Terraform module for creating a Kubernetes cluster running on CoreOS in an AWS V
 
 ## Features
 * AWS VPC with NAT gateway and bastion host
+* Automated CoreOS AMI sourcing
 * etcd DNS Discovery Bootstrap
-* Terraform [Pattern Modules]
+* Terraform Pattern Modules
+* Sane defaults for single command cluster spin up: `make all`
 
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
@@ -18,18 +20,19 @@ Terraform module for creating a Kubernetes cluster running on CoreOS in an AWS V
 Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 
 ```bash
-brew install awscli jq terraform
+$ brew install awscli jq terraform
 ```
 
-## Inspired By
-* [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform)
+## Inspiration
+* [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
-* [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/)
+* [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
+* [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
 ## References
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
-* [etcd DNS Discovery](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
+* [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
