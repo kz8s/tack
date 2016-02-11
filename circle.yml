@@ -1,0 +1,13 @@
+# circle.yml
+machine:
+  python:
+    version: 2.7.11
+
+dependencies:
+  pre:
+    - pip install awscli
+    - make create-ssl
+
+test:
+  post:
+    - make test-ssl
