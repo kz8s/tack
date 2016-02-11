@@ -8,14 +8,6 @@ resource "aws_route53_zone" "internal" {
   vpc_id = "${ var.vpc-id }"
 }
 
-/*resource "aws_route53_record" "master" {
-  name = "master"
-  ttl = "300"
-  type = "A"
-  records = [ "10.0.0.15" ]
-  zone_id = "${ aws_route53_zone.k8s-internal.zone_id }"
-}*/
-
 resource "aws_route53_record" "A-etcd" {
   name = "etcd"
   records = [ "${ split(",", var.etcd-ips) }" ]
