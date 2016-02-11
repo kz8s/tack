@@ -1,9 +1,9 @@
 .terraform: ; terraform get
 
-_generated.tf:
-	./scripts/generate-variables.sh \
+terraform.tfvars:
+	./scripts/init-variables \
 		${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} \
-		> _generated.tf
+	> $@
 
 ## terraform apply
 apply: plan ; terraform apply
@@ -12,7 +12,7 @@ apply: plan ; terraform apply
 destroy: ; terraform destroy
 
 ## generate variables
-generate: _generated.tf
+init: terraform.tfvars
 
 ## terraform get
 get: ; terraform get
