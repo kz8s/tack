@@ -26,3 +26,17 @@ module "bastion" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
 }
+
+module "etcd" {
+  source = "./modules/etcd"
+
+  ami-id = "${ var.coreos-aws.ami }"
+  etcd-ips = "${ var.etcd-ips }"
+  instance-type = "${ var.instance-type.etcd }"
+  internal-tld = "${ var.internal-tld }"
+  key-name = "${ var.aws.key-name }"
+  name = "${ var.name }"
+  /*region = "${ var.region }"*/
+  subnet-ids = "${ module.vpc.subnet-ids }"
+  vpc-id = "${ module.vpc.id }"
+}

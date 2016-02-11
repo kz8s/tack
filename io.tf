@@ -10,6 +10,7 @@ variable "etcd-ips" { default = "10.0.0.10,10.0.0.11,10.0.0.12" }
 variable "instance-type" {
   default = {
     bastion = "t2.nano"
+    etcd = "c4.large"
   }
 }
 variable "internal-tld" { default = "k8s" }
