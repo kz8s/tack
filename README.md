@@ -3,7 +3,8 @@ Terraform module for create Kubernetes cluster running on CoreOS in an AWS VPC.
 
 ## Features
 * AWS VPC with NAT gateway and bastion host
-* etcd DNS Discovery
+* etcd DNS Discovery Bootstrap
+* Terraform [Pattern Modules]
 
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
@@ -16,10 +17,11 @@ Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 brew install awscli jq terraform
 ```
 
-## Inspiration From
+## Inspired By
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform)
 * [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
+* [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/)
 
 ## References
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
