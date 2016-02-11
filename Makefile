@@ -37,6 +37,9 @@ plan: get generate ## terraform plan
 show: ## terraform show
 	terraform show
 
+## run smoke tests
+test: test-route53 test-etcd
+
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
