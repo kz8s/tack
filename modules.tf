@@ -9,7 +9,10 @@ module "vpc" {
 
 module "route53" {
   source = "./modules/route53"
+
+  etcd-ips = "${ var.etcd-ips }"
   name = "${ var.name }"
+  internal-tld = "${ var.internal-tld }"
   vpc-id = "${ module.vpc.id }"
 }
 

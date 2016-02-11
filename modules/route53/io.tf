@@ -1,4 +1,5 @@
-variable "etcd-ips" { default = "10.0.0.10,10.0.0.11,10.0.0.12" }
+variable "etcd-ips" {}
+variable "internal-tld" {}
 variable "name" {}
 variable "vpc-id" {}
 

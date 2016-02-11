@@ -6,11 +6,13 @@ variable "cidr" {
     vpc = "10.0.0.0/16"
   }
 }
+variable "etcd-ips" { default = "10.0.0.10,10.0.0.11,10.0.0.12" }
 variable "instance-type" {
   default = {
     bastion = "t2.nano"
   }
 }
+variable "internal-tld" { default = "k8s" }
 variable "name" { default = "testing" }
 
 # outputs

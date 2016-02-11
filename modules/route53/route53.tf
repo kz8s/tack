@@ -1,6 +1,6 @@
 resource "aws_route53_zone" "internal" {
   comment = "Kubernetes cluster DNS (internal)"
-  name = "k8s"
+  name = "${ var.internal-tld }"
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
