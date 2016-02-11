@@ -27,18 +27,33 @@ destroy: ## `terraform destroy`
 	terraform destroy
 
 generate: _generated.tf ## generate variables
-	
+
 get: ## `terraform get`
 	terraform get
 
-help: ## Show this help
-	@fgrep -h "##" $(MAKEFILE_LIST) \
-		| fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+## Display this help text
+help:
+	$(info Available targets)
+	@awk '/^[a-zA-Z\-\_0-9]+:/ {                    \
+		nb = sub( /^## /, "", helpMsg );              \
+		if(nb == 0) {                                 \
+			helpMsg = $$0;                              \
+			nb = sub( /^[^:]*:.* ## /, "", helpMsg );   \
+		}                                             \
+		if (nb)                                       \
+			print  $$1 "\t" helpMsg;                    \
+	}                                               \
+	{ helpMsg = $$0 }'                              \
+	$(MAKEFILE_LIST) | column -ts $$'\t' |          \
+	grep --color '^[^ ]*'
 
 plan: get generate ## terraform plan
 	terraform plan -out terraform.tfplan
 
+show: ## terraform show
+	terraform show
+
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all apply clean destroy generate get help plan
+.PHONY: all apply clean destroy generate get help plan show
