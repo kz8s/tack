@@ -1,6 +1,8 @@
 # terraform-aws-coreos-kubernetes
 
 [![Join the chat at https://gitter.im/kz8s/terraform-aws-coreos-kubernetes](https://badges.gitter.im/kz8s/terraform-aws-coreos-kubernetes.svg)](https://gitter.im/kz8s/terraform-aws-coreos-kubernetes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Circle CI](https://circleci.com/gh/kz8s/terraform-aws-coreos-kubernetes/tree/master.svg?style=svg)](https://circleci.com/gh/kz8s/terraform-aws-coreos-kubernetes/tree/master)
+
 Terraform module for create Kubernetes cluster running on CoreOS in an AWS VPC.
 
 ## Features
