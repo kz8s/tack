@@ -16,18 +16,6 @@ module "route53" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "bastion" {
-  source = "./modules/bastion"
-
-  ami-id = "${ var.coreos-aws.ami }"
-  cidr-allow-ssh = "${ var.cidr.allow-ssh }"
-  instance-type = "${ var.instance-type.bastion }"
-  key-name = "${ var.aws.key-name }"
-  name = "${ var.name }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
-  vpc-id = "${ module.vpc.id }"
-}
-
 module "etcd" {
   source = "./modules/etcd"
 
@@ -38,6 +26,18 @@ module "etcd" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   /*region = "${ var.region }"*/
+  subnet-ids = "${ module.vpc.subnet-ids }"
+  vpc-id = "${ module.vpc.id }"
+}
+
+module "bastion" {
+  source = "./modules/bastion"
+
+  ami-id = "${ var.coreos-aws.ami }"
+  cidr-allow-ssh = "${ var.cidr.allow-ssh }"
+  instance-type = "${ var.instance-type.bastion }"
+  key-name = "${ var.aws.key-name }"
+  name = "${ var.name }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
 }
