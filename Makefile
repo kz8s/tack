@@ -14,7 +14,7 @@ all: create-key-pair create-ssl init apply
 
 ## destroy and remove everything
 clean: destroy destroy-ssl delete-key-pair
-	rm terraform.tfvars ||:
+	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 
 ## smoke it
