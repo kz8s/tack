@@ -10,7 +10,7 @@ DIR_KEY_PAIR := .ec2-key-pair
 DIR_SSL := .ssl
 
 ## generate key-pair, variables and then `terraform apply`
-all: create-key-pair create-ssl generate apply
+all: create-key-pair create-ssl init apply
 
 ## destroy and remove everything
 clean: destroy destroy-ssl delete-key-pair

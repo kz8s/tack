@@ -20,6 +20,7 @@ module "bastion" {
   source = "./modules/bastion"
 
   ami-id = "${ var.coreos-aws.ami }"
+  cidr-allow-ssh = "${ var.cidr.allow-ssh }"
   instance-type = "${ var.instance-type.bastion }"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"

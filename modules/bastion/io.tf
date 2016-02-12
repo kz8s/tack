@@ -1,4 +1,5 @@
 variable "ami-id" {}
+variable "cidr-allow-ssh" {}
 variable "instance-type" {}
 variable "key-name" {}
 variable "name" {}

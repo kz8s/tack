@@ -12,6 +12,7 @@ variable "aws" {
 variable "cidr" {
   default = {
     vpc = "10.0.0.0/16"
+    allow-ssh = "0.0.0.0/0"
   }
 }
 variable "coreos-aws" {
