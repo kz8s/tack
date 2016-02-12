@@ -1,13 +1,20 @@
 # circle.yml
 machine:
+  environment:
+    PATH: $HOME/.terraform:$PATH
+    TERRAFORM_VERSION: 0.6.11
   python:
     version: 2.7.11
 
 dependencies:
   pre:
     - pip install awscli
-    - make create-ssl
+    - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+    - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+    - export AWS_ACCESS_KEY_ID="$aws_access_key"
+    - export AWS_SECRET_ACCESS_KEY="$aws_secret_key"
+    - make create-ssl init
 
 test:
-  post:
-    - make test-ssl
+  override:
+    - make test-ssl plan
