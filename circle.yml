@@ -10,8 +10,6 @@ dependencies:
   pre:
     - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d ~/.terraform
-    - export AWS_ACCESS_KEY_ID="$aws_access_key"
-    - export AWS_SECRET_ACCESS_KEY="$aws_secret_key"
     - make create-ssl init
 
 test:
