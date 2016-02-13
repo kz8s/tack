@@ -17,3 +17,7 @@ dependencies:
 test:
   override:
     - make test-ssl plan
+
+notify:
+  webhooks:
+    - url: https://webhooks.gitter.im/e/87c066fe542f9b00f79e
