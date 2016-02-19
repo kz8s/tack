@@ -61,8 +61,9 @@ coreos:
     initial-advertise-peer-urls: http://etcd${ count.index+1 }.${ var.internal-tld }:2380
     initial-cluster-state: new
     initial-cluster-token: etcd-cluster-${ var.name }
-    listen-client-urls: http://etcd${ count.index+1 }.${ var.internal-tld }:2379
-    listen-peer-urls: http://etcd${ count.index+1 }.${ var.internal-tld }:2380
+    listen-client-urls: http://0.0.0.0:2379
+    listen-peer-urls: http://0.0.0.0:2380
+
 
   units:
     - name: etcd2.service
