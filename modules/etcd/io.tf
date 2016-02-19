@@ -1,4 +1,5 @@
 variable "ami-id" {}
+variable "bucket-prefix" {}
 variable "etcd-ips" {}
 variable "instance-type" {}
 variable "key-name" {}

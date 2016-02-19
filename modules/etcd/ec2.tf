@@ -33,6 +33,7 @@ resource "aws_instance" "etcd" {
 
   ami = "${ var.ami-id }"
   associate_public_ip_address = true
+  iam_instance_profile = "${ aws_iam_instance_profile.master.name }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
   private_ip = "${ element(split(",", var.etcd-ips), count.index) }"
@@ -48,72 +49,7 @@ resource "aws_instance" "etcd" {
 
   source_dest_check = false
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
-  user_data = <<USER_DATA
-#cloud-config
-
----
-coreos:
-
-  etcd2:
-    advertise-client-urls: http://etcd${ count.index+1 }.${ var.internal-tld }:2379
-    discovery-srv: ${ var.internal-tld }
-    initial-advertise-peer-urls: http://etcd${ count.index+1 }.${ var.internal-tld }:2380
-    initial-cluster-state: new
-    initial-cluster-token: etcd-cluster-${ var.name }
-    listen-client-urls: http://0.0.0.0:2379
-    listen-peer-urls: http://0.0.0.0:2380
-    name: etcd${ count.index + 1 }
-
-  units:
-    - name: etcd2.service
-      command: start
-
-    - name: flanneld.service
-      command: start
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Service]
-            ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
-              '{ "Network": "10.3.0.0/16", "Backend": { "Type": "vxlan" } }'
-            Restart=always
-            RestartSec=10
-
-    - name: docker.service
-      command: start
-      drop-ins:
-        - name: 40-flannel.conf
-          content: |
-            [Unit]
-            After=flanneld.service
-            Requires=flanneld.service
-            [Service]
-            Restart=always
-            RestartSec=10
-
-    - name: download-kubernetes.service
-      command: start
-      content: |
-        [Unit]
-        After=network-online.target
-        Description=Download Kubernetes Binaries
-        Documentation=https://github.com/kubernetes/kubernetes
-        Requires=network-online.target
-
-        [Service]
-        Environment=K8S_VER=v1.1.7
-        Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubelet $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubelet
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubectl
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
-        RemainAfterExit=yes
-        Type=oneshot
-
-  update:
-    reboot-strategy: etcd-lock
-USER_DATA
+  user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
 
   tags {
     Name = "etcd${ count.index + 1 }"
