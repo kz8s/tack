@@ -35,6 +35,14 @@ resource "aws_iam_role_policy" "master" {
         "s3:Get*"
       ],
       "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }/*" ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:*",
+        "elasticloadbalancing:*"
+        ],
+      "Resource": [ "*" ]
     }
   ]
 }

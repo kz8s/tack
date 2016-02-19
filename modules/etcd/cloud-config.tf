@@ -108,6 +108,26 @@ coreos:
         RemainAfterExit=yes
         Type=oneshot
 
+    - name: kubelet.service
+      command: start
+      content: |
+        [Unit]
+        After=docker.socket
+        ConditionFileIsExecutable=/opt/bin/kubectl
+        Requires=docker.socket
+        [Service]
+        ExecStart=/opt/bin/kubelet \
+          --allow-privileged=true \
+          --api-servers=http://127.0.0.1:8080 \
+          --cluster-dns=10.3.0.10 \
+          --cluster-domain=cluster.local \
+          --config=/etc/kubernetes/manifests \
+          --register-node=false
+        Restart=always
+        RestartSec=5
+        [Install]
+        WantedBy=multi-user.target
+
   update:
     reboot-strategy: etcd-lock
 EOF
