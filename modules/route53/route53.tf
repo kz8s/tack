@@ -28,6 +28,14 @@ resource "aws_route53_record" "A-etcds" {
   zone_id = "${ aws_route53_zone.internal.zone_id }"
 }
 
+resource "aws_route53_record" "CNAME-master" {
+  name = "master"
+  records = [ "etcd.k8s" ]
+  ttl = "300"
+  type = "CNAME"
+  zone_id = "${ aws_route53_zone.internal.zone_id }"
+}
+
 resource "template_file" "discover-client" {
   count = "${ length( split(",", var.etcd-ips) ) }"
   template = "0 0 2379 etcd${ count.index + 1 }.k8s"
