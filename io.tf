@@ -36,3 +36,4 @@ variable "name" { default = "testing" }
 output "azs" { value = "${ var.aws.azs }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
 output "subnet-ids" { value = "${ module.vpc.subnet-ids }" }
+output "external-elb" { value = "${ module.etcd.external-elb }" }
