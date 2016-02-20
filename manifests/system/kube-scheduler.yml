@@ -11,7 +11,7 @@ spec:
     command:
     - /hyperkube
     - scheduler
-    - --master=http://127.0.0.1:8080
+    - --master=https://master.k8s
     livenessProbe:
       httpGet:
         host: 127.0.0.1
