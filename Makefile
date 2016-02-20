@@ -6,7 +6,7 @@ COREOS_VM_TYPE := hvm
 
 AWS_EC2_KEY_NAME := k8s-testing
 
-DIR_KEY_PAIR := .ec2-key-pair
+DIR_KEY_PAIR := .key-pair
 DIR_SSL := .ssl
 
 ## generate key-pair, variables and then `terraform apply`
