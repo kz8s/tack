@@ -19,7 +19,7 @@ delete-key-pair:
 	ssh-add -L | grep "${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem" > ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub
 	if [ -a ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub ]; then \
 		ssh-add -d ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub; \
-		rm -rf $(DIR_KEY_PAIR)/; \
 	fi;
+	@-rm -rf $(DIR_KEY_PAIR)/
 
 .PHONY: create-key-pair delete-key-pair

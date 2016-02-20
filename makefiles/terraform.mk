@@ -23,4 +23,4 @@ plan: get generate ; terraform plan -out terraform.tfplan
 ## terraform show
 show: ; terraform show
 
-.PHONY: apply destroy generate get plan show
+.PHONY: apply destroy generate get init plan show
