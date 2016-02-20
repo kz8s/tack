@@ -53,6 +53,18 @@ module "bastion" {
   vpc-id = "${ module.vpc.id }"
 }
 
+module "worker" {
+  source = "./modules/worker"
+
+  ami-id = "${ var.coreos-aws.ami }"
+  bucket-prefix = "${ module.s3.bucket-prefix }"
+  instance-type = "${ var.instance-type.worker }"
+  internal-tld = "${ var.internal-tld }"
+  key-name = "${ var.aws.key-name }"
+  name = "${ var.name }"
+  subnet-ids = "${ module.vpc.subnet-ids }"
+  vpc-id = "${ module.vpc.id }"
+}
 
 module "kubeconfig" {
   source = "./modules/kubeconfig"

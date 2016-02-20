@@ -27,6 +27,7 @@ variable "instance-type" {
   default = {
     bastion = "t2.nano"
     etcd = "c4.large"
+    worker = "c4.large"
   }
 }
 variable "internal-tld" { default = "k8s" }
