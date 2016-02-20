@@ -27,7 +27,6 @@ module "etcd" {
   source = "./modules/etcd"
 
   ami-id = "${ var.coreos-aws.ami }"
-  /*bucket-prefix = "${ var.aws.account-id }-${ var.name }"*/
   bucket-prefix = "${ module.s3.bucket-prefix }"
   etcd-ips = "${ var.etcd-ips }"
   instance-type = "${ var.instance-type.etcd }"
@@ -36,6 +35,7 @@ module "etcd" {
   name = "${ var.name }"
   /*region = "${ var.region }"*/
   subnet-ids = "${ module.vpc.subnet-ids }"
+  vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -51,4 +51,15 @@ module "bastion" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   /*user-data = "${ module.cloud-config.master }"*/
   vpc-id = "${ module.vpc.id }"
+}
+
+
+module "kubeconfig" {
+  source = "./modules/kubeconfig"
+
+  admin-key-pem = ".ssl/admin-key.pem"
+  admin-pem = ".ssl/admin.pem"
+  ca-pem = ".ssl/ca.pem"
+  master-elb = "${ module.etcd.external-elb }"
+  name = "${ var.name }"
 }
