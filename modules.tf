@@ -1,11 +1,3 @@
-/*module "cloud-config" {
-  source = "./modules/cloud-config"
-
-  bucket-prefix = "${ var.aws.account-id }-${ var.name }"
-  internal-tld = "${ var.internal-tld }"
-  name = "${ var.name }"
-}*/
-
 module "s3" {
   source = "./modules/s3"
 
