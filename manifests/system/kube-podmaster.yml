@@ -26,7 +26,6 @@ spec:
     - /podmaster
     - --etcd-servers=http://etcd.k8s:2379
     - --key=controller
-    # - --whoami=$private_ipv4
     - --source-file=/src/manifests/kube-controller-manager.yaml
     - --dest-file=/dst/manifests/kube-controller-manager.yaml
     terminationMessagePath: /dev/termination-log
