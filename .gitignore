@@ -1,5 +1,5 @@
 terraform.tfstate*
-.ec2-key-pair
+.key-pair
 .terraform
 terraform.tfplan
 .ssl
