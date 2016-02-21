@@ -25,5 +25,6 @@ resource "aws_instance" "etcd" {
     Name = "etcd${ count.index + 1 }"
     Cluster = "${ var.name }"
     role = "etcd"
+    builtWith = "terraform"
   }
 }

@@ -36,6 +36,7 @@ resource "aws_instance" "bastion" {
     Name = "bastion"
     Cluster = "${ var.name }"
     Role = "bastion"
+    builtWith = "terraform"
   }
 
   /*user_data = "${ var.user-data }"*/

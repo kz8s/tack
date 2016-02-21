@@ -7,5 +7,6 @@ resource "aws_vpc" "main" {
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
+    builtWith = "terraform"
   }
 }

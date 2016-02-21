@@ -47,6 +47,12 @@ resource "aws_autoscaling_group" "worker" {
   }
 
   tag {
+    key = "builtWith"
+    value = "terraform"
+    propagate_at_launch = true
+  }
+
+  tag {
     key = "Cluster"
     value = "${ var.name }"
     propagate_at_launch = true

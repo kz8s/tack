@@ -42,5 +42,6 @@ resource "aws_security_group" "external-elb" {
   tags {
     Cluster = "${ var.name }"
     Name = "master-external-elb"
+    builtWith = "terraform"
   }
 }
