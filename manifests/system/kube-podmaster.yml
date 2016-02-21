@@ -12,8 +12,8 @@ spec:
     - /podmaster
     - --etcd-servers=http://etcd.k8s:2379
     - --key=scheduler
-    - --source-file=/src/manifests/kube-scheduler.yaml
-    - --dest-file=/dst/manifests/kube-scheduler.yaml
+    - --source-file=/src/manifests/kube-scheduler.yml
+    - --dest-file=/dst/manifests/kube-scheduler.yml
     volumeMounts:
     - mountPath: /src/manifests
       name: manifest-src
@@ -26,8 +26,8 @@ spec:
     - /podmaster
     - --etcd-servers=http://etcd.k8s:2379
     - --key=controller
-    - --source-file=/src/manifests/kube-controller-manager.yaml
-    - --dest-file=/dst/manifests/kube-controller-manager.yaml
+    - --source-file=/src/manifests/kube-controller-manager.yml
+    - --dest-file=/dst/manifests/kube-controller-manager.yml
     terminationMessagePath: /dev/termination-log
     volumeMounts:
     - mountPath: /src/manifests

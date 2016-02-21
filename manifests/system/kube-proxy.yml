@@ -11,7 +11,7 @@ spec:
     command:
     - /hyperkube
     - proxy
-    - --master=https://master.k8s
+    - --master=http://127.0.0.1:8080
     - --proxy-mode=iptables
     securityContext:
       privileged: true
