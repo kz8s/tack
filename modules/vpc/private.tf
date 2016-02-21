@@ -17,6 +17,7 @@ resource "aws_subnet" "private" {
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
+    builtWith = "terraform"
   }
 }
 
@@ -31,6 +32,7 @@ resource "aws_route_table" "private" {
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
+    builtWith = "terraform"
   }
 }
 

@@ -4,6 +4,7 @@ resource "aws_internet_gateway" "main" {
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
+    builtWith = "terraform"
   }
 }
 
@@ -17,6 +18,7 @@ resource "aws_subnet" "public" {
   tags {
     Name = "k8s"
     Cluster = "${ var.name }"
+    builtWith = "terraform"
   }
 }
 

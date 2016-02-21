@@ -20,5 +20,6 @@ resource "aws_security_group" "worker" {
 
   tags {
     Name = "worker"
+    builtWith = "terraform"
   }
 }
