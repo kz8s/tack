@@ -110,19 +110,6 @@ coreos:
         RemainAfterExit=yes
         Type=oneshot
 
-    - name: get-manifests.service
-      command: start
-      content: |
-        [Unit]
-        After=s3-iam-get.service
-        Description=Get kubernetes manifest from s3 bucket using IAM role
-        Requires=s3-iam-get.service
-        [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ worker-tar } | tar xv -C /etc/kubernetes/manifests/"
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: kubelet.service
       command: start
       content: |
@@ -138,7 +125,7 @@ coreos:
           --cluster-dns=10.3.0.10 \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
-          --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \
+          --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --register-node=true \
           --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
           --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem
@@ -149,6 +136,68 @@ coreos:
 
   update:
     reboot-strategy: etcd-lock
+
+write-files:
+  - path: /etc/kubernetes/kubeconfig.yml
+    content: |
+      apiVersion: v1
+      kind: Config
+      clusters:
+        - name: local
+          cluster:
+            certificate-authority: /etc/kubernetes/ssl/ca.pem
+      users:
+        - name: kubelet
+          user:
+            client-certificate: /etc/kubernetes/ssl/worker.pem
+            client-key: /etc/kubernetes/ssl/worker-key.pem
+      contexts:
+        - context:
+            cluster: local
+            user: kubelet
+          name: kubelet-context
+      current-context: kubelet-context
+
+  - path: /etc/kubernetes/manifests/kube-proxy.yml
+    content: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: kube-proxy
+        namespace: kube-system
+      spec:
+        hostNetwork: true
+        containers:
+        - name: kube-proxy
+          image: gcr.io/google_containers/hyperkube:v1.1.7
+          command:
+          - /hyperkube
+          - proxy
+          - --kubeconfig=/etc/kubernetes/kubeconfig.yml
+          - --master=https://master.k8s
+          - --proxy-mode=iptables
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /etc/ssl/certs
+              name: "ssl-certs"
+            - mountPath: /etc/kubernetes/kubeconfig.yml
+              name: "kubeconfig"
+              readOnly: true
+            - mountPath: /etc/kubernetes/ssl
+              name: "etc-kube-ssl"
+              readOnly: true
+        volumes:
+          - name: "ssl-certs"
+            hostPath:
+              path: "/usr/share/ca-certificates"
+          - name: "kubeconfig"
+            hostPath:
+              path: "/etc/kubernetes/kubeconfig.yml"
+          - name: "etc-kube-ssl"
+            hostPath:
+              path: "/etc/kubernetes/ssl"
+
 EOF
 
   vars {
