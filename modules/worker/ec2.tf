@@ -1,5 +1,5 @@
 resource "aws_launch_configuration" "worker" {
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   iam_instance_profile = "${ aws_iam_instance_profile.worker.name }"
   image_id = "${ var.ami-id }"
   instance_type = "${ var.instance-type }"
