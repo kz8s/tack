@@ -49,6 +49,14 @@ resource "aws_iam_role_policy" "worker" {
         "ec2:DescribeInstances"
       ],
       "Resource": "*"
+    },
+    {
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
     }
   ]
 }

@@ -1,7 +1,7 @@
 SHELL += -eu
 
 AWS_REGION := us-west-1
-COREOS_CHANNEL := stable
+COREOS_CHANNEL := beta
 COREOS_VM_TYPE := hvm
 
 AWS_EC2_KEY_NAME := k8s-testing

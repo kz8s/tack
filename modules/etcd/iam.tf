@@ -29,20 +29,29 @@ resource "aws_iam_role_policy" "master" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Effect": "Allow",
       "Action": [
         "s3:List*",
         "s3:Get*"
       ],
+      "Effect": "Allow",
       "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }/*" ]
     },
     {
-      "Effect": "Allow",
       "Action": [
         "ec2:*",
         "elasticloadbalancing:*"
         ],
+      "Effect": "Allow",
       "Resource": [ "*" ]
+    }
+    ,
+    {
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
     }
   ]
 }
