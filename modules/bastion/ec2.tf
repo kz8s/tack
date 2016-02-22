@@ -1,23 +1,3 @@
-resource "aws_security_group" "bastion" {
-  name = "bastion"
-  description = "bastion security group"
-  vpc_id = "${ var.vpc-id }"
-
-  ingress = {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = [ "${ var.cidr-allow-ssh }" ]
-  }
-
-  egress = {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = [ "0.0.0.0/0" ]
-  }
-}
-
 resource "aws_instance" "bastion" {
   ami = "${ var.ami-id }"
   associate_public_ip_address = true
@@ -26,7 +6,7 @@ resource "aws_instance" "bastion" {
   key_name = "${ var.key-name }"
 
   security_groups = [
-    "${ aws_security_group.bastion.id }",
+    "${ var.security-group-id }",
   ]
 
   source_dest_check = false

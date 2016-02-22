@@ -6,7 +6,7 @@ resource "aws_launch_configuration" "worker" {
   key_name = "${ var.key-name }"
 
   security_groups = [
-    "${ aws_security_group.worker.id }",
+    "${ var.security-group-id }",
   ]
 
   user_data = "${ template_file.cloud-config.rendered }"

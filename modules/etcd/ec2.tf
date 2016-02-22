@@ -14,7 +14,7 @@ resource "aws_instance" "etcd" {
   }
 
   security_groups = [
-    "${ aws_security_group.etcd.id }",
+    "${ var.etcd-security-group-id }",
   ]
 
   source_dest_check = false

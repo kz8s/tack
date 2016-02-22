@@ -19,6 +19,15 @@ module "vpc" {
   region = "${ var.aws.region }"
 }
 
+module "security" {
+  source = "./modules/security"
+
+  cidr-allow-ssh = "${ var.cidr.allow-ssh }"
+  cidr-vpc = "${ var.cidr.vpc }"
+  name = "${ var.name }"
+  vpc-id = "${ module.vpc.id }"
+}
+
 module "route53" {
   source = "./modules/route53"
 
@@ -33,12 +42,13 @@ module "etcd" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ module.s3.bucket-prefix }"
+  external-elb-security-group-id = "${ module.security.external-elb-id }"
   etcd-ips = "${ var.etcd-ips }"
+  etcd-security-group-id = "${ module.security.etcd-id }"
   instance-type = "${ var.instance-type.etcd }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
-  /*region = "${ var.region }"*/
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
@@ -53,8 +63,8 @@ module "bastion" {
   instance-type = "${ var.instance-type.bastion }"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
+  security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
-  /*user-data = "${ module.cloud-config.master }"*/
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -67,6 +77,7 @@ module "worker" {
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
+  security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
 }

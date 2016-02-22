@@ -4,7 +4,6 @@ variable "instance-type" {}
 variable "internal-tld" {}
 variable "key-name" {}
 variable "name" {}
+variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
-
-output "security-group-id" { value = "${ aws_security_group.worker.id }" }
