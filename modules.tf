@@ -28,6 +28,13 @@ module "security" {
   vpc-id = "${ module.vpc.id }"
 }
 
+module "iam" {
+  source = "./modules/iam"
+
+  bucket-prefix = "${ module.s3.bucket-prefix }"
+  name = "${ var.name }"
+}
+
 module "route53" {
   source = "./modules/route53"
 
@@ -45,6 +52,7 @@ module "etcd" {
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
+  instance-profile-name = "${ module.iam.instance-profile-name-master }"
   instance-type = "${ var.instance-type.etcd }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws.key-name }"
@@ -73,6 +81,7 @@ module "worker" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ module.s3.bucket-prefix }"
+  instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type.worker }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws.key-name }"

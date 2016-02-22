@@ -3,6 +3,7 @@ variable "bucket-prefix" {}
 variable "external-elb-security-group-id" {}
 variable "etcd-ips" {}
 variable "etcd-security-group-id" {}
+variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "key-name" {}
 variable "internal-tld" {}

@@ -43,8 +43,7 @@ resource "aws_iam_role_policy" "master" {
         ],
       "Effect": "Allow",
       "Resource": [ "*" ]
-    }
-    ,
+    },
     {
       "Action": [
         "logs:CreateLogStream",
