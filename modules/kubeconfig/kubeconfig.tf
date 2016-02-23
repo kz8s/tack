@@ -12,7 +12,15 @@ LOCAL_EXEC
     command = <<LOCAL_EXEC
 kubectl config set-cluster default-cluster \
   --server=https://${ var.master-elb } \
-  --certificate-authority=${ path.cwd }/${ var.ca-pem }
+  --certificate-authority=${ path.cwd }/${ var.ca-pem } &&\
+kubectl config set-credentials default-admin \
+  --certificate-authority=${ path.cwd }/${ var.ca-pem } \
+  --client-key=${ path.cwd }/${ var.admin-key-pem } \
+  --client-certificate=${ path.cwd }/${ var.admin-pem } &&\
+kubectl config set-context default-system \
+  --cluster=default-cluster \
+  --user=default-admin &&\
+kubectl config use-context default-system
 LOCAL_EXEC
   }
 
