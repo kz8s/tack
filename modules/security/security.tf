@@ -63,7 +63,8 @@ resource "aws_security_group" "external-elb" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = [ "${ var.cidr-vpc }" ]
+    /*cidr_blocks = [ "${ var.cidr-vpc }" ]*/
+    security_groups = [ "${ aws_security_group.etcd.id }" ]
   }
 
   ingress {
