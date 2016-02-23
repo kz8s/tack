@@ -15,7 +15,7 @@ resource "aws_subnet" "private" {
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
-    Name = "k8s"
+    Name = "private"
     Cluster = "${ var.name }"
     builtWith = "terraform"
   }
@@ -30,7 +30,7 @@ resource "aws_route_table" "private" {
   }
 
   tags {
-    Name = "k8s"
+    Name = "private"
     Cluster = "${ var.name }"
     builtWith = "terraform"
   }
