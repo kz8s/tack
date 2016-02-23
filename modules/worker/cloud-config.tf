@@ -207,6 +207,5 @@ EOF
   vars {
     internal-tld = "${ var.internal-tld }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
-    worker-tar = "s3://${ var.bucket-prefix }/manifests/worker.tar"
   }
 }
