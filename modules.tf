@@ -87,7 +87,7 @@ module "worker" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
+  subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
 }
 
