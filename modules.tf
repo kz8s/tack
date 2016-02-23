@@ -100,3 +100,28 @@ module "kubeconfig" {
   master-elb = "${ module.etcd.external-elb }"
   name = "${ var.name }"
 }
+
+resource "null_resource" "initialize" {
+
+  triggers {
+    bastion-ip = "${ module.bastion.ip }"
+    etcd-ips = "${ module.etcd.internal-ips }"
+  }
+
+  connection {
+    agent = true
+    bastion_host = "${ module.bastion.ip }"
+    bastion_user = "core"
+    host = "10.0.0.10"
+    user = "core"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
+      "etcdctl get scheduler",
+      "etcdctl get controller",
+      "curl --silent -X POST -d '{\"apiVersion\": \"v1\",\"kind\": \"Namespace\",\"metadata\": {\"name\": \"kube-system\"}}' http://127.0.0.1:8080/api/v1/namespaces",
+    ]
+  }
+}
