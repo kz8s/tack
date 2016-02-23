@@ -2,7 +2,7 @@ resource "aws_elb" "external" {
   name = "k8s-master-external"
   subnets = [ "${ split(",", var.subnet-ids) }" ]
   cross_zone_load_balancing = false
-  security_groups = [ "${ var.external-elb-security-group-id }", ]
+  security_groups = [ "${ var.external-elb-security-group-id }" ]
 
   health_check {
     healthy_threshold = 2
@@ -19,5 +19,12 @@ resource "aws_elb" "external" {
     instance_protocol = "tcp"
     lb_port = 443
     lb_protocol = "tcp"
+  }
+
+  tags {
+    builtWith = "terraform"
+    Cluster = "${ var.name }"
+    Name = "apiserver-public"
+    role = "apiserver"
   }
 }

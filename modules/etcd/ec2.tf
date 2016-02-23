@@ -13,10 +13,7 @@ resource "aws_instance" "etcd" {
     volume_type = "gp2"
   }
 
-  security_groups = [
-    "${ var.etcd-security-group-id }",
-  ]
-
+  security_groups = [ "${ var.etcd-security-group-id }" ]
   source_dest_check = false
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
@@ -25,6 +22,6 @@ resource "aws_instance" "etcd" {
     builtWith = "terraform"
     Cluster = "${ var.name }"
     Name = "etcd${ count.index + 1 }"
-    role = "etcd"
+    role = "etcd,apiserver"
   }
 }
