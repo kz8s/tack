@@ -22,9 +22,9 @@ resource "aws_instance" "etcd" {
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
 
   tags {
-    Name = "etcd${ count.index + 1 }"
-    Cluster = "${ var.name }"
-    role = "etcd"
     builtWith = "terraform"
+    Cluster = "${ var.name }"
+    Name = "etcd${ count.index + 1 }"
+    role = "etcd"
   }
 }
