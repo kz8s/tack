@@ -4,7 +4,7 @@ resource "aws_nat_gateway" "nat" {
   depends_on = [ "aws_internet_gateway.main" ]
 
   allocation_id = "${ aws_eip.nat.id }"
-  subnet_id = "${ aws_subnet.private.0.id }"
+  subnet_id = "${ aws_subnet.public.0.id }"
 }
 
 resource "aws_subnet" "private" {
