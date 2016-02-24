@@ -21,12 +21,12 @@ CN="$3"
 SANS="$4"
 
 if [ ! -d $OUTDIR ]; then
-  echo "ERROR: output directory does not exist:  $OUTDIR"
+  echo "ERROR: output directory does not exist: $OUTDIR"
   exit 1
 fi
 
 OUTFILE="$OUTDIR/$CN.tar"
-if [ -f "$OUTFILE" ];then
+if [ -f "$OUTFILE" ]; then
     exit 0
 fi
 

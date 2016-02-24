@@ -22,7 +22,7 @@ if [ ! -d $OUTDIR ]; then
 fi
 
 OUTFILE="$OUTDIR/ca.pem"
-if [ -f "$OUTFILE" ];then
+if [ -f "$OUTFILE" ]; then
   exit 0
 fi
 
