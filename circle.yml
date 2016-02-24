@@ -1,14 +1,13 @@
 # circle.yml
 machine:
   environment:
-    PATH: $HOME/.terraform:~/bin:$PATH
+    # PATH: $HOME/.terraform:~/bin:$PATH
     TERRAFORM_VERSION: 0.6.11
 
 dependencies:
   pre:
     - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d ~/.terraform
-    - mkdir ~/bin
     - curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/R1.1/cfssl_linux-amd64
     - curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/R1.1/cfssljson_linux-amd64
     - chmod +x ~/bin/{cfssl,cfssljson}
