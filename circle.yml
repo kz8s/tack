@@ -1,7 +1,6 @@
 # circle.yml
 machine:
   environment:
-    # PATH: $HOME/.terraform:~/bin:$PATH
     TERRAFORM_VERSION: 0.6.11
 
 dependencies:
@@ -17,8 +16,8 @@ test:
     - make ssl init
   override:
     - make plan
-  post:
-    - make clean
+  # post:
+  #   - make clean
 
 notify:
   webhooks:
