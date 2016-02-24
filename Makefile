@@ -10,12 +10,18 @@ DIR_KEY_PAIR := .key-pair
 DIR_SSL := .ssl
 
 ## generate key-pair, variables and then `terraform apply`
-all: create-key-pair create-ssl init apply
+all: create-key-pair ssl init apply
 
 ## destroy and remove everything
-clean: destroy destroy-ssl delete-key-pair
+clean: destroy delete-key-pair
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
+	rm -rf tmp ||:
+	rm -rf .cfssl ||:
+
+## create tls artifacts
+ssl:
+	./scripts/init-cfssl .cfssl
 
 ## smoke it
 test: test-ssl test-route53 test-etcd
@@ -23,4 +29,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean test
+.PHONY: all clean ssl test

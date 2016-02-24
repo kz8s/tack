@@ -5,3 +5,4 @@ terraform.tfplan
 .ssl
 .srl
 terraform.tfvars
+.cfssl
