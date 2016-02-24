@@ -131,8 +131,8 @@ coreos:
           --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --register-node=true \
-          --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
-          --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem
+          --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
+          --tls-private-key-file=/etc/kubernetes/ssl/k8s-worker-key.pem
         Restart=always
         RestartSec=5
         [Install]
@@ -153,8 +153,8 @@ write-files:
       users:
         - name: kubelet
           user:
-            client-certificate: /etc/kubernetes/ssl/worker.pem
-            client-key: /etc/kubernetes/ssl/worker-key.pem
+            client-certificate: /etc/kubernetes/ssl/k8s-worker.pem
+            client-key: /etc/kubernetes/ssl/k8s-worker-key.pem
       contexts:
         - context:
             cluster: local
@@ -201,7 +201,6 @@ write-files:
           - name: "etc-kube-ssl"
             hostPath:
               path: "/etc/kubernetes/ssl"
-
 EOF
 
   vars {

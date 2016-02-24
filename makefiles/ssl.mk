@@ -19,7 +19,7 @@ $(DIR_SSL)/etcd.pem: $(DIR_SSL)/ca.pem
 		IP.1=127.0.0.1,IP.2=10.0.0.10,IP.3=10.0.0.11,IP.4=10.0.0.12,DNS.1=etcd.k8s
 
 $(DIR_SSL)/worker.pem: $(DIR_SSL)/ca.pem
-	$(INIT-SSL) $(DIR_SSL) worker k8s-worker \
+	$(INIT-SSL) $(DIR_SSL) k8s-worker k8s-worker \
 		IP.1=127.0.0.1,DNS.3=*.*.compute.internal,DNS.4=*.ec2.internal
 
 create-ssl: $(DIR_SSL)/ca.pem $(DIR_SSL)/admin.pem $(DIR_SSL)/apiserver.pem $(DIR_SSL)/etcd.pem $(DIR_SSL)/worker.pem
@@ -30,8 +30,8 @@ destroy-ssl:
 
 test-ssl:
 	openssl x509 -in .ssl/admin.pem -noout -text
-	openssl x509 -in .ssl/apiserver.pem -noout -text
-	openssl x509 -in .ssl/worker.pem -noout -text
+	openssl x509 -in .ssl/k8s-apiserver.pem -noout -text
+	openssl x509 -in .ssl/k8s-worker.pem -noout -text
 	openssl x509 -in .ssl/etcd.pem -noout -text
 
 .PHONY: create-ssl destroy-ssl test-ssl
