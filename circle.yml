@@ -7,15 +7,14 @@ machine:
 dependencies:
   pre:
     - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-    - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d ~/.terraform
+    - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d ~/bin
     - curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/R1.1/cfssl_linux-amd64
     - curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/R1.1/cfssljson_linux-amd64
     - chmod +x ~/bin/{cfssl,cfssljson}
-    - make create-ssl init
 
 test:
   pre:
-    - make ssl
+    - make ssl init
   override:
     - make plan
   post:
