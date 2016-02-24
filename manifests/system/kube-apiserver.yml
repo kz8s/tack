@@ -20,10 +20,10 @@ spec:
     - --runtime-config=extensions/v1beta1/daemonsets=true
     - --runtime-config=extensions/v1beta1/deployments=true
     - --secure-port=443
-    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --service-account-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
     - --service-cluster-ip-range=10.3.0.0/24
-    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
-    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
+    - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
     - --v=2
     ports:
     - containerPort: 443

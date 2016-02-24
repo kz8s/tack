@@ -9,7 +9,7 @@ $(DIR_SSL)/admin.pem: $(DIR_SSL)/ca.pem
 
 # TODO: fix elb hard coded us-west-1 wild card
 $(DIR_SSL)/apiserver.pem: $(DIR_SSL)/ca.pem
-	$(INIT-SSL) $(DIR_SSL) apiserver k8s-apiserver \
+	$(INIT-SSL) $(DIR_SSL) k8s-apiserver k8s-apiserver \
 		IP.1=127.0.0.1,IP.2=10.0.0.15,IP.3=10.3.0.1,DNS.1=master.k8s,DNS.2=*.us-west-1.elb.amazonaws.com
 
 $(DIR_SSL)/ca.pem: | $(DIR_SSL)/ ; $(INIT-SSL-CA) $(DIR_SSL)
