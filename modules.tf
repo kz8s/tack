@@ -128,7 +128,8 @@ resource "null_resource" "initialize" {
 
   provisioner "local-exec" {
     command = <<LOCALEXEC
-until echo "trying to connect to cluster" && kubectl cluster-info &>/dev/null; do sleep 7; done
+echo "commence cluster polling - this could take a minute or more"
+until echo "trying to connect to cluster..." && kubectl cluster-info &>/dev/null; do sleep 7; done
 kubectl create -f manifests/addons
 kubectl create -f test/pods/busybox.yml
 kubectl get no
