@@ -105,6 +105,7 @@ resource "null_resource" "initialize" {
 
   triggers {
     bastion-ip = "${ module.bastion.ip }"
+    # todo: change trigger to etcd elb dns name
     etcd-ips = "${ module.etcd.internal-ips }"
   }
 
@@ -123,5 +124,14 @@ resource "null_resource" "initialize" {
       "etcdctl get controller",
       "curl --silent -X POST -d '{\"apiVersion\": \"v1\",\"kind\": \"Namespace\",\"metadata\": {\"name\": \"kube-system\"}}' http://127.0.0.1:8080/api/v1/namespaces",
     ]
+  }
+
+  provisioner "local-exec" {
+    command = <<LOCALEXEC
+until echo "trying to connect to cluster" && kubectl cluster-info &>/dev/null; do sleep 7; done
+kubectl create -f manifests/addons
+kubectl create -f test/pods/busybox.yml
+kubectl get no
+LOCALEXEC
   }
 }
