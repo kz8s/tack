@@ -5,6 +5,8 @@ resource "aws_instance" "bastion" {
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
 
+  # TODO: force private_ip to prevent collision with etcd machines
+
   security_groups = [
     "${ var.security-group-id }",
   ]
