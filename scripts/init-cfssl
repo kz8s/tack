@@ -63,8 +63,8 @@ function generate {
   HOSTS=$DEFAULT_HOSTS,$3
 
   echo "$(csr $CN)" \
-    | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json \
-      -profile=$PROFILE -hostname="$HOSTS" - \
+    | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=$PROFILE \
+      -hostname="$HOSTS" - \
     | cfssljson -bare $CN
 
   tar -cf $CN.tar ca.pem $CN.pem ${CN}-key.pem
@@ -74,8 +74,17 @@ mkdir -p $OUTDIR && cd $OUTDIR
 echo "$(ca-csr)" >ca-csr.json
 echo "$(ca-config)" >ca-config.json
 
-# generate CA
+# generate ca
 cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+
+# generate keys and certs
 generate k8s-admin client-server "10.0.0.15,*.*.compute.internal*.ec2.internal"
 generate k8s-apiserver client-server "10.0.0.15,10.3.0.1,master.k8s,*.us-west-1.elb.amazonaws.com"
+generate k8s-etcd server "*.k8s"
 generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
+
+# TODO: fix cert provisioning hacks
+tar -rf k8s-apiserver.tar k8s-etcd.pem k8s-etcd-key.pem
+
+# lock down perms
+chmod 600 *
