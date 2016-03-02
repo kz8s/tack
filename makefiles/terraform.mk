@@ -11,16 +11,18 @@ apply: plan ; terraform apply
 ## terraform destroy
 destroy: ; terraform destroy
 
-## generate variables
-init: terraform.tfvars
-
 ## terraform get
 get: ; terraform get
 
+## generate variables
+init: terraform.tfvars
+
 ## terraform plan
-plan: get generate ; terraform plan -out terraform.tfplan
+plan: get init
+	terraform validate
+	terraform plan -out terraform.tfplan
 
 ## terraform show
 show: ; terraform show
 
-.PHONY: apply destroy generate get init plan show
+.PHONY: apply destroy get init plan show
