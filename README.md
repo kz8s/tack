@@ -3,24 +3,50 @@
 [![Gitter](https://badges.gitter.im/kz8s/tack.svg)](https://gitter.im/kz8s/tack?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Circle CI](https://circleci.com/gh/kz8s/tack.svg?style=svg)](https://circleci.com/gh/kz8s/tack)
 
-Terraform module for creating a Kubernetes cluster running on CoreOS in an AWS VPC.
+Terraform module for creating a Highly Available Kubernetes cluster running on CoreOS in an AWS VPC.
 
 ## Features
-* AWS VPC with NAT gateway and bastion host
+* AWS VPC with [NAT gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html) and bastion host
+* [Amazon CloudWatch Logs docker logging driver](https://docs.docker.com/engine/admin/logging/awslogs/) support
 * Automated CoreOS AMI sourcing
+* [High Availability Kubernetes](http://kubernetes.io/v1.1/docs/admin/high-availability.html) Configuration
+* TLS certificate generation using [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * etcd DNS Discovery Bootstrap
 * Terraform Pattern Modules
+* Multi-AZ Auto-Scaling Worker Nodes
+* SkyDNS utilizing cluster's etcd
+* Service accounts enables
+* IAM role secured S3 bootstrapping of CoreOS nodes
 * Sane defaults for single command cluster spin up: `make all`
 
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
+* [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * [Terraform](https://www.terraform.io/)
 * [jq](https://stedolan.github.io/jq/)
 
 Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 
 ```bash
-$ brew install awscli jq terraform
+$ brew install awscli cfssl jq terraform
+```
+
+Tested with prerequisite versions:
+
+```bash
+$ aws --version
+aws-cli/1.10.8 Python/2.7.10 Darwin/15.2.0 botocore/1.3.28
+
+$ cfssl version
+Version: 1.1.0
+Revision: dev
+Runtime: go1.5.3
+
+$ jq --version
+jq-1.5
+
+$ terraform --version
+Terraform v0.6.12
 ```
 
 ## Inspiration
