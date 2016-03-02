@@ -87,4 +87,4 @@ generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
 tar -rf k8s-apiserver.tar k8s-etcd.pem k8s-etcd-key.pem
 
 # lock down perms
-chmod 600 *
+chmod 644 *
