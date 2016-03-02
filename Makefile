@@ -19,9 +19,21 @@ clean: destroy delete-key-pair
 	rm -rf tmp ||:
 	rm -rf .cfssl ||:
 
-## create tls artifacts
-ssl:
+.cfssl:
 	./scripts/init-cfssl .cfssl
+
+.PHONY: module.%
+module.%: get init
+	terraform plan -target $@
+	terraform apply -target $@
+
+prereqs: ; aws --version && cfssl version && jq --version && terraform --version
+
+## ssh into bastion host
+ssh: ; @ssh -A core@`terraform output bastion-ip`
+
+## create tls artifacts
+ssl: .cfssl
 
 ## smoke it
 test: test-ssl test-route53 test-etcd
@@ -29,4 +41,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean ssl test
+.PHONY: all clean prereqs sl test
