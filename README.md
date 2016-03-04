@@ -22,13 +22,14 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
-* [Terraform](https://www.terraform.io/)
 * [jq](https://stedolan.github.io/jq/)
+* [kubectl](http://kubernetes.io/v1.1/docs/user-guide/kubectl-overview.html)
+* [Terraform](https://www.terraform.io/)
 
 Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 
 ```bash
-$ brew install awscli cfssl jq terraform
+$ brew install awscli cfssl jq kubernetes-cli terraform
 ```
 
 Tested with prerequisite versions:
@@ -44,6 +45,9 @@ Runtime: go1.5.3
 
 $ jq --version
 jq-1.5
+
+$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"1", GitVersion:"v1.1.8+a8af33d", GitCommit:"a8af33dc07ee08defa2d503f81e7deea32dd1d3b", GitTreeState:"not a git tree"}
 
 $ terraform --version
 Terraform v0.6.12
