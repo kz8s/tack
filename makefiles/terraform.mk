@@ -1,9 +1,7 @@
 .terraform: ; terraform get
 
 terraform.tfvars:
-	./scripts/init-variables \
-		${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} \
-	> $@
+	./scripts/init-variables ${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} >$@
 
 ## terraform apply
 apply: plan ; terraform apply
