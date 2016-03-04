@@ -1,10 +1,11 @@
 SHELL += -eu
 
-AWS_REGION := us-west-1
-COREOS_CHANNEL := alpha
-COREOS_VM_TYPE := hvm
+AWS_REGION ?= us-west-1
+COREOS_CHANNEL ?= beta
+COREOS_VM_TYPE ?= hvm
 
-AWS_EC2_KEY_NAME := k8s-testing
+CLUSTER_NAME ?= testing
+AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .ssl
