@@ -20,15 +20,19 @@ clean: destroy delete-keypair
 	rm -rf tmp ||:
 	rm -rf .cfssl ||:
 
-.cfssl:
-	./scripts/init-cfssl .cfssl
+.cfssl: ; ./scripts/init-cfssl .cfssl
 
 .PHONY: module.%
 module.%: get init
 	terraform plan -target $@
 	terraform apply -target $@
 
-prereqs: ; aws --version && cfssl version && jq --version && terraform --version
+prereqs:
+	aws --version
+	cfssl version
+	jq --version
+	which kubectl
+	terraform --version
 
 ## ssh into bastion host
 ssh: ; @ssh -A core@`terraform output bastion-ip`
