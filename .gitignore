@@ -6,3 +6,4 @@ terraform.tfplan
 .srl
 terraform.tfvars
 .cfssl
+.keypair

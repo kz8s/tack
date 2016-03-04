@@ -10,10 +10,10 @@ $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem: | $(DIR_KEY_PAIR)/
 	ssh-add $@
 
 ## create ec2 key-pair and add to authentication agent
-create-key-pair: $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem
+create-keypair: $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem
 
 ## delete ec2 key-pair and remove from authentication agent
-delete-key-pair:
+delete-keypair:
 	# todo: rework this delete logic
 	aws --region ${AWS_REGION} ec2 delete-key-pair --key-name ${AWS_EC2_KEY_NAME}
 	ssh-add -L | grep "${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem" > ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub

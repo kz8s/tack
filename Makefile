@@ -6,14 +6,14 @@ COREOS_VM_TYPE := hvm
 
 AWS_EC2_KEY_NAME := k8s-testing
 
-DIR_KEY_PAIR := .key-pair
+DIR_KEY_PAIR := .keypair
 DIR_SSL := .ssl
 
 ## generate key-pair, variables and then `terraform apply`
-all: create-key-pair ssl init apply
+all: prereqs create-keypair ssl init apply
 
 ## destroy and remove everything
-clean: destroy delete-key-pair
+clean: destroy delete-keypair
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 	rm -rf tmp ||:
