@@ -120,7 +120,9 @@ resource "null_resource" "initialize" {
   provisioner "remote-exec" {
     inline = [
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
+      "echo ✓ Read scheduler key from etcd:",
       "etcdctl get scheduler",
+      "echo ✓ Read controller key from etcd:",
       "etcdctl get controller",
       "curl --silent -X POST -d '{\"apiVersion\": \"v1\",\"kind\": \"Namespace\",\"metadata\": {\"name\": \"kube-system\"}}' http://127.0.0.1:8080/api/v1/namespaces",
     ]
@@ -128,8 +130,8 @@ resource "null_resource" "initialize" {
 
   provisioner "local-exec" {
     command = <<LOCALEXEC
-echo "polling for cluster life - this could take a minute or more"
-until echo "trying to connect to cluster..." && kubectl cluster-info &>/dev/null; do sleep 7; done
+echo "✓ Polling for cluster life - this could take a minute or more"
+until echo "❤ trying to connect to cluster..." && kubectl cluster-info &>/dev/null; do sleep 7; done
 kubectl create -f manifests/addons
 kubectl create -f test/pods/busybox.yml
 kubectl get no
