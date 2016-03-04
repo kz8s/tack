@@ -8,9 +8,9 @@ resource "template_file" "cloud-config" {
 coreos:
 
   etcd2:
-    advertise-client-urls: http://${ hostname }:2379
+    advertise-client-urls: http://${ fqdn }:2379
     discovery-srv: ${ internal-tld }
-    initial-advertise-peer-urls: http://${ hostname }:2380
+    initial-advertise-peer-urls: http://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
     listen-client-urls: http://0.0.0.0:2379
@@ -138,7 +138,8 @@ EOF
 
   vars {
     cluster-token = "etcd-cluster-${ var.name }"
-    hostname = "etcd${ count.index + 1 }.k8s"
+    fqdn = "etcd${ count.index + 1 }.k8s"
+    hostname = "etcd${ count.index + 1 }"
     internal-tld = "${ var.internal-tld }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-apiserver.tar"
     etc-tar = "s3://${ var.bucket-prefix }/manifests/etc.tar"
