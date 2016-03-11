@@ -31,7 +31,7 @@ variable "instance-type" {
   }
 }
 variable "internal-tld" { default = "k8s" }
-variable "name" { default = "testing" }
+variable "name" {}
 
 # outputs
 output "azs" { value = "${ var.aws.azs }" }

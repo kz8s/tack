@@ -9,17 +9,27 @@ coreos:
 
   etcd2:
     advertise-client-urls: http://${ fqdn }:2379
+    #cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: http://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
+    #key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
     listen-client-urls: http://0.0.0.0:2379
     listen-peer-urls: http://0.0.0.0:2380
     name: ${ hostname }
+    #peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    #peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   units:
     - name: etcd2.service
       command: start
+      drop-ins:
+        - name: wait-for-certs.conf
+          content: |
+            [Unit]
+            After=get-ssl.service
+            Requires=get-ssl.service
 
     - name: flanneld.service
       command: start
@@ -46,7 +56,7 @@ coreos:
         - name: awslogs.conf
           content: |
             [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=us-west-1 --log-opt awslogs-group=k8s-testing"
+            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=us-west-1 --log-opt awslogs-group=${ log-group }"
 
     - name: download-kubernetes.service
       command: start
@@ -141,6 +151,7 @@ EOF
     fqdn = "etcd${ count.index + 1 }.k8s"
     hostname = "etcd${ count.index + 1 }"
     internal-tld = "${ var.internal-tld }"
+    log-group = "k8s-${ var.name }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-apiserver.tar"
     etc-tar = "s3://${ var.bucket-prefix }/manifests/etc.tar"
     srv-tar = "s3://${ var.bucket-prefix }/manifests/srv.tar"

@@ -4,11 +4,16 @@ AWS_REGION ?= us-west-1
 COREOS_CHANNEL ?= beta
 COREOS_VM_TYPE ?= hvm
 
-CLUSTER_NAME ?= testing
+CLUSTER_NAME ?= testingg
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .ssl
+
+.PHONY: tt
+tt:
+	echo CLUSTER_NAME = ${CLUSTER_NAME}
+	echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply

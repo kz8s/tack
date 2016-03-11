@@ -2,6 +2,10 @@
 
 terraform.tfvars:
 	./scripts/init-variables ${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} >$@
+	echo "name = \"${CLUSTER_NAME}\"" >>$@
+	IP=`curl -s http://myip.vg` && echo "cidr.allow-ssh = \"$${IP}/32\"" >>$@
+	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
+	echo "aws.region = \"${AWS_REGION}\"" >>$@
 
 ## terraform apply
 apply: plan ; terraform apply

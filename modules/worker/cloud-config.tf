@@ -63,7 +63,7 @@ coreos:
         - name: awslogs.conf
           content: |
             [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=us-west-1 --log-opt awslogs-group=k8s-testing"
+            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=us-west-1 --log-opt awslogs-group=${ log-group }"
 
     - name: download-kubernetes.service
       command: start
@@ -205,6 +205,7 @@ EOF
 
   vars {
     internal-tld = "${ var.internal-tld }"
+    log-group = "k8s-${ var.name }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
   }
 }
