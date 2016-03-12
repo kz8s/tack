@@ -4,7 +4,7 @@ AWS_REGION ?= us-west-1
 COREOS_CHANNEL ?= beta
 COREOS_VM_TYPE ?= hvm
 
-CLUSTER_NAME ?= testingg
+CLUSTER_NAME ?= testing
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 DIR_KEY_PAIR := .keypair
@@ -12,8 +12,8 @@ DIR_SSL := .ssl
 
 .PHONY: tt
 tt:
-	echo CLUSTER_NAME = ${CLUSTER_NAME}
-	echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
+	@echo CLUSTER_NAME = ${CLUSTER_NAME}
+	@echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
@@ -34,9 +34,13 @@ module.%: get init
 
 prereqs:
 	aws --version
+	@echo
 	cfssl version
+	@echo
 	jq --version
+	@echo
 	which kubectl
+	@echo
 	terraform --version
 
 ## ssh into bastion host
