@@ -133,8 +133,7 @@ resource "null_resource" "initialize" {
 echo "✓ Polling for cluster life - this could take a minute or more"
 until echo "❤ trying to connect to cluster..." && kubectl cluster-info &>/dev/null; do sleep 7; done
 kubectl create -f manifests/addons
-# BUG: test/pods does not exist in repo
-# kubectl create -f test/pods/busybox.yml
+kubectl create -f test/pods/busybox.yml
 kubectl get no
 LOCALEXEC
   }
