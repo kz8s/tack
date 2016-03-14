@@ -38,7 +38,7 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 
 ```bash
-$ brew install awscli cfssl jq kubernetes-cli terraform
+$ brew update && brew install awscli cfssl jq kubernetes-cli terraform
 ```
 
 Tested with prerequisite versions:

@@ -1,4 +1,4 @@
-## Display this help text
+## display this help text
 help:
 	$(info Available targets)
 	@awk '/^[a-zA-Z\-\_0-9]+:/ {                    \
