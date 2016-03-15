@@ -15,7 +15,7 @@ resource "aws_instance" "bastion" {
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
 
   tags  {
-    Name = "bastion"
+    Name = "${ var.name }-bastion"
     Cluster = "${ var.name }"
     Role = "bastion"
     builtWith = "terraform"

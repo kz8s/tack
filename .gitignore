@@ -7,3 +7,5 @@ terraform.tfplan
 terraform.tfvars
 .cfssl
 .keypair
+.context
+tmp/

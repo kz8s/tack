@@ -13,7 +13,7 @@ dependencies:
 
 test:
   pre:
-    - make ssl init
+    - make default-context ssl init
   override:
     - make plan
   # post:

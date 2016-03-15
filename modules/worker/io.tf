@@ -1,3 +1,4 @@
+variable "aws-region" {}
 variable "ami-id" {}
 variable "bucket-prefix" {}
 variable "instance-profile-name" {}
@@ -8,3 +9,4 @@ variable "name" {}
 variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
+variable "desired-capacity" {}

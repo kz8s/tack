@@ -1,3 +1,4 @@
+variable "cluster-name" {}
 variable "admin-key-pem" {}
 variable "admin-pem" {}
 variable "ca-pem" {}
