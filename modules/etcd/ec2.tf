@@ -21,7 +21,7 @@ resource "aws_instance" "etcd" {
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
-    Name = "etcd${ count.index + 1 }"
+    Name = "${ var.name }-etcd-${ count.index + 1 }"
     role = "etcd,apiserver"
   }
 }

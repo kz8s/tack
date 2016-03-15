@@ -10,48 +10,39 @@ LOCAL_EXEC
 
   provisioner "local-exec" {
     command = <<LOCAL_EXEC
-kubectl config set-cluster default-cluster \
+kubectl config set-cluster ${ var.cluster-name }-cluster \
   --server=https://${ var.master-elb } \
   --certificate-authority=${ path.cwd }/${ var.ca-pem } &&\
-kubectl config set-credentials default-admin \
+kubectl config set-credentials ${ var.cluster-name }-admin \
   --certificate-authority=${ path.cwd }/${ var.ca-pem } \
   --client-key=${ path.cwd }/${ var.admin-key-pem } \
   --client-certificate=${ path.cwd }/${ var.admin-pem } &&\
-kubectl config set-context default-system \
-  --cluster=default-cluster \
-  --user=default-admin &&\
-kubectl config use-context default-system
+kubectl config set-context ${ var.cluster-name }-context \
+  --cluster=${ var.cluster-name }-cluster \
+  --user=${ var.cluster-name }-admin &&\
+kubectl config use-context ${ var.cluster-name }-context
 LOCAL_EXEC
   }
 
   template = <<EOF
-kubectl config set-cluster default-cluster \
+kubectl config set-cluster ${ var.cluster-name }-cluster \
   --embed-certs=true \
   --server=https://${ var.master-elb } \
   --certificate-authority=${ path.cwd }/${ var.ca-pem }
 
-kubectl config set-credentials default-admin \
+kubectl config set-credentials ${ var.cluster-name }-admin \
   --embed-certs=true \
   --certificate-authority=${ path.cwd }/${ var.ca-pem } \
   --client-key=${ path.cwd }/${ var.admin-key-pem } \
   --client-certificate=${ path.cwd }/${ var.admin-pem }
 
-kubectl config set-context default-system \
-  --cluster=default-cluster \
-  --user=default-admin
-kubectl config use-context default-system
+kubectl config set-context ${ var.cluster-name }-context \
+  --cluster=${ var.cluster-name }-cluster \
+  --user=${ var.cluster-name }-admin
+
+kubectl config use-context ${ var.cluster-name }-context
 
 # Run this command to configure your kubeconfig:
 # eval $(terraform output kubeconfig)
 EOF
-
-  vars = {
-    /*cluster-name = "${var.cluster-name}"
-    ca-pem = "${var.ssl.ca}"
-    admin-pem = "${var.ssl.admin}"
-    admin-key-pem = "${var.ssl.admin-key}"
-    ip = "${aws_instance.k8s-master.public_ip}"
-    server = "test-k8s"*/
-    # server = "${aws_instance.k8s-master.public_ip}"
-  }
 }

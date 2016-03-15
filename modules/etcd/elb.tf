@@ -1,5 +1,5 @@
 resource "aws_elb" "external" {
-  name = "k8s-master-external"
+  name = "k8s-${ var.name }-master-external"
   subnets = [ "${ split(",", var.subnet-ids) }" ]
   cross_zone_load_balancing = false
   security_groups = [ "${ var.external-elb-security-group-id }" ]

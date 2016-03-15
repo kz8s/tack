@@ -1,0 +1,3 @@
+AWS_REGION 				:= us-west-1
+COREOS_CHANNEL 		:= beta
+COREOS_VM_TYPE 		:= hvm

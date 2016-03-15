@@ -1,3 +1,4 @@
+variable "aws-region" {}
 variable "ami-id" {}
 variable "bucket-prefix" {}
 variable "external-elb-security-group-id" {}
