@@ -30,6 +30,10 @@ plan: get init
 	${TERRAFORM_CMD} validate
 	${TERRAFORM_CMD} plan -out terraform.tfplan
 
+## terraform output
+output:
+	${TERRAFORM_CMD} output
+
 ## terraform show
 show:
 	${TERRAFORM_CMD} show
