@@ -22,6 +22,7 @@ resource "aws_elb" "external" {
   }
 
   tags {
+    // KubernetesCluster = "${ var.cluster-id }"
     builtWith = "terraform"
     Cluster = "${ var.name }"
     Name = "apiserver-public"

@@ -34,7 +34,8 @@ variable "internal-tld" { default = "k8s" }
 variable "name" {}
 
 # outputs
-output "azs" { value = "${ var.aws.azs }" }
-output "bastion-ip" { value = "${ module.bastion.ip }" }
-output "subnet-ids" { value = "${ module.vpc.subnet-ids }" }
+output "azs"          { value = "${ var.aws.azs }" }
+output "bastion-ip"   { value = "${ module.bastion.ip }" }
+output "subnet-ids"   { value = "${ module.vpc.subnet-ids }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
+output "cluster-id"   { value = "${ module.k8s.cluster-id }" }

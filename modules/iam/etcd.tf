@@ -6,7 +6,9 @@ resource "aws_iam_role" "master" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Principal": { "Service": "ec2.amazonaws.com" },
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
       "Action": "sts:AssumeRole"
     }
   ]

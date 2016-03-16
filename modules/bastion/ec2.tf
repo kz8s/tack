@@ -14,7 +14,8 @@ resource "aws_instance" "bastion" {
   source_dest_check = false
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
 
-  tags  {
+  tags {
+    KubernetesCluster = "${ var.cluster-id }"
     Name = "${ var.name }-bastion"
     Cluster = "${ var.name }"
     Role = "bastion"

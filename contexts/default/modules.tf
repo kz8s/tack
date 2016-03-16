@@ -3,8 +3,14 @@ resource "aws_cloudwatch_log_group" "k8s" {
   retention_in_days = 3
 }
 
+module "k8s" {
+  source = "../../modules/k8s"
+  name = "${ var.name }"
+}
+
 module "s3" {
   source = "../../modules/s3"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   bucket-prefix = "${ var.aws.account-id }-${ var.name }"
   name = "${ var.name }"
@@ -12,6 +18,7 @@ module "s3" {
 
 module "vpc" {
   source = "../../modules/vpc"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   azs = "${ var.aws.azs }"
   cidr = "${ var.cidr.vpc }"
@@ -21,6 +28,7 @@ module "vpc" {
 
 module "security" {
   source = "../../modules/security"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   cidr-allow-ssh = "${ var.cidr.allow-ssh }"
   cidr-vpc = "${ var.cidr.vpc }"
@@ -37,6 +45,7 @@ module "iam" {
 
 module "route53" {
   source = "../../modules/route53"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   etcd-ips = "${ var.etcd-ips }"
   name = "${ var.name }"
@@ -46,6 +55,7 @@ module "route53" {
 
 module "etcd" {
   source = "../../modules/etcd"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   aws-region = "${ var.aws.region }"
   ami-id = "${ var.coreos-aws.ami }"
@@ -65,6 +75,7 @@ module "etcd" {
 
 module "bastion" {
   source = "../../modules/bastion"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ module.s3.bucket-prefix }"
@@ -79,6 +90,7 @@ module "bastion" {
 
 module "worker" {
   source = "../../modules/worker"
+  cluster-id = "${ module.k8s.cluster-id }"
 
   desired-capacity = 3
   aws-region = "${ var.aws.region }"
@@ -90,12 +102,14 @@ module "worker" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  // subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
 }
 
 module "kubeconfig" {
   source = "../../modules/kubeconfig"
+  // cluster-id = "${ module.k8s.cluster-id }"
 
   admin-key-pem = ".cfssl/k8s-admin-key.pem"
   admin-pem = ".cfssl/k8s-admin.pem"

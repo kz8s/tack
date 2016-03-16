@@ -19,6 +19,7 @@ resource "aws_instance" "etcd" {
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
 
   tags {
+    // KubernetesCluster = "${ var.cluster-id }"
     builtWith = "terraform"
     Cluster = "${ var.name }"
     Name = "${ var.name }-etcd-${ count.index + 1 }"

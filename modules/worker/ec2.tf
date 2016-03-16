@@ -1,6 +1,7 @@
 resource "aws_launch_configuration" "worker" {
-  iam_instance_profile = "${ var.instance-profile-name }"
   image_id = "${ var.ami-id }"
+  associate_public_ip_address = true
+  iam_instance_profile = "${ var.instance-profile-name }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
 
@@ -38,6 +39,12 @@ resource "aws_autoscaling_group" "worker" {
   max_size = "5"
   min_size = "3"
   vpc_zone_identifier = [ "${ split(",", var.subnet-ids) }" ]
+
+  tag {
+    key = "KubernetesCluster"
+    value = "${ var.cluster-id }"
+    propagate_at_launch = true
+  }
 
   tag {
     key = "Name"

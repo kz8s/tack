@@ -10,3 +10,4 @@ variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
 variable "desired-capacity" {}
+variable "cluster-id" {}

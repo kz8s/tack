@@ -2,6 +2,7 @@ variable "cidr-allow-ssh" {}
 variable "cidr-vpc" {}
 variable "name" {}
 variable "vpc-id" {}
+variable "cluster-id" {}
 
 output "bastion-id" { value = "${ aws_security_group.bastion.id }" }
 output "etcd-id" { value = "${ aws_security_group.etcd.id }" }

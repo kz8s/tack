@@ -3,6 +3,7 @@ resource "aws_s3_bucket" "ssl" {
   bucket = "${ var.bucket-prefix }"
   force_destroy = true
   tags {
+    KubernetesCluster = "${ var.cluster-id }"
     Cluster = "${ var.name }"
     Name = "k8s"
     builtWith = "terraform"

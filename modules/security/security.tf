@@ -1,4 +1,5 @@
 resource "aws_security_group" "bastion" {
+  name = "bastion"
   description = "k8s bastion security group"
 
   egress = {
@@ -15,9 +16,8 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = [ "${ var.cidr-allow-ssh }" ]
   }
 
-  name = "bastion"
-
   tags {
+    // KubernetesCluster = "${ var.cluster-id }"
     Cluster = "${ var.name }"
     Name = "bastion"
     builtWith = "terraform"
@@ -27,6 +27,7 @@ resource "aws_security_group" "bastion" {
 }
 
 resource "aws_security_group" "etcd" {
+  name = "etcd"
   description = "k8s etcd security group"
 
   egress = {
@@ -45,9 +46,8 @@ resource "aws_security_group" "etcd" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "etcd"
-
   tags {
+    KubernetesCluster = "${ var.cluster-id }"
     Cluster = "${ var.name }"
     Name = "etcd"
     builtWith = "terraform"
@@ -57,6 +57,7 @@ resource "aws_security_group" "etcd" {
 }
 
 resource "aws_security_group" "external-elb" {
+  name = "master-external-elb"
   description = "k8s master (apiserver) external elb"
 
   egress {
@@ -81,9 +82,8 @@ resource "aws_security_group" "external-elb" {
     cidr_blocks = [ "0.0.0.0/0" ]
   }
 
-  name = "master-external-elb"
-
   tags {
+    KubernetesCluster = "${ var.cluster-id }"
     Cluster = "${ var.name }"
     Name = "master-external-elb"
     builtWith = "terraform"
@@ -93,6 +93,7 @@ resource "aws_security_group" "external-elb" {
 }
 
 resource "aws_security_group" "worker" {
+  name = "worker"
   description = "k8s worker security group"
 
   egress = {
@@ -111,9 +112,8 @@ resource "aws_security_group" "worker" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "worker"
-
   tags {
+    KubernetesCluster = "${ var.cluster-id }"
     Cluster = "${ var.name }"
     Name = "worker"
     builtWith = "terraform"
