@@ -1,7 +1,7 @@
 # circle.yml
 machine:
   environment:
-    TERRAFORM_VERSION: 0.6.12
+    TERRAFORM_VERSION: 0.6.13
 
 dependencies:
   pre:
