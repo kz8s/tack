@@ -39,7 +39,7 @@ prereqs:
 	@echo
 	jq --version
 	@echo
-	which kubectl
+	kubectl version --client
 	@echo
 	terraform --version
 
@@ -55,4 +55,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean prereqs sl test
+.PHONY: all clean prereqs ssl test
