@@ -1,7 +1,7 @@
 SHELL += -eu
 
 AWS_REGION ?= us-west-1
-COREOS_CHANNEL ?= beta
+COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
 CLUSTER_NAME ?= testing
