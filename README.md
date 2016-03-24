@@ -45,7 +45,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.8 Python/2.7.10 Darwin/15.2.0 botocore/1.3.28
+aws-cli/1.10.15 Python/2.7.10 Darwin/15.2.0 botocore/1.4.6
 
 $ cfssl version
 Version: 1.1.0
@@ -55,12 +55,44 @@ Runtime: go1.5.3
 $ jq --version
 jq-1.5
 
-$ kubectl version
-Client Version: version.Info{Major:"1", Minor:"1", GitVersion:"v1.1.8+a8af33d", GitCommit:"a8af33dc07ee08defa2d503f81e7deea32dd1d3b", GitTreeState:"not a git tree"}
+$ kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.0+5cb86ee", GitCommit:"5cb86ee022267586db386f62781338b0483733b3", GitTreeState:"not a git tree"}
 
 $ terraform --version
-Terraform v0.6.12
+Terraform v0.6.14
 ```
+
+## Launch Stack
+
+`make all` will create:
+- AWS Key Pair (PEM file)
+- client and server TLS assets
+- s3 bucket for TLS assets (secured by IAM roles for master and worker nodes)
+- Cloud Watch log group for docker logs
+- AWS VPC with private and public subnets
+- Route 53 internal zone for VPC
+- Etcd cluster bootstrapped from Route 53
+- High Availability Kubernetes configuration (masters running on etcd nodes)
+- Autoscaling worker node group across subnets in selected region
+- kube-system namespace and addons: DNS, UI, Dashboard
+
+```bash
+$ make all
+```
+
+To open dashboard:
+
+```bash
+$ make dashboard
+```
+
+To destroy, remove and generally undo everything:
+
+```
+$ make clean
+```
+
+`make all` and `make clean` should be idempotent - should an error occur simply try running the command again and things should recover from that point.
 
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
