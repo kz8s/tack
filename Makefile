@@ -27,6 +27,9 @@ clean: destroy delete-keypair
 
 .cfssl: ; ./scripts/init-cfssl .cfssl
 
+## start proxy and open kubernetes dashboard
+dashboard: ; ./scripts/dashboard
+
 .PHONY: module.%
 module.%: get init
 	terraform plan -target $@
