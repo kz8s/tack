@@ -8,6 +8,7 @@ variable "instance-type" {}
 variable "key-name" {}
 variable "internal-tld" {}
 variable "name" {}
+variable "region" {}
 variable "subnet-ids" {}
 variable "vpc-cidr" {}
 variable "vpc-id" {}
