@@ -20,6 +20,7 @@ all: prereqs create-keypair ssl init apply
 
 ## destroy and remove everything
 clean: destroy delete-keypair
+	pkill -f "kubectl proxy" ||:
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 	rm -rf tmp ||:

@@ -1,7 +1,6 @@
 #!/bin/bash -eu
 
 kubectl proxy &
-echo $! > .proxypid
 echo "✓ kubectl proxy is listening"
 open http://localhost:8001/ui
 sleep 1 && echo " "
