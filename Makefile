@@ -27,7 +27,7 @@ clean: destroy delete-keypair
 	rm -rf tmp ||:
 	rm -rf .cfssl ||:
 
-.cfssl: ; ./scripts/init-cfssl .cfssl
+.cfssl: ; ./scripts/init-cfssl .cfssl ${AWS_REGION}
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
