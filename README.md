@@ -45,7 +45,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.15 Python/2.7.10 Darwin/15.2.0 botocore/1.4.6
+aws-cli/1.10.16 Python/2.7.10 Darwin/15.4.0 botocore/1.4.7
 
 $ cfssl version
 Version: 1.1.0
