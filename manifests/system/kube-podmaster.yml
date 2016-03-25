@@ -7,7 +7,7 @@ spec:
   hostNetwork: true
   containers:
   - name: scheduler-elector
-    image: gcr.io/google_containers/podmaster:1.1
+    image: ${PODMASTER}
     command:
     - /podmaster
     - --etcd-servers=http://etcd.k8s:2379
@@ -21,7 +21,7 @@ spec:
     - mountPath: /dst/manifests
       name: manifest-dst
   - name: controller-manager-elector
-    image: gcr.io/google_containers/podmaster:1.1
+    image: ${PODMASTER}
     command:
     - /podmaster
     - --etcd-servers=http://etcd.k8s:2379

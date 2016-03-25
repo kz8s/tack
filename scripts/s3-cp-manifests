@@ -1,0 +1,57 @@
+#!/bin/bash -e
+
+function usage { cat <<EOF
+USAGE: $0 [bucket]
+  example: $0 23234-bigbucket-us-west-1
+EOF
+  exit 1
+}
+
+function cleanup {
+  rm -rf "$TMP"
+  echo "✓ Deleted temp working directory $TMP"
+}
+
+BUCKET=$1
+[ -z "$BUCKET" ] && usage
+
+set -o nounset
+set -o pipefail
+
+# docker images
+HYPERKUBE="gcr.io/google_containers/hyperkube:v1.2.0"
+PODMASTER="gcr.io/google_containers/podmaster:1.1"
+
+# directories
+CFSSL=.cfssl
+MANIFESTS=manifests/system
+
+# verify directories exist
+[ -d "$CFSSL" ] || (echo "✗ $CFSSL doesn't exist" && exit 1)
+[ -d "$MANIFESTS" ] || (echo "✗ $MANIFESTS doesn't exist" && exit 1)
+
+# cp tls assets
+echo "❤ Copy tls assets to s3 ${BUCKET}"
+aws s3 cp .cfssl s3://${BUCKET}/ssl --recursive --exclude "*" --include "*.tar"
+echo "✓ tls copy success"
+
+# mk tmp dir for manifests and do substituions
+TMP=$(mktemp -d)
+trap cleanup EXIT
+cp $MANIFESTS/* $TMP
+sed -i bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" $TMP/*.yml
+sed -i bak 's|${PODMASTER}|'"$PODMASTER|g" $TMP/*.yml
+
+# tar and cp etc manifests
+echo "❤ Tar and copy etc manifests to ${BUCKET}"
+tar -cf - \
+  -C $TMP kube-apiserver.yml kube-podmaster.yml kube-proxy.yml \
+  | aws s3 cp - s3://${BUCKET}/manifests/etc.tar
+echo "✓ Tar and copy etc manifests success"
+
+# tar and cp etc manifests
+echo "❤ Tar and copy srv manifests to ${BUCKET}"
+tar -cf - \
+  -C $TMP kube-controller-manager.yml kube-scheduler.yml \
+  | aws s3 cp - s3://${BUCKET}/manifests/srv.tar
+echo "✓ Tar and copy srv manifests success"
