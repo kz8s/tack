@@ -1,19 +1,19 @@
 #!/bin/bash -e
 
 function usage {
-  echo "USAGE: $0 output-dir"
-  echo "  example: $0 .cfssl"
+  echo "USAGE: $0 output-dir aws-region"
+  echo "  example: $0 .cfssl us-west-1"
   exit 1
 }
 
 OUTDIR=$1
-if [ -z "$OUTDIR" ]; then
-  usage
-fi
+[ -z "$OUTDIR" ] && usage
+
+REGION=$2
+[ -z "$REGION" ] && usage
 
 set -o nounset
 set -o pipefail
-set -x
 
 function ca-csr {
   cat <<EOF
@@ -79,7 +79,7 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
 
 # generate keys and certs
 generate k8s-admin client-server "10.0.0.15,*.*.compute.internal*.ec2.internal"
-generate k8s-apiserver client-server "10.0.0.15,10.3.0.1,master.k8s,*.us-west-1.elb.amazonaws.com"
+generate k8s-apiserver client-server "10.0.0.15,10.3.0.1,master.k8s,*.${REGION}.elb.amazonaws.com"
 generate k8s-etcd server "*.k8s"
 generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
 

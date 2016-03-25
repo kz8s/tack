@@ -63,7 +63,7 @@ coreos:
         - name: awslogs.conf
           content: |
             [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ aws-region } --log-opt awslogs-group=${ log-group }"
+            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ region } --log-opt awslogs-group=${ log-group }"
 
     - name: download-kubernetes.service
       command: start
@@ -75,7 +75,7 @@ coreos:
         Requires=network-online.target
 
         [Service]
-        Environment=K8S_VER=v1.1.8
+        Environment=K8S_VER=v1.2.0
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
@@ -173,7 +173,7 @@ write-files:
         hostNetwork: true
         containers:
         - name: kube-proxy
-          image: gcr.io/google_containers/hyperkube:v1.1.8
+          image: gcr.io/google_containers/hyperkube:v1.2.0
           command:
           - /hyperkube
           - proxy
@@ -204,9 +204,9 @@ write-files:
 EOF
 
   vars {
-    aws-region = "${ var.region }"
     internal-tld = "${ var.internal-tld }"
     log-group = "k8s-${ var.name }"
+    region = "${ var.region }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
   }
 }

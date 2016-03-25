@@ -1,7 +1,7 @@
 SHELL += -eu
 
 AWS_REGION ?= us-west-1
-COREOS_CHANNEL ?= beta
+COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
 CLUSTER_NAME ?= testing
@@ -17,17 +17,21 @@ tt:
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
+	@echo "Initializing add-ons" && ./scripts/init-addons
 
 ## destroy and remove everything
 clean: destroy delete-keypair
+	pkill -f "kubectl proxy" ||:
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 	rm -rf tmp ||:
 	rm -rf .cfssl ||:
 
-.cfssl: ; ./scripts/init-cfssl .cfssl
+.cfssl: ; ./scripts/init-cfssl .cfssl ${AWS_REGION}
 
-.PHONY: module.%
+## start proxy and open kubernetes dashboard
+dashboard: ; ./scripts/dashboard
+
 module.%: get init
 	terraform plan -target $@
 	terraform apply -target $@
@@ -39,7 +43,7 @@ prereqs:
 	@echo
 	jq --version
 	@echo
-	which kubectl
+	kubectl version --client
 	@echo
 	terraform --version
 
@@ -55,4 +59,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean prereqs sl test
+.PHONY: all clean module.% prereqs ssl test

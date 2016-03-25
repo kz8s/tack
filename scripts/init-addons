@@ -1,0 +1,40 @@
+#!/bin/bash -eu
+
+ELB=$(terraform output external-elb)
+
+echo "❤ Polling for cluster life - this could take a minute or more"
+
+until echo "❤ Curling apiserver external elb" &&\
+  curl --insecure --silent "https://$(terraform output external-elb)" &>/dev/null
+  do sleep 7
+done
+echo "✓ External elb success"
+
+until echo "❤ Trying to connect to cluster with kubectl" &&\
+ kubectl cluster-info &>/dev/null
+ do sleep 7
+done
+echo "✓ kubectl success"
+
+echo "❤ Creating kube-system namespace"
+kubectl create -f - <<EOF
+kind: "Namespace"
+apiVersion: "v1"
+metadata:
+  name: "kube-system"
+  labels:
+    name: "kube-system"
+EOF
+echo "✓ kube-system namespace creation success"
+
+echo "❤ Creating add-ons"
+kubectl create -f manifests/addons
+echo "✓ add-on creation success"
+
+echo "❤ Creating busybox test pod"
+kubectl create -f test/pods/busybox.yml
+echo "✓ busybox pod creation success"
+
+kubectl get no
+
+# ✗

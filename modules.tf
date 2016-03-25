@@ -6,7 +6,7 @@ resource "aws_cloudwatch_log_group" "k8s" {
 module "s3" {
   source = "./modules/s3"
 
-  bucket-prefix = "${ var.aws.account-id }-${ var.name }"
+  bucket-prefix = "${ var.aws.account-id }-${ var.name }-${ var.aws.region }"
   name = "${ var.name }"
 }
 
@@ -123,20 +123,11 @@ resource "null_resource" "initialize" {
     inline = [
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
       "echo ✓ Read scheduler key from etcd:",
-      "etcdctl get scheduler",
+      "/bin/bash -c 'until etcdctl get scheduler; do sleep 5; done'",
       "echo ✓ Read controller key from etcd:",
-      "etcdctl get controller",
-      "curl --silent -X POST -d '{\"apiVersion\": \"v1\",\"kind\": \"Namespace\",\"metadata\": {\"name\": \"kube-system\"}}' http://127.0.0.1:8080/api/v1/namespaces",
+      "/bin/bash -c 'until etcdctl get scheduler; do sleep 5; done'",
+      "echo ✓ scheduler and controller setup",
     ]
   }
 
-  provisioner "local-exec" {
-    command = <<LOCALEXEC
-echo "✓ Polling for cluster life - this could take a minute or more"
-until echo "❤ trying to connect to cluster..." && kubectl cluster-info &>/dev/null; do sleep 7; done
-kubectl create -f manifests/addons
-kubectl create -f test/pods/busybox.yml
-kubectl get no
-LOCALEXEC
-  }
 }
