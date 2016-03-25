@@ -6,7 +6,7 @@ resource "aws_cloudwatch_log_group" "k8s" {
 module "s3" {
   source = "./modules/s3"
 
-  bucket-prefix = "${ var.aws.account-id }-${ var.name }"
+  bucket-prefix = "${ var.aws.account-id }-${ var.name }-${ var.aws.region }"
   name = "${ var.name }"
 }
 
