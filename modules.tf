@@ -130,8 +130,4 @@ resource "null_resource" "initialize" {
     ]
   }
 
-  provisioner "local-exec" {
-    command = "./scripts/init-addons"
-  }
-
 }
