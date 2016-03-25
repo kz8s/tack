@@ -56,7 +56,7 @@ coreos:
         - name: awslogs.conf
           content: |
             [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=us-west-1 --log-opt awslogs-group=${ log-group }"
+            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ aws-region } --log-opt awslogs-group=${ log-group }"
 
     - name: download-kubernetes.service
       command: start
@@ -147,6 +147,7 @@ coreos:
 EOF
 
   vars {
+    aws-region = "${ var.region }"
     cluster-token = "etcd-cluster-${ var.name }"
     fqdn = "etcd${ count.index + 1 }.k8s"
     hostname = "etcd${ count.index + 1 }"
