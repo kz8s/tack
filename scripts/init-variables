@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 function usage {
-    echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type>"
-    echo "  example: $0 us-west-1 stable hvm"
+  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type>"
+  echo "  example: $0 us-west-1 stable hvm"
 }
 
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    usage
-    exit 1
+  usage
+  exit 1
 fi
 
 AWS_REGION="$1"
