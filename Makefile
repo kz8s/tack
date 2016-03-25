@@ -32,7 +32,6 @@ clean: destroy delete-keypair
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
 
-.PHONY: module.%
 module.%: get init
 	terraform plan -target $@
 	terraform apply -target $@
@@ -60,4 +59,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean prereqs ssl test
+.PHONY: all clean module.% prereqs ssl test
