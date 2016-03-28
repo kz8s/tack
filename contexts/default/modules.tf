@@ -140,9 +140,16 @@ resource "null_resource" "initialize" {
     inline = [
       "echo -",
       "echo ❤ Polling for etcd life - this could take a minute",
-      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do echo ❤ trying to connect to etcd...; sleep 5; done'",
+      "/bin/bash -c 'until curl --silent http://127.0.0.1:2379/version; do echo ❤ trying to connect to etcd...; sleep 5; done'",
       "sleep 1",
       "echo ✓ etcd is alive!",
+      "echo -",
+      "echo ❤ Polling for kube-apiserver - this could take a minute",
+      "/bin/bash -c 'until /opt/bin/kubectl cluster-info; do echo ❤ trying to connect to kube-apiserver...; sleep 3; done'",
+      "echo ✓ kube-apiserver is alive!",
+      "echo -",
+      "echo ✓ Creating 'kube-system' namespace...",
+      "/opt/bin/kubectl create namespace kube-system",
       "echo -",
       "echo ✓ Read scheduler key from etcd:",
       "etcdctl get scheduler",
@@ -150,8 +157,11 @@ resource "null_resource" "initialize" {
       "echo ✓ Read controller key from etcd:",
       "etcdctl get controller",
       "echo -",
-      "echo ✓ Creating 'kube-system' namespace...",
-      "curl --silent -X POST -d '{\"apiVersion\": \"v1\",\"kind\": \"Namespace\",\"metadata\": {\"name\": \"kube-system\"}}' http://127.0.0.1:8080/api/v1/namespaces",
+      "echo ✓ Setting LogEntries token...",
+      "etcdctl set /logentries.com/token 0674598a-c17f-4219-aeb3-382b7b6af176",
+      "echo -",
+      "echo ✓ Setting Sysdig Cloud access key...",
+      "etcdctl set /sysdigcloud.com/access_key 735e7fb3-846a-4d29-8966-c40118e530b9",
     ]
   }
 

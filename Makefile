@@ -37,14 +37,24 @@ $(CONTEXT_DIR):
 	cp contexts/_io.tf.template $@/io.tf
 	cp contexts/_modules.tf.template $@/modules.tf
 
-## get the currently selected context
-get-context:
+## show the currently selected context
+show-context:
 	@echo "${CONTEXT_NAME}"
+
+## tell kubectl to use the currently selected context
+use-context:
+	@if [ -a contexts/${CONTEXT_NAME}/tmp/kubeconfig ] ; then \
+		echo "using context '${CONTEXT_NAME}'...\n" ; \
+		source contexts/${CONTEXT_NAME}/tmp/kubeconfig ; \
+	fi;
 
 .PHONY: $(CONTEXT_TARGET) get-context
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
+
+## generate key-pair, variables and then `terraform apply`
+up: all
 
 rm:
 	rm     ${DIR_CONTEXT}/terraform.{tfvars,tfplan} ||:
@@ -54,6 +64,9 @@ rm:
 
 ## destroy and remove everything
 clean: destroy delete-keypair rm
+
+## destroy and remove everything
+down: clean
 
 ${DIR_CFSSL}:
 	./scripts/init-cfssl ${DIR_CFSSL} ${AWS_REGION}
@@ -83,4 +96,4 @@ test: test-ssl test-route53 test-etcd
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean rm prereqs ssh ssl test
+.PHONY: all clean rm prereqs ssh ssl test up down

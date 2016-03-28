@@ -1,4 +1,11 @@
 resource "template_file" "cloud-config" {
+  vars {
+    aws-region = "${ var.aws-region }"
+    cluster-id = "${ var.cluster-id }"
+    internal-tld = "${ var.internal-tld }"
+    log-group = "k8s-${ var.name }"
+    ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
+  }
 
   template = <<EOF
 #cloud-config
@@ -63,7 +70,87 @@ coreos:
         - name: awslogs.conf
           content: |
             [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ aws-region } --log-opt awslogs-group=${ log-group }"
+            Environment="DOCKER_OPTS=--log-level=warn"
+            # Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ aws-region } --log-opt awslogs-group=${ log-group }"
+
+    - name: systemd-journal-gatewayd.socket
+      command: start
+      enable: yes
+      content: |
+        [Unit]
+        Description=Journal Gateway Service Socket
+        [Socket]
+        ListenStream=/var/run/journald.sock
+        Service=systemd-journal-gatewayd.service
+        [Install]
+        WantedBy=sockets.target
+
+    - name: journal-2-logentries.service
+      command: start
+      content: |
+        [Unit]
+        Description=Forward Systemd Journal to logentries.com
+        After=docker.service
+        Requires=docker.service
+        [Service]
+        TimeoutStartSec=0
+        Restart=always
+        RestartSec=5
+        ExecStartPre=-/usr/bin/docker kill journal-2-logentries
+        ExecStartPre=-/usr/bin/docker rm journal-2-logentries
+        ExecStartPre=/usr/bin/docker pull quay.io/kelseyhightower/journal-2-logentries
+        ExecStartPre=/usr/bin/etcdctl get /logentries.com/token
+        ExecStart=/usr/bin/bash -c \
+        "/usr/bin/docker run --name journal-2-logentries \
+        -v /run/journald.sock:/run/journald.sock \
+        -e LOGENTRIES_TOKEN=`etcdctl get /logentries.com/token` \
+        quay.io/kelseyhightower/journal-2-logentries"
+
+    - name: sysdig-agent.service
+      command: start
+      content: |
+        [Unit]
+        Description=Sysdig Cloud Agent
+        After=docker.service
+        Requires=docker.service
+        [Service]
+        TimeoutStartSec=0
+        Restart=always
+        RestartSec=5
+        ExecStartPre=-/usr/bin/docker kill sysdig-agent
+        ExecStartPre=-/usr/bin/docker rm sysdig-agent
+        ExecStartPre=/usr/bin/docker pull sysdig/agent
+        ExecStartPre=/usr/bin/etcdctl get /sysdigcloud.com/access_key
+        ExecStart=/usr/bin/bash -c \
+        "/usr/bin/docker run --name sysdig-agent \
+        --privileged --net host --pid host \
+        -e ACCESS_KEY=`etcdctl get /sysdigcloud.com/access_key` \
+        -e TAGS=k8s-cluster-id:${ cluster-id } \
+        -v /var/run/docker.sock:/host/var/run/docker.sock \
+        -v /dev:/host/dev \
+        -v /proc:/host/proc:ro \
+        -v /boot:/host/boot:ro \
+        sysdig/agent"
+        ExecStop=/usr/bin/docker stop sysdig-agent
+
+    - name: docker-logentries.service
+      command: start
+      content: |
+        [Unit]
+        Description=Forward Docker logs to logentries.com
+        After=docker.service
+        Requires=docker.service
+        [Service]
+        TimeoutStartSec=0
+        Restart=always
+        RestartSec=5
+        ExecStartPre=-/usr/bin/docker kill docker-logentries
+        ExecStartPre=-/usr/bin/docker rm docker-logentries
+        ExecStartPre=/usr/bin/docker pull logentries/docker-logentries
+        ExecStart=/usr/bin/bash -c \
+        "/usr/bin/docker run --name docker-logentries \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        logentries/docker-logentries -t `etcdctl get /logentries.com/token`"
 
     - name: download-kubernetes.service
       command: start
@@ -76,7 +163,7 @@ coreos:
 
         [Service]
         # Environment=K8S_VER=v1.1.8
-        Environment=K8S_VER=v1.2.0-beta.1
+        Environment=K8S_VER=v1.2.0
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
@@ -203,11 +290,4 @@ write-files:
             hostPath:
               path: "/etc/kubernetes/ssl"
 EOF
-
-  vars {
-    aws-region = "${ var.aws-region }"
-    internal-tld = "${ var.internal-tld }"
-    log-group = "k8s-${ var.name }"
-    ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
-  }
 }
