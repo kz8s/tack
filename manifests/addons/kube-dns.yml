@@ -57,7 +57,7 @@ spec:
         - -v=6
         - -logtostderr
       - name: skydns
-        image: skynetservices/skydns:latest
+        image: kz8s/skydns:latest
         resources:
           limits:
             cpu: 100m
