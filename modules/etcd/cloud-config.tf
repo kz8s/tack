@@ -68,7 +68,7 @@ coreos:
         Requires=network-online.target
 
         [Service]
-        Environment=K8S_VER=v1.2.2
+        Environment=K8S_VER=${ k8s-version }
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
@@ -150,7 +150,9 @@ EOF
     cluster-token = "etcd-cluster-${ var.name }"
     fqdn = "etcd${ count.index + 1 }.k8s"
     hostname = "etcd${ count.index + 1 }"
+    # hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
+    k8s-version = "${ var.k8s-version }"
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-apiserver.tar"

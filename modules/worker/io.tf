@@ -1,8 +1,10 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
+variable "hyperkube-image" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
+variable "k8s-version" {}
 variable "key-name" {}
 variable "name" {}
 variable "region" {}

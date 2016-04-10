@@ -19,7 +19,7 @@ set -o nounset
 set -o pipefail
 
 # docker images
-HYPERKUBE="gcr.io/google_containers/hyperkube:v1.2.2"
+# HYPERKUBE=${HYPERKUBE:-"gcr.io/google_containers/hyperkube:v1.2.2"}
 PODMASTER="gcr.io/google_containers/podmaster:1.1"
 
 # directories

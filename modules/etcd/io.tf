@@ -3,8 +3,10 @@ variable "bucket-prefix" {}
 variable "external-elb-security-group-id" {}
 variable "etcd-ips" {}
 variable "etcd-security-group-id" {}
+variable "hyperkube-image" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
+variable "k8s-version" {}
 variable "key-name" {}
 variable "internal-tld" {}
 variable "name" {}

@@ -7,6 +7,8 @@ module "s3" {
   source = "./modules/s3"
 
   bucket-prefix = "${ var.aws.account-id }-${ var.name }-${ var.aws.region }"
+  hyperkube-image = "${ var.k8s.hyperkube-image }"
+  k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
 }
 
@@ -52,9 +54,11 @@ module "etcd" {
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
+  hyperkube-image = "${ var.k8s.hyperkube-image }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   instance-type = "${ var.instance-type.etcd }"
   internal-tld = "${ var.internal-tld }"
+  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
@@ -82,9 +86,11 @@ module "worker" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ module.s3.bucket-prefix }"
+  hyperkube-image = "${ var.k8s.hyperkube-image }"
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type.worker }"
   internal-tld = "${ var.internal-tld }"
+  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
