@@ -1,14 +1,15 @@
 # circle.yml
 machine:
   environment:
+    CFSSL_VERSION: R1.2
     TERRAFORM_VERSION: 0.6.14
 
 dependencies:
   pre:
     - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d ~/bin
-    - curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/R1.1/cfssl_linux-amd64
-    - curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/R1.1/cfssljson_linux-amd64
+    - curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/${CFSSL_VERSION}/cfssl_linux-amd64
+    - curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/${CFSSL_VERSION}/cfssljson_linux-amd64
     - chmod +x ~/bin/{cfssl,cfssljson}
 
 test:
