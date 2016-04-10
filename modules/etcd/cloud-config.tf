@@ -68,7 +68,7 @@ coreos:
         Requires=network-online.target
 
         [Service]
-        Environment=K8S_VER=v1.2.0
+        Environment=K8S_VER=v1.2.2
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
