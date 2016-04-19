@@ -1,8 +1,11 @@
 #!/bin/bash -e
 
-function usage {
-  echo "USAGE: $0 output-dir aws-region"
-  echo "  example: $0 .cfssl us-west-1"
+function usage { cat <<EOF
+USAGE: $0 [output-dir] [aws-region]
+  example: $0 .cfssl us-west-1
+EOF
+  # echo "USAGE: $0 output-dir aws-region"
+  # echo "  example: $0 .cfssl us-west-1"
   exit 1
 }
 

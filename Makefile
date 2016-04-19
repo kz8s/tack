@@ -17,7 +17,7 @@ tt:
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@echo "Initializing add-ons" && ./scripts/init-addons
+	@printf "\nInitializing add-ons\n" && ./scripts/init-addons
 
 ## destroy and remove everything
 clean: destroy delete-keypair

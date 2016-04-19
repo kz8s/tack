@@ -75,7 +75,7 @@ coreos:
         Requires=network-online.target
 
         [Service]
-        Environment=K8S_VER=v1.2.0
+        Environment=K8S_VER=${ k8s-version }
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
@@ -173,7 +173,7 @@ write-files:
         hostNetwork: true
         containers:
         - name: kube-proxy
-          image: gcr.io/google_containers/hyperkube:v1.2.0
+          image: ${ hyperkube-image }
           command:
           - /hyperkube
           - proxy
@@ -204,7 +204,9 @@ write-files:
 EOF
 
   vars {
+    hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
+    k8s-version = "${ var.k8s-version }"
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"

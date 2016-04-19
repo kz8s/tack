@@ -45,18 +45,18 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.16 Python/2.7.10 Darwin/15.4.0 botocore/1.4.7
+aws-cli/1.10.18 Python/2.7.10 Darwin/15.4.0 botocore/1.4.9
 
 $ cfssl version
-Version: 1.1.0
+Version: 1.2.0
 Revision: dev
-Runtime: go1.5.3
+Runtime: go1.6
 
 $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.0+5cb86ee", GitCommit:"5cb86ee022267586db386f62781338b0483733b3", GitTreeState:"not a git tree"}
+Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.2+528f879", GitCommit:"528f879e7d3790ea4287687ef0ab3f2a01cc2718", GitTreeState:"not a git tree"}
 
 $ terraform --version
 Terraform v0.6.14

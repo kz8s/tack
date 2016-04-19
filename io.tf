@@ -31,6 +31,13 @@ variable "instance-type" {
   }
 }
 variable "internal-tld" { default = "k8s" }
+variable "k8s" {
+  default = {
+    hyperkube-image = "gcr.io/google_containers/hyperkube:v1.2.2"
+    podmaster-image = "gcr.io/google_containers/podmaster:1.1"
+    version = "v1.2.2"
+  }
+}
 variable "name" {}
 
 # outputs
