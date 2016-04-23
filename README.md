@@ -6,7 +6,6 @@
 Terraform module for creating a Highly Available Kubernetes cluster running on CoreOS in an AWS VPC.
 
 ## Features
-
 * TLS certificate generation
 
 ### AWS
@@ -16,10 +15,10 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS
+### CoreOS (899.15.0)
 * etcd DNS Discovery Bootstrap
 
-### Kubernetes
+### Kubernetes (v1.2.3)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
@@ -45,7 +44,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.18 Python/2.7.10 Darwin/15.4.0 botocore/1.4.9
+aws-cli/1.10.19 Python/2.7.10 Darwin/15.4.0 botocore/1.4.10
 
 $ cfssl version
 Version: 1.2.0
@@ -56,7 +55,7 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.2+528f879", GitCommit:"528f879e7d3790ea4287687ef0ab3f2a01cc2718", GitTreeState:"not a git tree"}
+Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.3+882d296", GitCommit:"882d296a99218da8f6b2a340eb0e81c69e66ecc7", GitTreeState:"not a git tree"}
 
 $ terraform --version
 Terraform v0.6.14
