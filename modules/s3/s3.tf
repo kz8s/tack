@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "ssl" {
   }
 
   provisioner "local-exec" {
-    command = "HYPERKUBE=${ var.hyperkube-image } PODMASTER=${ var.podmaster-image } ./scripts/s3-cp-manifests ${ var.bucket-prefix }"
+    command = "HYPERKUBE=${ var.hyperkube-image } PODMASTER=${ var.podmaster-image } ${ path.module }/s3-cp ${ var.bucket-prefix }"
   }
 
 }
