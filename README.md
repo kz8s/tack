@@ -23,7 +23,7 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform
+### Terraform (v0.6.15)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -58,7 +58,7 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.3+882d296", GitCommit:"882d296a99218da8f6b2a340eb0e81c69e66ecc7", GitTreeState:"not a git tree"}
 
 $ terraform --version
-Terraform v0.6.14
+Terraform v0.6.15
 ```
 
 ## Launch Stack
