@@ -15,7 +15,7 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (899.15.0)
+### CoreOS (899.17.0)
 * etcd DNS Discovery Bootstrap
 
 ### Kubernetes (v1.2.3)
@@ -44,7 +44,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.19 Python/2.7.10 Darwin/15.4.0 botocore/1.4.10
+aws-cli/1.10.26 Python/2.7.10 Darwin/15.4.0 botocore/1.4.15
 
 $ cfssl version
 Version: 1.2.0
@@ -55,7 +55,7 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.3+882d296", GitCommit:"882d296a99218da8f6b2a340eb0e81c69e66ecc7", GitTreeState:"not a git tree"}
+Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.4+3eed1e3", GitCommit:"3eed1e3be6848b877ff80a93da3785d9034d0a4f", GitTreeState:"not a git tree"}
 
 $ terraform --version
 Terraform v0.6.15
