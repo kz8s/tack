@@ -3,12 +3,41 @@
 [![Gitter](https://badges.gitter.im/kz8s/tack.svg)](https://gitter.im/kz8s/tack?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Circle CI](https://circleci.com/gh/kz8s/tack.svg?style=svg)](https://circleci.com/gh/kz8s/tack)
 
-Terraform module for creating a Highly Available Kubernetes cluster running on CoreOS in an AWS VPC.
+Opinionated Terraform module for creating a Highly Available Kubernetes cluster running on
+CoreOS (any channel) in an AWS VPC. With prerequisites installed `make all` will simply spin up a default cluster; and, since it is based on Terraform, customization is much easier
+than Cloud Formation.
+
+The default configuration includes Kubernetes addons: DNS, Dashboard and UI.
+
+## tl;dr
+```bash
+# prereqs
+$ brew update && brew install awscli cfssl jq kubernetes-cli terraform
+
+# build artifacts and deploy cluster
+$ make all
+
+# nodes
+$ kubectl get nodes
+
+# addons
+$ kubectl get pods --namespace=kube-system
+
+# verify dns - run after addons have fully loaded
+$ kubectl exec busybox -- nslookup kubernetes
+
+# open dashboard
+$ make dashboard
+
+# obliterate the cluster and all artifacts
+$ make clean
+```
 
 ## Features
 * TLS certificate generation
 
 ### AWS
+* EC2 Key Pair creation
 * AWS VPC Public and Private subnets
 * Bastion Host
 * [Docker AWS Cloud Watch Logging Driver](https://docs.docker.com/engine/admin/logging/awslogs/)
@@ -18,7 +47,7 @@ Terraform module for creating a Highly Available Kubernetes cluster running on C
 ### CoreOS (899.17.0)
 * etcd DNS Discovery Bootstrap
 
-### Kubernetes (v1.2.3)
+### Kubernetes (v1.2.4)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
@@ -61,7 +90,7 @@ $ terraform --version
 Terraform v0.6.15
 ```
 
-## Launch Stack
+## Launch Cluster
 
 `make all` will create:
 - AWS Key Pair (PEM file)
@@ -91,7 +120,35 @@ To destroy, remove and generally undo everything:
 $ make clean
 ```
 
-`make all` and `make clean` should be idempotent - should an error occur simply try running the command again and things should recover from that point.
+`make all` and `make clean` should be idempotent - should an error occur simply try running
+the command again and things should recover from that point.
+
+## How Tack works
+
+### Tack Phases
+
+Tack works in three phases:
+
+1. Pre-Terraform
+2. Terraform
+3. Post-Terraform
+
+#### Pre-Terraform
+The purpose of this phase is to prep the environment for Terraform execution. Some tasks are
+hard or messy to do in Terraform - a little prep work can go a long way here. Determining
+the CoreOS AMI for a given region, channel and VM Type for instance is easy enough to do
+with a simple shell script.
+
+#### Terraform
+Terraform does the heavy lifting of resource creation and sequencing. Tack uses local
+modules to partition the work in a logical way. Although it is of course possible to do all
+of the Terraform work in a single `.tf` file or collection of `.tf` files, it becomes
+unwieldy quickly and impossible to debug. Breaking the work into local modules makes the
+flow much easier to follow and debug.
+
+#### Post-Terraform
+Once the infrastructure has been configured and instantiated it will take some type for it
+to settle. Waiting for the 'master' ELB to become healthy is an example of this.  
 
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
@@ -101,7 +158,7 @@ $ make clean
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
 ## References
-*  [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
+* [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
