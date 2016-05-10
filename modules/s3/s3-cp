@@ -12,6 +12,13 @@ function cleanup {
   echo "✓ Deleted temp working directory $TMP"
 }
 
+function error {
+  echo "✗ Error from s3-cp on line $1"'!'
+  exit 1
+}
+trap 'error ${LINENO}' ERR
+
+
 BUCKET=$1
 [ -z "$BUCKET" ] && usage
 
@@ -39,8 +46,8 @@ echo "✓ tls copy success"
 TMP=$(mktemp -d)
 trap cleanup EXIT
 cp $MANIFESTS/* $TMP
-sed -i bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" $TMP/*.yml
-sed -i bak 's|${PODMASTER}|'"$PODMASTER|g" $TMP/*.yml
+sed -ibak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
+sed -ibak 's|${PODMASTER}|'"$PODMASTER|g" "$TMP/"*.yml
 
 # tar and cp etc manifests
 echo "❤ Tar and copy etc manifests to ${BUCKET}"
