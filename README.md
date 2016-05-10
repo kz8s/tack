@@ -39,6 +39,7 @@ $ make clean
 ### AWS
 * EC2 Key Pair creation
 * AWS VPC Public and Private subnets
+* IAM protected S3 bucket for asset (TLS and manifests) distribution
 * Bastion Host
 * [Docker AWS Cloud Watch Logging Driver](https://docs.docker.com/engine/admin/logging/awslogs/)
 * Multi-AZ Auto-Scaling Worker Nodes
