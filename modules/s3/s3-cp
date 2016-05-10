@@ -12,6 +12,13 @@ function cleanup {
   echo "✓ Deleted temp working directory $TMP"
 }
 
+function error {
+  echo "✗ Error from s3-cp on line $1"'!'
+  exit 1
+}
+trap 'error ${LINENO}' ERR
+
+
 BUCKET=$1
 [ -z "$BUCKET" ] && usage
 
