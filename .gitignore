@@ -1,3 +1,4 @@
+tmp/
 terraform.tfstate*
 .key-pair
 .terraform
