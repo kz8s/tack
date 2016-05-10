@@ -7,7 +7,7 @@ resource "aws_instance" "bastion" {
 
   # TODO: force private_ip to prevent collision with etcd machines
 
-  security_groups = [
+  vpc_security_group_ids = [
     "${ var.security-group-id }",
   ]
 
