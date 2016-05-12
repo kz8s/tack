@@ -158,6 +158,17 @@ to settle. Waiting for the 'master' ELB to become healthy is an example of this.
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
+## Other Terraform Projects
+* [ericandrewlewis/kubernetes-via-terraform](https://github.com/ericandrewlewis/kubernetes-via-terraform)
+* [bakins/kubernetes-coreos-terraform](https://github.com/bakins/kubernetes-coreos-terraform)
+* [chiefy/tf-aws-kubernetes](https://github.com/chiefy/tf-aws-kubernetes)
+* [wearemakery/kubestack-aws](https://github.com/wearemakery/kubestack-aws)
+* [bobtfish/terraform-aws-coreos-kubernates-cluster](https://github.com/bobtfish/terraform-aws-coreos-kubernates-cluster)
+* [samsung-cnct/kraken](https://github.com/samsung-cnct/kraken)
+* [cihangir/terraform-aws-kubernetes](https://github.com/cihangir/terraform-aws-kubernetes)
+* [xuwang/aws-terraform](https://github.com/xuwang/aws-terraform)
+* [funkymonkeymonk/terraform-demo](https://github.com/funkymonkeymonk/terraform-demo)
+
 ## References
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
