@@ -145,29 +145,33 @@ Terraform does the heavy lifting of resource creation and sequencing. Tack uses 
 modules to partition the work in a logical way. Although it is of course possible to do all
 of the Terraform work in a single `.tf` file or collection of `.tf` files, it becomes
 unwieldy quickly and impossible to debug. Breaking the work into local modules makes the
-flow much easier to follow and debug.
+flow much easier to follow and provides the basis for composing variable solutions down the track - for example converting the worker Auto Scaling Group to use spot instances.
 
 #### Post-Terraform
 Once the infrastructure has been configured and instantiated it will take some type for it
 to settle. Waiting for the 'master' ELB to become healthy is an example of this.  
 
+### Components
+
+Like many great tools, _tack_ has started out as a collection of scripts, makefiles and other tools. As _tack_ matures and patterns crystalize it will evolve to a Terraform plugin and perhaps a Go-based cli tool for 'init-ing' new cluster configurations. The tooling will compose Terraform modules into a solution based on user preferences - think `npm init` or better yet [yeoman](http://yeoman.io/).
+
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
-* [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
+* [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
 ## Other Terraform Projects
-* [ericandrewlewis/kubernetes-via-terraform](https://github.com/ericandrewlewis/kubernetes-via-terraform)
 * [bakins/kubernetes-coreos-terraform](https://github.com/bakins/kubernetes-coreos-terraform)
-* [chiefy/tf-aws-kubernetes](https://github.com/chiefy/tf-aws-kubernetes)
-* [wearemakery/kubestack-aws](https://github.com/wearemakery/kubestack-aws)
 * [bobtfish/terraform-aws-coreos-kubernates-cluster](https://github.com/bobtfish/terraform-aws-coreos-kubernates-cluster)
-* [samsung-cnct/kraken](https://github.com/samsung-cnct/kraken)
+* [chiefy/tf-aws-kubernetes](https://github.com/chiefy/tf-aws-kubernetes)
 * [cihangir/terraform-aws-kubernetes](https://github.com/cihangir/terraform-aws-kubernetes)
-* [xuwang/aws-terraform](https://github.com/xuwang/aws-terraform)
+* [ericandrewlewis/kubernetes-via-terraform](https://github.com/ericandrewlewis/kubernetes-via-terraform)
 * [funkymonkeymonk/terraform-demo](https://github.com/funkymonkeymonk/terraform-demo)
+* [samsung-cnct/kraken](https://github.com/samsung-cnct/kraken)
+* [wearemakery/kubestack-aws](https://github.com/wearemakery/kubestack-aws)
+* [xuwang/aws-terraform](https://github.com/xuwang/aws-terraform)
 
 ## References
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
