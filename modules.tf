@@ -1,8 +1,3 @@
-resource "aws_cloudwatch_log_group" "k8s" {
-  name = "k8s-${ var.name }"
-  retention_in_days = 3
-}
-
 module "s3" {
   source = "./modules/s3"
 

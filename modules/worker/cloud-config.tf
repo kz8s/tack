@@ -60,11 +60,7 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
-        - name: awslogs.conf
-          content: |
-            [Service]
-            Environment="DOCKER_OPTS=--log-driver=awslogs --log-opt awslogs-region=${ region } --log-opt awslogs-group=${ log-group }"
-
+            
     - name: download-kubernetes.service
       command: start
       content: |
