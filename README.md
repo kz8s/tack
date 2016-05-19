@@ -53,7 +53,7 @@ $ make clean
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.6.15)
+### Terraform (v0.6.16)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -88,7 +88,7 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.4+3eed1e3", GitCommit:"3eed1e3be6848b877ff80a93da3785d9034d0a4f", GitTreeState:"not a git tree"}
 
 $ terraform --version
-Terraform v0.6.15
+Terraform v0.6.16
 ```
 
 ## Launch Cluster
