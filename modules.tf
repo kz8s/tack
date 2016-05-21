@@ -1,8 +1,3 @@
-resource "aws_cloudwatch_log_group" "k8s" {
-  name = "k8s-${ var.name }"
-  retention_in_days = 3
-}
-
 module "s3" {
   source = "./modules/s3"
 
@@ -110,18 +105,12 @@ module "kubeconfig" {
   name = "${ var.name }"
 }
 
-resource "null_resource" "initialize" {
-
-  # this step isn't strictly *required*
-  # what we do here is:
-  # - verify apiserver is up
-  # - check etcd for 'scheduler' and 'controller' keys (written by podmaster)
-  # Terraform returns control to the shell after this resource executes. Checking for these
-  # items here gives a good sanity check before trying to poll the cluster from the outside.
+resource "null_resource" "verify" {
 
   triggers {
     bastion-ip = "${ module.bastion.ip }"
     # todo: change trigger to etcd elb dns name
+    external-elb = "${ module.etcd.external-elb }"
     etcd-ips = "${ module.etcd.internal-ips }"
   }
 
@@ -135,12 +124,7 @@ resource "null_resource" "initialize" {
 
   provisioner "remote-exec" {
     inline = [
-      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
-      "echo ✓ Read scheduler key from etcd:",
-      "/bin/bash -c 'until etcdctl get scheduler; do sleep 5; done'",
-      "echo ✓ Read controller key from etcd:",
-      "/bin/bash -c 'until etcdctl get controller; do sleep 5; done'",
-      "echo ✓ scheduler and controller setup",
+      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
     ]
   }
 

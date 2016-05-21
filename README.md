@@ -41,7 +41,6 @@ $ make clean
 * AWS VPC Public and Private subnets
 * IAM protected S3 bucket for asset (TLS and manifests) distribution
 * Bastion Host
-* [Docker AWS Cloud Watch Logging Driver](https://docs.docker.com/engine/admin/logging/awslogs/)
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
@@ -97,7 +96,6 @@ Terraform v0.6.16
 - AWS Key Pair (PEM file)
 - client and server TLS assets
 - s3 bucket for TLS assets (secured by IAM roles for master and worker nodes)
-- Cloud Watch log group for docker logs
 - AWS VPC with private and public subnets
 - Route 53 internal zone for VPC
 - Etcd cluster bootstrapped from Route 53
@@ -154,6 +152,17 @@ to settle. Waiting for the 'master' ELB to become healthy is an example of this.
 ### Components
 
 Like many great tools, _tack_ has started out as a collection of scripts, makefiles and other tools. As _tack_ matures and patterns crystalize it will evolve to a Terraform plugin and perhaps a Go-based cli tool for 'init-ing' new cluster configurations. The tooling will compose Terraform modules into a solution based on user preferences - think `npm init` or better yet [yeoman](http://yeoman.io/).
+
+#### ElasticSearch and Kibana
+
+To access Elasticseach and Kibana first start `kubectl proxy`.
+
+```bash
+$ kubectl proxy
+Starting to serve on localhost:8001
+```
+
+* http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging  * http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging
 
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)

@@ -47,18 +47,10 @@ TMP=$(mktemp -d)
 trap cleanup EXIT
 cp $MANIFESTS/* $TMP
 sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
-sed -i.bak 's|${PODMASTER}|'"$PODMASTER|g" "$TMP/"*.yml
 
 # tar and cp etc manifests
 echo "❤ Tar and copy etc manifests to ${BUCKET}"
 tar -cf - \
-  -C $TMP kube-apiserver.yml kube-podmaster.yml kube-proxy.yml \
+  -C $TMP kube-apiserver.yml kube-controller-manager.yml kube-proxy.yml kube-scheduler.yml \
   | aws s3 cp - s3://${BUCKET}/manifests/etc.tar
 echo "✓ Tar and copy etc manifests success"
-
-# tar and cp etc manifests
-echo "❤ Tar and copy srv manifests to ${BUCKET}"
-tar -cf - \
-  -C $TMP kube-controller-manager.yml kube-scheduler.yml \
-  | aws s3 cp - s3://${BUCKET}/manifests/srv.tar
-echo "✓ Tar and copy srv manifests success"
