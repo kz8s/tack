@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: dns-server
+  labels:
+    name: dns-server
+spec:
+  replicas: 1
+  selector:
+    name: dns-server
+  template:
+    metadata:
+      labels:
+        name: dns-server
+    spec:
+      containers:
+      - name: dns-server
+        image: kz8s/example-dns-server:latest
+        ports:
+        - name: server-port
+          containerPort: 8080
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: dns-server
+spec:
+  ports:
+  - port: 8080
+  selector:
+    name: dns-server

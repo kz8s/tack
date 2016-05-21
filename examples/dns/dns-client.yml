@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dns-client
+  labels:
+    name: dns-client
+spec:
+  containers:
+    - name: dns-client
+      image: kz8s/example-dns-client:latest
+      command:
+        - ./client
+        - http://dns-server.dev.cluster.local:8080/ping?asdf=fdsa
+      imagePullPolicy: Always
+  restartPolicy: Never
