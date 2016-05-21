@@ -116,9 +116,7 @@ coreos:
         Requires=s3-iam-get.service
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStartPre=-/usr/bin/mkdir -p /srv/kubernetes/manifests
         ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ etc-tar } | tar xv -C /etc/kubernetes/manifests/"
-        ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ srv-tar } | tar xv -C /srv/kubernetes/manifests/"
         RemainAfterExit=yes
         Type=oneshot
 
@@ -157,6 +155,5 @@ EOF
     region = "${ var.region }"
     ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-apiserver.tar"
     etc-tar = "s3://${ var.bucket-prefix }/manifests/etc.tar"
-    srv-tar = "s3://${ var.bucket-prefix }/manifests/srv.tar"
   }
 }

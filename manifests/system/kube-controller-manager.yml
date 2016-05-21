@@ -11,10 +11,11 @@ spec:
     command:
     - /hyperkube
     - controller-manager
-    - --master=http://127.0.0.1:8080
     - --cloud-provider=aws
-    - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+    - --leader-elect=true
+    - --master=http://127.0.0.1:8080
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
     livenessProbe:
       httpGet:
         host: 127.0.0.1

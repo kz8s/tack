@@ -112,13 +112,6 @@ module "kubeconfig" {
 
 resource "null_resource" "initialize" {
 
-  # this step isn't strictly *required*
-  # what we do here is:
-  # - verify apiserver is up
-  # - check etcd for 'scheduler' and 'controller' keys (written by podmaster)
-  # Terraform returns control to the shell after this resource executes. Checking for these
-  # items here gives a good sanity check before trying to poll the cluster from the outside.
-
   triggers {
     bastion-ip = "${ module.bastion.ip }"
     # todo: change trigger to etcd elb dns name
@@ -136,11 +129,6 @@ resource "null_resource" "initialize" {
   provisioner "remote-exec" {
     inline = [
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
-      "echo ✓ Read scheduler key from etcd:",
-      "/bin/bash -c 'until etcdctl get scheduler; do sleep 5; done'",
-      "echo ✓ Read controller key from etcd:",
-      "/bin/bash -c 'until etcdctl get controller; do sleep 5; done'",
-      "echo ✓ scheduler and controller setup",
     ]
   }
 
