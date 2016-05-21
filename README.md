@@ -41,7 +41,6 @@ $ make clean
 * AWS VPC Public and Private subnets
 * IAM protected S3 bucket for asset (TLS and manifests) distribution
 * Bastion Host
-* [Docker AWS Cloud Watch Logging Driver](https://docs.docker.com/engine/admin/logging/awslogs/)
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
@@ -53,7 +52,7 @@ $ make clean
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.6.15)
+### Terraform (v0.6.16)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -88,7 +87,7 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.4+3eed1e3", GitCommit:"3eed1e3be6848b877ff80a93da3785d9034d0a4f", GitTreeState:"not a git tree"}
 
 $ terraform --version
-Terraform v0.6.15
+Terraform v0.6.16
 ```
 
 ## Launch Cluster
@@ -97,7 +96,6 @@ Terraform v0.6.15
 - AWS Key Pair (PEM file)
 - client and server TLS assets
 - s3 bucket for TLS assets (secured by IAM roles for master and worker nodes)
-- Cloud Watch log group for docker logs
 - AWS VPC with private and public subnets
 - Route 53 internal zone for VPC
 - Etcd cluster bootstrapped from Route 53
