@@ -155,7 +155,7 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 
 #### ElasticSearch and Kibana
 
-To access Elasticseach and Kibana first start `kubectl proxy`.
+To access Elasticsearch and Kibana first start `kubectl proxy`.
 
 ```bash
 $ kubectl proxy
