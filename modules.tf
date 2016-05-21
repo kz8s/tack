@@ -110,11 +110,12 @@ module "kubeconfig" {
   name = "${ var.name }"
 }
 
-resource "null_resource" "initialize" {
+resource "null_resource" "verify" {
 
   triggers {
     bastion-ip = "${ module.bastion.ip }"
     # todo: change trigger to etcd elb dns name
+    external-elb = "${ module.etcd.external-elb }"
     etcd-ips = "${ module.etcd.internal-ips }"
   }
 
