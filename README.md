@@ -153,6 +153,17 @@ to settle. Waiting for the 'master' ELB to become healthy is an example of this.
 
 Like many great tools, _tack_ has started out as a collection of scripts, makefiles and other tools. As _tack_ matures and patterns crystalize it will evolve to a Terraform plugin and perhaps a Go-based cli tool for 'init-ing' new cluster configurations. The tooling will compose Terraform modules into a solution based on user preferences - think `npm init` or better yet [yeoman](http://yeoman.io/).
 
+#### ElasticSearch and Kibana
+
+To access Elasticseach and Kibana first start `kubectl proxy`.
+
+```bash
+$ kubectl proxy
+Starting to serve on localhost:8001
+```
+
+* http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging  * http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging
+
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
