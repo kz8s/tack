@@ -129,7 +129,7 @@ resource "null_resource" "verify" {
 
   provisioner "remote-exec" {
     inline = [
-      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5; done'",
+      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
     ]
   }
 
