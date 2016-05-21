@@ -60,7 +60,7 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
-
+            
     - name: download-kubernetes.service
       command: start
       content: |
