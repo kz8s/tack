@@ -162,7 +162,8 @@ $ kubectl proxy
 Starting to serve on localhost:8001
 ```
 
-* http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging  * http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging
+* [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging ](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging)
+* [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging)
 
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
