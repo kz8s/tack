@@ -6,6 +6,7 @@ module "s3" {
   k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
   podmaster-image = "${ var.k8s.podmaster-image }"
+  region = "${ var.aws.region }"
 }
 
 module "vpc" {

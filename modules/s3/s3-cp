@@ -39,7 +39,8 @@ MANIFESTS=manifests/system
 
 # cp tls assets
 echo "❤ Copy tls assets to s3 ${BUCKET}"
-aws s3 cp .cfssl s3://${BUCKET}/ssl --recursive --exclude "*" --include "*.tar"
+aws s3 cp .cfssl s3://${BUCKET}/ssl --recursive --exclude "*" --include "*.tar" \
+  --region ${REGION}
 echo "✓ tls copy success"
 
 # mk tmp dir for manifests and do substituions
@@ -52,5 +53,5 @@ sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
 echo "❤ Tar and copy etc manifests to ${BUCKET}"
 tar -cf - \
   -C $TMP kube-apiserver.yml kube-controller-manager.yml kube-proxy.yml kube-scheduler.yml \
-  | aws s3 cp - s3://${BUCKET}/manifests/etc.tar
+  | aws s3 cp - s3://${BUCKET}/manifests/etc.tar --region ${REGION}
 echo "✓ Tar and copy etc manifests success"
