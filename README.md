@@ -44,7 +44,7 @@ $ make clean
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (899.17.0)
+### CoreOS (1010.15.0)
 * etcd DNS Discovery Bootstrap
 
 ### Kubernetes (v1.2.4)
@@ -73,7 +73,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.32 Python/2.7.10 Darwin/15.4.0 botocore/1.4.22
+aws-cli/1.10.34 Python/2.7.10 Darwin/15.5.0 botocore/1.4.24
 
 $ cfssl version
 Version: 1.2.0
