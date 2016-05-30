@@ -81,7 +81,7 @@ echo "$(ca-config)" >ca-config.json
 cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
 
 # generate keys and certs
-generate k8s-admin client-server "10.0.0.15,*.*.compute.internal*.ec2.internal"
+generate k8s-admin client-server "10.0.0.15,*.*.compute.internal,*.ec2.internal"
 generate k8s-apiserver client-server "10.0.0.15,10.3.0.1,master.k8s,*.${REGION}.elb.amazonaws.com"
 generate k8s-etcd server "*.k8s"
 generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
