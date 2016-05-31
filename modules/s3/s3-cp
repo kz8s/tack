@@ -3,6 +3,12 @@
 function usage { cat <<EOF
 USAGE: $0 [bucket]
   example: $0 23234-bigbucket-us-west-1
+
+  Environment variables required: HYPERKUBE and REGION.
+  example:
+    HYPERKUBE=gcr.io/google_containers/hyperkube:v1.2.4 \
+    REGION=us-west-1 \
+    $0 23234-bigbucket-us-west-1
 EOF
   exit 1
 }
@@ -27,7 +33,6 @@ set -o pipefail
 
 # docker images
 # HYPERKUBE=${HYPERKUBE:-"gcr.io/google_containers/hyperkube:v1.2.2"}
-# PODMASTER="gcr.io/google_containers/podmaster:1.1"
 
 # directories
 CFSSL=.cfssl
