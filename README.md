@@ -3,11 +3,16 @@
 [![Gitter](https://badges.gitter.im/kz8s/tack.svg)](https://gitter.im/kz8s/tack?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Circle CI](https://circleci.com/gh/kz8s/tack.svg?style=svg)](https://circleci.com/gh/kz8s/tack)
 
-Opinionated Terraform module for creating a Highly Available Kubernetes cluster running on
-CoreOS (any channel) in an AWS VPC. With prerequisites installed `make all` will simply spin up a default cluster; and, since it is based on Terraform, customization is much easier
-than Cloud Formation.
+Opinionated [Terraform](https://terraform.io) module for creating a Highly Available [Kubernetes](http://kubernetes.io) cluster running on
+[CoreOS](https://coreos.com) (any channel) in an [AWS](https://aws.amazon.com)
+Virtual Private Cloud ([VPC](https://aws.amazon.com/vpc/)). With prerequisites
+installed `make all` will simply spin up a default cluster; and, since it is
+based on Terraform, customization is much easier than
+[CloudFormation](https://aws.amazon.com/cloudformation/).
 
-The default configuration includes Kubernetes addons: DNS, Dashboard and UI.
+The default configuration includes Kubernetes
+[add-ons](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons):
+DNS, Dashboard and UI.
 
 ## tl;dr
 ```bash
@@ -37,7 +42,8 @@ $ make clean
 * TLS certificate generation
 
 ### AWS
-* EC2 Key Pair creation
+* [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
+creation
 * AWS VPC Public and Private subnets
 * IAM protected S3 bucket for asset (TLS and manifests) distribution
 * Bastion Host
@@ -179,6 +185,7 @@ Starting to serve on localhost:8001
 * [cihangir/terraform-aws-kubernetes](https://github.com/cihangir/terraform-aws-kubernetes)
 * [ericandrewlewis/kubernetes-via-terraform](https://github.com/ericandrewlewis/kubernetes-via-terraform)
 * [funkymonkeymonk/terraform-demo](https://github.com/funkymonkeymonk/terraform-demo)
+* [kelseyhightower/kubestack](https://github.com/kelseyhightower/kubestack)
 * [samsung-cnct/kraken](https://github.com/samsung-cnct/kraken)
 * [wearemakery/kubestack-aws](https://github.com/wearemakery/kubestack-aws)
 * [xuwang/aws-terraform](https://github.com/xuwang/aws-terraform)
