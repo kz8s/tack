@@ -54,7 +54,7 @@ ssh: ; @ssh -A core@`terraform output bastion-ip`
 ssl: .cfssl
 
 ## smoke it
-test: test-ssl test-route53 test-etcd
+test: test-ssl test-route53 test-etcd pods dns
 
 include makefiles/*.mk
 
