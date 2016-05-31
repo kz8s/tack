@@ -7,4 +7,7 @@ dns:
 nodes:
 	kubectl get nodes
 
-.PHONY: addons dns nodes
+pods:
+	kubectl get po --namespace=kube-system | grep -v Running
+
+.PHONY: addons dns nodes pods
