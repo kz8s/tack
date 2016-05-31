@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1010.15.0)
+### CoreOS (1010.5.0)
 * etcd DNS Discovery Bootstrap
 
 ### Kubernetes (v1.2.4)
@@ -194,6 +194,7 @@ Starting to serve on localhost:8001
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
+* [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
