@@ -63,7 +63,6 @@ DEFAULT_HOSTS="kubernetes,kubernetes.default,127.0.0.1"
 function _chmod {
   CN=$1
   chmod 0644 $CN.pem ${CN}-key.pem
-  # chmod 0644 ${CN}-key.pem
 }
 
 function generate {
@@ -99,6 +98,3 @@ generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
 # TODO: fix cert provisioning hacks
 tar -rf k8s-apiserver.tar k8s-etcd.pem k8s-etcd-key.pem
 tar -rf k8s-worker.tar ca.pem
-
-# lock down perms
-# chmod 0644 *
