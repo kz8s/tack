@@ -161,7 +161,7 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 
 #### TLS Certificates
 
-* [etcd cloud-config](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
+* [etcd coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
 $ curl --cacert /etc/kubernetes/ssl/ca.pem  https://etcd1.k8s:2379/version
