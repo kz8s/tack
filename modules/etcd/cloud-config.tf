@@ -130,10 +130,11 @@ coreos:
         ExecStart=/opt/bin/kubelet \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
+          --cloud-provider=aws \
           --cluster-dns=10.3.0.10 \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
-          --register-node=false
+          --register-schedulable=false
         Restart=always
         RestartSec=5
         [Install]
