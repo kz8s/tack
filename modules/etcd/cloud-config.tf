@@ -10,7 +10,7 @@ coreos:
   etcd2:
     advertise-client-urls: http://${ fqdn }:2379
     # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    debug: true
+    # debug: true
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
