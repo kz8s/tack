@@ -8,6 +8,9 @@ coreos:
 
   etcd2:
     discovery-srv: ${ internal-tld }
+    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
+    peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
 
   units:
@@ -60,7 +63,7 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
-            
+
     - name: download-kubernetes.service
       command: start
       content: |
@@ -106,7 +109,8 @@ coreos:
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ ssl-tar } | tar xv -C /etc/kubernetes/ssl/"
-        ExecStartPost=/bin/sh -c "/usr/bin/chmod 600 /etc/kubernetes/ssl/*"
+        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0644 /etc/kubernetes/ssl/*"
+        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0644 /etc/kubernetes/ssl/ca.pem"
         RemainAfterExit=yes
         Type=oneshot
 

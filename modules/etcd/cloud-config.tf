@@ -9,17 +9,19 @@ coreos:
 
   etcd2:
     advertise-client-urls: http://${ fqdn }:2379
-    #cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     discovery-srv: ${ internal-tld }
-    initial-advertise-peer-urls: http://${ fqdn }:2380
+    initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
-    #key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    # key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
     listen-client-urls: http://0.0.0.0:2379
-    listen-peer-urls: http://0.0.0.0:2380
+    listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
-    #peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    #peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    very-very-verbose: true
 
   units:
     - name: etcd2.service
@@ -99,7 +101,8 @@ coreos:
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ ssl-tar } | tar xv -C /etc/kubernetes/ssl/"
-        ExecStartPost=/bin/sh -c "/usr/bin/chmod 600 /etc/kubernetes/ssl/*"
+        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0600 /etc/kubernetes/ssl/*"
+        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0644 /etc/kubernetes/ssl/k8s-etcd*"
         RemainAfterExit=yes
         Type=oneshot
 
