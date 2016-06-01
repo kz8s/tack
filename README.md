@@ -159,6 +159,16 @@ to settle. Waiting for the 'master' ELB to become healthy is an example of this.
 
 Like many great tools, _tack_ has started out as a collection of scripts, makefiles and other tools. As _tack_ matures and patterns crystalize it will evolve to a Terraform plugin and perhaps a Go-based cli tool for 'init-ing' new cluster configurations. The tooling will compose Terraform modules into a solution based on user preferences - think `npm init` or better yet [yeoman](http://yeoman.io/).
 
+#### TLS Certificates
+
+* [etcd cloud-config](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
+
+```bash
+$ curl --cacert /etc/kubernetes/ssl/ca.pem  https://etcd1.k8s:2379/version
+$ openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
+$ openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
+```
+
 #### ElasticSearch and Kibana
 
 To access Elasticseach and Kibana first start `kubectl proxy`.
@@ -192,9 +202,11 @@ Starting to serve on localhost:8001
 
 ## References
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
+* [Deploying CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
+* [Setting up etcd to run in production](https://github.com/kelseyhightower/etcd-production-setup)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
