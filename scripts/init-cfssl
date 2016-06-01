@@ -68,7 +68,7 @@ function _chmod {
 function generate {
   CN=$1
   PROFILE=$2
-  HOSTS=$DEFAULT_HOSTS,$3
+  HOSTS=$3
 
   echo "$(csr $CN)" \
     | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=$PROFILE \
@@ -89,11 +89,10 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
 _chmod ca
 
 # generate keys and certs
-generate k8s-admin client-server "10.0.0.15,*.*.compute.internal,*.ec2.internal"
-generate k8s-apiserver client-server "10.0.0.15,10.3.0.1,master.k8s,*.${REGION}.elb.amazonaws.com"
-# generate k8s-etcd client-server "etcd.k8s,etcd1.k8s,etcd2.k8s,etcd3.k8s"
-generate k8s-etcd client-server "10.0.0.10,10.0.0.11,10.0.0.12,etcd.k8s,etcd1.k8s,etcd2.k8s,etcd3.k8s"
-generate k8s-worker client "*.*.compute.internal,*.ec2.internal"
+generate k8s-admin client-server "$DEFAULT_HOSTS,10.0.0.15,*.*.compute.internal,*.ec2.internal"
+generate k8s-apiserver client-server "$DEFAULT_HOSTS,10.0.0.15,10.3.0.1,master.k8s,*.${REGION}.elb.amazonaws.com"
+generate k8s-etcd client-server "etcd.k8s,etcd1.k8s,etcd2.k8s,etcd3.k8s"
+generate k8s-worker client "$DEFAULT_HOSTS,*.*.compute.internal,*.ec2.internal"
 
 # TODO: fix cert provisioning hacks
 tar -rf k8s-apiserver.tar k8s-etcd.pem k8s-etcd-key.pem
