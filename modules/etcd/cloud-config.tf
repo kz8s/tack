@@ -105,8 +105,6 @@ coreos:
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ ssl-tar } | tar xv -C /etc/kubernetes/ssl/"
-        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0600 /etc/kubernetes/ssl/*"
-        # ExecStartPost=/bin/sh -c "/usr/bin/chmod 0644 /etc/kubernetes/ssl/k8s-etcd*"
         RemainAfterExit=yes
         Type=oneshot
 
