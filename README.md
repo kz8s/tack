@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1010.5.0)
+### CoreOS (1010.5.0, 1010.4.0, 1053.2.0)
 * etcd DNS Discovery Bootstrap
 
 ### Kubernetes (v1.2.4)
@@ -202,11 +202,13 @@ Starting to serve on localhost:8001
 
 ## References
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
+* [CoreOS - Mounting Storage](https://coreos.com/os/docs/latest/mounting-storage.html)
 * [Deploying CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
+* [Peeking under the hood of Kubernetes on AWS](https://github.com/kubernetes/kubernetes/blob/release-1.2/docs/design/aws_under_the_hood.md)
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
 * [Setting up etcd to run in production](https://github.com/kelseyhightower/etcd-production-setup)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
