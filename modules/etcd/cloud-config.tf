@@ -55,6 +55,10 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
+        - name: overlay.conf
+          content: |
+            [Service]
+            Environment="DOCKER_OPTS=--storage-driver=overlay"
 
     - name: download-kubernetes.service
       command: start
