@@ -117,7 +117,7 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubectl
+        ConditionFileIsExecutable=/opt/bin/kubelet
         Requires=docker.socket
         [Service]
         ExecStart=/opt/bin/kubelet \
