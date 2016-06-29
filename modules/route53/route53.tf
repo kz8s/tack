@@ -56,7 +56,7 @@ resource "aws_route53_record" "etcd-client-tcp" {
 }
 
 resource "aws_route53_record" "etcd-server-tcp" {
-  name = "_etcd-server._tcp"
+  name = "_etcd-server-ssl._tcp"
   ttl = "300"
   type = "SRV"
   records = [ "${ template_file.discover-server.*.rendered }" ]

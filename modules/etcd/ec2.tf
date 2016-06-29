@@ -21,6 +21,7 @@ resource "aws_instance" "etcd" {
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
+    KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
     Name = "etcd${ count.index + 1 }"
     role = "etcd,apiserver"
   }

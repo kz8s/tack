@@ -10,7 +10,6 @@ AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .ssl
 
-.PHONY: tt
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
 	@echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
@@ -32,6 +31,9 @@ clean: destroy delete-keypair
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
 
+## journalctl on etcd1 (10.0.0.10)
+journal: ; @ssh -At core@`terraform output bastion-ip` ssh 10.0.0.10 journalctl -fl
+
 module.%: get init
 	terraform plan -target $@
 	terraform apply -target $@
@@ -47,8 +49,11 @@ prereqs:
 	@echo
 	terraform --version
 
+## ssh into etcd1 (10.0.0.10)
+ssh: ; @ssh -A -t core@`terraform output bastion-ip` ssh 10.0.0.10
+
 ## ssh into bastion host
-ssh: ; @ssh -A core@`terraform output bastion-ip`
+ssh-bastion: ; @ssh -A core@`terraform output bastion-ip`
 
 ## create tls artifacts
 ssl: .cfssl
@@ -59,4 +64,4 @@ test: test-ssl test-route53 test-etcd pods dns
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean module.% prereqs ssl test
+.PHONY: all clean journal module.% prereqs ssh ssh-bastion ssl test tt
