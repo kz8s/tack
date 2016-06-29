@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1010.5.0, 1010.4.0, 1053.2.0)
+### CoreOS (1010.6.0, 1068.3.0, 1081.2.0)
 * etcd DNS Discovery Bootstrap
 
 ### Kubernetes (v1.2.4)
