@@ -53,7 +53,7 @@ creation
 ### CoreOS (1010.6.0, 1068.3.0, 1081.2.0)
 * etcd DNS Discovery Bootstrap
 
-### Kubernetes (v1.2.4)
+### Kubernetes (v1.2.5)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
@@ -79,7 +79,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.34 Python/2.7.10 Darwin/15.5.0 botocore/1.4.24
+aws-cli/1.10.42 Python/2.7.10 Darwin/15.5.0 botocore/1.4.32
 
 $ cfssl version
 Version: 1.2.0
