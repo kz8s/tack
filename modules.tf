@@ -77,6 +77,30 @@ module "bastion" {
   vpc-id = "${ module.vpc.id }"
 }
 
+resource "null_resource" "verify-etcd" {
+
+  triggers {
+    bastion-ip = "${ module.bastion.ip }"
+    etcd-ips = "${ module.etcd.internal-ips }"
+  }
+
+  connection {
+    agent = true
+    bastion_host = "${ module.bastion.ip }"
+    bastion_user = "core"
+    host = "10.0.0.10"
+    user = "core"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/bin/bash -c 'echo ❤ checking etcd cluster health'",
+      "/bin/bash -c 'until curl http://etcd.k8s:2379/health || echo retrying; do sleep 14 && echo .; done'",
+      "/bin/bash -c 'echo ✓ etcd cluster is reporting healthy'",
+    ]
+  }
+}
+
 module "worker" {
   source = "./modules/worker"
 
@@ -127,5 +151,4 @@ resource "null_resource" "verify" {
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
     ]
   }
-
 }

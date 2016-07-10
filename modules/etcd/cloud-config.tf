@@ -9,17 +9,19 @@ coreos:
 
   etcd2:
     advertise-client-urls: http://${ fqdn }:2379
-    #cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    # debug: true
     discovery-srv: ${ internal-tld }
-    initial-advertise-peer-urls: http://${ fqdn }:2380
+    initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
-    #key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    # key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
     listen-client-urls: http://0.0.0.0:2379
-    listen-peer-urls: http://0.0.0.0:2380
+    listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
-    #peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    #peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   units:
     - name: etcd2.service
@@ -53,6 +55,10 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
+        - name: overlay.conf
+          content: |
+            [Service]
+            Environment="DOCKER_OPTS=--storage-driver=overlay"
 
     - name: download-kubernetes.service
       command: start
@@ -99,7 +105,6 @@ coreos:
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ ssl-tar } | tar xv -C /etc/kubernetes/ssl/"
-        ExecStartPost=/bin/sh -c "/usr/bin/chmod 600 /etc/kubernetes/ssl/*"
         RemainAfterExit=yes
         Type=oneshot
 
@@ -121,16 +126,17 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubectl
+        ConditionFileIsExecutable=/opt/bin/kubelet
         Requires=docker.socket
         [Service]
         ExecStart=/opt/bin/kubelet \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
+          --cloud-provider=aws \
           --cluster-dns=10.3.0.10 \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
-          --register-node=false
+          --register-schedulable=false
         Restart=always
         RestartSec=5
         [Install]

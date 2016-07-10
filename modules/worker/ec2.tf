@@ -40,12 +40,6 @@ resource "aws_autoscaling_group" "worker" {
   vpc_zone_identifier = [ "${ split(",", var.subnet-ids) }" ]
 
   tag {
-    key = "Name"
-    value = "worker"
-    propagate_at_launch = true
-  }
-
-  tag {
     key = "builtWith"
     value = "terraform"
     propagate_at_launch = true
@@ -54,6 +48,19 @@ resource "aws_autoscaling_group" "worker" {
   tag {
     key = "Cluster"
     value = "${ var.name }"
+    propagate_at_launch = true
+  }
+
+  # used by kubelet's aws provider to determine cluster
+  tag {
+    key = "KubernetesCluster"
+    value = "${ var.name }"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "Name"
+    value = "worker"
     propagate_at_launch = true
   }
 }
