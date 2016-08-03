@@ -50,10 +50,10 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1010.6.0, 1068.3.0, 1081.2.0)
+### CoreOS (1068.8.0, 1081.5.0, 1122.0.0)
 * etcd DNS Discovery Bootstrap
 
-### Kubernetes (v1.2.5)
+### Kubernetes (v1.3.4)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
@@ -79,18 +79,18 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.42 Python/2.7.10 Darwin/15.5.0 botocore/1.4.32
+aws-cli/1.10.51 Python/2.7.10 Darwin/15.6.0 botocore/1.4.41
 
 $ cfssl version
 Version: 1.2.0
 Revision: dev
-Runtime: go1.6
+Runtime: go1.6.2
 
 $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"2", GitVersion:"v1.2.4+3eed1e3", GitCommit:"3eed1e3be6848b877ff80a93da3785d9034d0a4f", GitTreeState:"not a git tree"}
+Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.0+2831379", GitCommit:"283137936a498aed572ee22af6774b6fb6e9fd94", GitTreeState:"not a git tree", BuildDate:"2016-07-05T15:40:13Z", GoVersion:"go1.6.2", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
 Terraform v0.6.16
