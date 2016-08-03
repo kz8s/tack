@@ -33,8 +33,8 @@ variable "instance-type" {
 variable "internal-tld" { default = "k8s" }
 variable "k8s" {
   default = {
-    hyperkube-image = "gcr.io/google_containers/hyperkube:v1.3.3"
-    version = "v1.3.3"
+    hyperkube-image = "gcr.io/google_containers/hyperkube:v1.3.4"
+    version = "v1.3.4"
   }
 }
 variable "name" {}
