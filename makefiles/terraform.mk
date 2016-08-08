@@ -3,9 +3,7 @@
 terraform.tfvars:
 	./scripts/init-variables ${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} >$@
 	echo "name = \"${CLUSTER_NAME}\"" >>$@
-	IP=`scripts/myip` && echo "cidr.allow-ssh = \"$${IP}\"" >>$@
-	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
-	echo "aws.region = \"${AWS_REGION}\"" >>$@
+	IP=`scripts/myip` && echo "cidr = { allow-ssh = \"$${IP}\" }" >>$@
 
 ## terraform apply
 apply: plan ; terraform apply

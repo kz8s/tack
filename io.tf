@@ -1,4 +1,4 @@
-provider "aws" { region = "${ var.aws.region }" }
+provider "aws" { region = "${ var.aws["region"] }" }
 
 # variables
 variable "aws" {
@@ -40,7 +40,7 @@ variable "k8s" {
 variable "name" {}
 
 # outputs
-output "azs" { value = "${ var.aws.azs }" }
+output "azs" { value = "${ var.aws["azs"] }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
 output "subnet-ids" { value = "${ module.vpc.subnet-ids }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
