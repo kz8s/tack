@@ -8,6 +8,9 @@ coreos:
 
   etcd2:
     discovery-srv: ${ internal-tld }
+    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
+    peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
 
   units:
@@ -60,7 +63,7 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
-            
+
     - name: download-kubernetes.service
       command: start
       content: |
@@ -81,18 +84,18 @@ coreos:
         RemainAfterExit=yes
         Type=oneshot
 
-    - name: s3-iam-get.service
+    - name: s3-get-presigned-url.service
       command: start
       content: |
         [Unit]
         After=network-online.target
-        Description=Install s3-iam-get
+        Description=Install s3-get-presigned-url
         Requires=network-online.target
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/s3-iam-get \
-          https://raw.githubusercontent.com/kz8s/s3-iam-get/master/s3-iam-get
-        ExecStart=/usr/bin/chmod +x /opt/bin/s3-iam-get
+        ExecStart=/usr/bin/curl -L -o /opt/bin/s3-get-presigned-url \
+          https://github.com/kz8s/s3-get-presigned-url/releases/download/v0.1/s3-get-presigned-url_linux_amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/s3-get-presigned-url
         RemainAfterExit=yes
         Type=oneshot
 
@@ -100,13 +103,13 @@ coreos:
       command: start
       content: |
         [Unit]
-        After=s3-iam-get.service
+        After=s3-get-presigned-url.service
         Description=Get ssl artifacts from s3 bucket using IAM role
-        Requires=s3-iam-get.service
+        Requires=s3-get-presigned-url.service
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStart=/bin/sh -c "/opt/bin/s3-iam-get ${ ssl-tar } | tar xv -C /etc/kubernetes/ssl/"
-        ExecStartPost=/bin/sh -c "/usr/bin/chmod 600 /etc/kubernetes/ssl/*"
+        ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
+          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
         RemainAfterExit=yes
         Type=oneshot
 
@@ -115,7 +118,7 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubectl
+        ConditionFileIsExecutable=/opt/bin/kubelet
         Requires=docker.socket
         [Service]
         ExecStart=/opt/bin/kubelet \
@@ -200,11 +203,12 @@ write-files:
 EOF
 
   vars {
+    bucket = "${ var.bucket-prefix }"
     hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
     k8s-version = "${ var.k8s-version }"
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
-    ssl-tar = "s3://${ var.bucket-prefix }/ssl/k8s-worker.tar"
+    ssl-tar = "/ssl/k8s-worker.tar"
   }
 }
