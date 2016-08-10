@@ -15,14 +15,16 @@ resource "aws_instance" "bastion" {
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
 
   tags  {
-    Name = "bastion"
+    Name = "bastion-${ var.name }"
     Cluster = "${ var.name }"
     Role = "bastion"
     builtWith = "terraform"
   }
 
-  /*user_data = "${ var.user-data }"*/
-  user_data = <<EOF
+  user_data = "${template_file.user-data.rendered}"
+}
+resource "template_file" "user-data" {
+  template = <<EOF
 #cloud-config
 
 ---
@@ -31,7 +33,7 @@ coreos:
     reboot-strategy: etcd-lock
 
   etcd2:
-    discovery-srv: k8s
+    discovery-srv: ${ internal-tld }
     proxy: on
 
   units:
@@ -50,4 +52,7 @@ coreos:
           https://raw.githubusercontent.com/kz8s/s3-iam-get/master/s3-iam-get
         ExecStart=/usr/bin/chmod +x /opt/bin/s3-iam-get
 EOF
+  vars {
+    internal-tld = "${ var.internal-tld }"
+  }
 }

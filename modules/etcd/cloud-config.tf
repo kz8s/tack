@@ -151,7 +151,7 @@ EOF
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-token = "etcd-cluster-${ var.name }"
-    fqdn = "etcd${ count.index + 1 }.k8s"
+    fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     # hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
