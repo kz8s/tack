@@ -13,6 +13,9 @@ _retry "❤ Waiting for DNS to resolve for $ELB" ping -c1 "$ELB"
 _retry "❤ Curling apiserver external elb" curl --insecure --silent "https://$ELB"
 _retry "❤ Trying to connect to cluster with kubectl" kubectl cluster-info
 
+echo "❤ Updating addons scripts"
+manifests/addons/addons-update.sh
+
 echo "❤ Creating add-ons "
 kubectl create -f manifests/addons
 echo "✓ add-on creation success"

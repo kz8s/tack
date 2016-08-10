@@ -8,3 +8,7 @@ terraform.tfplan
 terraform.tfvars
 .cfssl
 .keypair
+
+*.bak
+
+manifests/addons/kube-dns.yml
