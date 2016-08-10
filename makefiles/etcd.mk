@@ -1,7 +1,7 @@
 test-etcd:
 	ssh -A core@`terraform output bastion-ip` \
 		'( curl -s http://etcd.${INTERNAL_TLD}:2379/version )' \
-		| grep '{"etcdserver":"2.3.1","etcdcluster":"2.3.0"}'
+		| grep '{"etcdserver":"2.3.2","etcdcluster":"2.3.0"}'
 	ssh -A core@`terraform output bastion-ip` \
 		'( curl -s http://etcd.${INTERNAL_TLD}:2379/health )' \
 		| grep '{"health": "true"}'
