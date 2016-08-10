@@ -14,8 +14,9 @@ AWS_REGION="$1"
 COREOS_CHANNEL="$2"
 COREOS_VM_TYPE="$3"
 
-COREOS_AMI_ID=$(curl --silent https://coreos.com/dist/aws/aws-$COREOS_CHANNEL.json | grep -A 2 "$AWS_REGION" | grep $COREOS_VM_TYPE | cut -d"\"" -f4)
-[ -z "$COREOS_AMI_ID" ] && echo "FAIL: region $1 not found or doesn't include a CoreOS $COREOS_CHANNEL, $COREOS_VM_TYPE backed AMI" && exit 1
+COREOS_AMI_ID=`curl -s \
+  $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
+    $COREOS_CHANNEL $COREOS_VM_TYPE $AWS_REGION)`
 
 AWS_ACCOUNT_ID=`aws iam get-user --output json \
 	| awk '/arn:aws:/{print $2}' \
