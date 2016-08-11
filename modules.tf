@@ -115,7 +115,7 @@ module "worker" {
   name = "${ var.name }"
   region = "${ var.aws.region }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
 }
 
