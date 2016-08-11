@@ -90,7 +90,7 @@ _chmod ca
 
 # generate keys and certs
 generate k8s-admin client-server "$DEFAULT_HOSTS,10.0.0.15,*.*.compute.internal,*.ec2.internal"
-generate k8s-apiserver client-server "$DEFAULT_HOSTS,10.0.0.15,10.3.0.1,master.${INTERNAL_TLD},*.${REGION}.elb.amazonaws.com"
+generate k8s-apiserver client-server "$DEFAULT_HOSTS,10.0.0.15,${TF_VAR_k8s_service_ip},master.${INTERNAL_TLD},*.${REGION}.elb.amazonaws.com"
 generate k8s-etcd client-server "etcd.${INTERNAL_TLD},etcd1.${INTERNAL_TLD},etcd2.${INTERNAL_TLD},etcd3.${INTERNAL_TLD}"
 generate k8s-worker client "$DEFAULT_HOSTS,*.*.compute.internal,*.ec2.internal"
 

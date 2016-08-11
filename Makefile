@@ -18,6 +18,13 @@ ifeq (${USE_NAMED_INTERNAL_TLD}, true)
   export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
 endif 
 
+export TF_VAR_service_ip_range ?= 172.23.0.0/16
+#'10.3.0.0/24'
+export TF_VAR_k8s_service_ip ?= 172.23.0.1
+#10.3.0.1
+export TF_VAR_dns_service_ip ?= 172.23.0.10
+#10.3.0.10
+
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
 	@echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
@@ -26,6 +33,8 @@ tt:
 all: prereqs create-keypair ssl init apply
 	@printf "\nInitializing add-ons\n" && ./scripts/init-addons
 
+add-ons:
+	@printf "\nInitializing add-ons\n" && ./scripts/init-addons
 ## destroy and remove everything
 clean: destroy delete-keypair
 	pkill -f "kubectl proxy" ||:

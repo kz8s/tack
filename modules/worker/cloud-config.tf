@@ -125,7 +125,7 @@ coreos:
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
-          --cluster-dns=10.3.0.10 \
+          --cluster-dns=${ dns-service-ip } \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
@@ -210,5 +210,6 @@ EOF
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "/ssl/k8s-worker.tar"
+    dns-service-ip = "${ var.dns-service-ip }"
   }
 }

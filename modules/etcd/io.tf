@@ -14,6 +14,8 @@ variable "region" {}
 variable "subnet-ids" {}
 variable "vpc-cidr" {}
 variable "vpc-id" {}
+variable "dns-service-ip" {}
+variable "service-ip-range" {}
 
 output "external-elb" { value = "${ aws_elb.external.dns_name }" }
 output "internal-ips" { value = "${ join(",", aws_instance.etcd.*.public_ip) }" }

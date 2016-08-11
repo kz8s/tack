@@ -14,6 +14,7 @@ resource "aws_s3_bucket" "ssl" {
 REGION=${ var.region } \
 INTERNAL_TLD=${ var.internal-tld } \
 HYPERKUBE=${ var.hyperkube-image } \
+SERVICE_IP_RANGE=${ var.service-ip-range } \
 ${ path.module }/s3-cp ${ var.bucket-prefix }
 EOF
   }
