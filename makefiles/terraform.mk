@@ -7,6 +7,9 @@ terraform.tfvars:
 	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
 	echo "aws.region = \"${AWS_REGION}\"" >>$@
 	echo "internal-tld = \"${INTERNAL_TLD}\"" >>$@
+	echo "service-ip-range = \"${K8S_SERVICE_IP_RANGE}\""  >>$@
+	echo "k8s-service-ip = \"${K8S_SERVICE_IP}\""  >>$@
+	echo "dns-service-ip = \"${K8S_DNS_IP}\""  >>$@
 ## terraform apply
 apply: plan ; terraform apply
 

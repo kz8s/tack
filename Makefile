@@ -18,12 +18,14 @@ ifeq (${USE_NAMED_INTERNAL_TLD}, true)
   export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
 endif 
 
-export TF_VAR_service_ip_range ?= 172.23.0.0/16
+
+export K8S_SERVICE_IP_RANGE ?= "172.23.0.0/16"
 #'10.3.0.0/24'
-export TF_VAR_k8s_service_ip ?= 172.23.0.1
+export K8S_SERVICE_IP ?= 172.23.0.1
 #10.3.0.1
-export TF_VAR_dns_service_ip ?= 172.23.0.10
+export K8S_DNS_IP ?= 172.23.0.10
 #10.3.0.10
+
 
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
