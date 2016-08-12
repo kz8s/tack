@@ -16,16 +16,16 @@ export INTERNAL_TLD ?= k8s
 
 ifeq (${USE_NAMED_INTERNAL_TLD}, true)
   export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
-endif 
+endif
 
+export K8S_SERVICE_IP_RANGE ?= "10.3.0.0/24"
+export K8S_SERVICE_IP ?= 10.3.0.1
+export K8S_DNS_IP ?= 10.3.0.10
 
-export K8S_SERVICE_IP_RANGE ?= "172.23.0.0/16"
-#'10.3.0.0/24'
-export K8S_SERVICE_IP ?= 172.23.0.1
-#10.3.0.1
-export K8S_DNS_IP ?= 172.23.0.10
-#10.3.0.10
-
+# Alternative: 
+# export K8S_SERVICE_IP_RANGE ?= "172.16.0.0/16"
+# export K8S_SERVICE_IP ?= 172.16.0.1
+# export K8S_DNS_IP ?= 172.16.0.10
 
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
