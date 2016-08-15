@@ -1,6 +1,8 @@
 #!/bin/bash -eu
 
 ELB=$(terraform output external-elb)
+INTERNAL_TLD=$(terraform output internal-tld)
+OUTDIR=.addons
 
 _retry() {
   [[ -z $2 ]] && return 1
@@ -13,11 +15,18 @@ _retry "❤ Waiting for DNS to resolve for $ELB" ping -c1 "$ELB"
 _retry "❤ Curling apiserver external elb" curl --insecure --silent "https://$ELB"
 _retry "❤ Trying to connect to cluster with kubectl" kubectl cluster-info
 
-echo "❤ Updating addons scripts"
-manifests/addons/addons-update.sh
+echo "❤ Patching addon scripts "
+[ -d $OUTDIR ] || mkdir $OUTDIR
+cp manifests/addons/* $OUTDIR
+sed -i.bak 's|${INTERNAL_TLD}|'"$INTERNAL_TLD|g" "$OUTDIR/"*.tpl
+for file in $OUTDIR/*.tpl
+  do mv "$file" ${file/.tpl/}
+done
+rm -f .addons/*.bak
+echo "✓ Patching add-on scripts success"
 
 echo "❤ Creating add-ons "
-kubectl create -f manifests/addons
+kubectl create -f $OUTDIR
 echo "✓ add-on creation success"
 
 echo "❤ Creating busybox test pod "

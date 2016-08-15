@@ -7,6 +7,7 @@ terraform.tfvars:
 	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
 	echo "aws.region = \"${AWS_REGION}\"" >>$@
 	echo "internal-tld = \"${INTERNAL_TLD}\"" >>$@
+	
 ## terraform apply
 apply: plan ; terraform apply
 

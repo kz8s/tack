@@ -97,7 +97,7 @@ resource "null_resource" "verify-etcd" {
   provisioner "remote-exec" {
     inline = [
       "/bin/bash -c 'echo ❤ checking etcd cluster health'",
-      "/bin/bash -c 'until curl http://etcd.k8s:2379/health || echo retrying; do sleep 14 && echo .; done'",
+      "/bin/bash -c 'until curl http://etcd.${ var.internal-tld }:2379/health || echo retrying; do sleep 14 && echo .; done'",
       "/bin/bash -c 'echo ✓ etcd cluster is reporting healthy'",
     ]
   }

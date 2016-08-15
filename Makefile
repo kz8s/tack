@@ -8,15 +8,9 @@ CLUSTER_NAME ?= testing
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 DIR_KEY_PAIR := .keypair
-DIR_SSL := .ssl
+DIR_SSL := .cfssl
 
-USE_NAMED_INTERNAL_TLD := true
-
-export INTERNAL_TLD ?= k8s
-
-ifeq (${USE_NAMED_INTERNAL_TLD}, true)
-  export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
-endif 
+INTERNAL_TLD ?= k8s
 
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
@@ -29,12 +23,13 @@ all: prereqs create-keypair ssl init apply
 ## destroy and remove everything
 clean: destroy delete-keypair
 	pkill -f "kubectl proxy" ||:
+	rm -rf .addons ||:
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 	rm -rf tmp ||:
-	rm -rf .cfssl ||:
+	rm -rf ${DIR_SSL} ||:
 
-.cfssl: ; ./scripts/init-cfssl .cfssl ${AWS_REGION}
+.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD}
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
