@@ -7,22 +7,24 @@ resource "aws_instance" "bastion" {
 
   # TODO: force private_ip to prevent collision with etcd machines
 
-  vpc_security_group_ids = [
-    "${ var.security-group-id }",
-  ]
-
   source_dest_check = false
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
 
   tags  {
-    Name = "bastion-${ var.name }"
-    Cluster = "${ var.name }"
-    Role = "bastion"
     builtWith = "terraform"
+    Cluster = "${ var.name }"
+    Depends_id = "${ var.depends-id }"
+    Name = "bastion-${ var.name }"
+    Role = "bastion"
   }
 
-  user_data = "${template_file.user-data.rendered}"
+  user_data = "${ template_file.user-data.rendered }"
+
+  vpc_security_group_ids = [
+    "${ var.security-group-id }",
+  ]
 }
+
 resource "template_file" "user-data" {
   template = <<EOF
 #cloud-config
@@ -52,7 +54,12 @@ coreos:
           https://raw.githubusercontent.com/kz8s/s3-iam-get/master/s3-iam-get
         ExecStart=/usr/bin/chmod +x /opt/bin/s3-iam-get
 EOF
+
   vars {
     internal-tld = "${ var.internal-tld }"
   }
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [ "aws_instance.bastion" ]
 }

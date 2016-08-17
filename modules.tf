@@ -7,6 +7,7 @@ module "s3" {
   k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
   region = "${ var.aws.region }"
+  depends-id = "${ module.vpc.depends-id }"
 }
 
 module "vpc" {
@@ -16,6 +17,7 @@ module "vpc" {
   cidr = "${ var.cidr.vpc }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
+  depends-id = ""
 }
 
 module "security" {
@@ -32,6 +34,7 @@ module "iam" {
 
   bucket-prefix = "${ var.s3-bucket }"
   name = "${ var.name }"
+  depends-id = "${ module.s3.depends-id }"  
 }
 
 module "route53" {
@@ -41,6 +44,7 @@ module "route53" {
   name = "${ var.name }"
   internal-tld = "${ var.internal-tld }"
   vpc-id = "${ module.vpc.id }"
+  depends-id = "${ module.iam.depends-id }"
 }
 
 module "etcd" {
@@ -62,6 +66,7 @@ module "etcd" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
+  depends-id = "${ module.route53.depends-id }"
 }
 
 module "bastion" {
@@ -77,6 +82,7 @@ module "bastion" {
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
+  depends-id = "${ module.etcd.depends-id }"
 }
 
 resource "null_resource" "verify-etcd" {
@@ -119,6 +125,7 @@ module "worker" {
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
+  depends-id = "${ module.etcd.depends-id }"
 }
 
 module "kubeconfig" {

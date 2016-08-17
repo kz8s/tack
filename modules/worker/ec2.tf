@@ -63,4 +63,14 @@ resource "aws_autoscaling_group" "worker" {
     value = "worker-${ var.name }"
     propagate_at_launch = true
   }
+
+  tag {
+    key = "Depends_id"
+    value = "${var.depends-id}"
+    propagate_at_launch = false
+  }
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = ["aws_launch_configuration.worker","aws_autoscaling_group.worker"]
 }

@@ -10,3 +10,7 @@ variable "vpc-id" {}
 variable "internal-tld" {}
 
 output "ip" { value = "${ aws_instance.bastion.public_ip }" }
+
+
+variable "depends-id" {}
+output "depends-id" { value = "${null_resource.dummy_dependency.id}" }

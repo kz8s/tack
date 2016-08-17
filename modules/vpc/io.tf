@@ -11,3 +11,7 @@ output "route-table-id" { value = "${ aws_route_table.private.id }" }
 
 output "subnet-ids" { value = "${ join(",", aws_subnet.public.*.id) }" }
 output "subnet-ids-private" { value = "${ join(",", aws_subnet.private.*.id) }" }
+
+
+variable "depends-id" {}
+output "depends-id" { value = "${null_resource.dummy_dependency.id}" }
