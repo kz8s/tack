@@ -6,6 +6,8 @@ terraform.tfvars:
 	IP=`scripts/myip` && echo "cidr.allow-ssh = \"$${IP}\"" >>$@
 	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
 	echo "aws.region = \"${AWS_REGION}\"" >>$@
+	if [ -f ./vpc-existing.tfvars ]; then cat ./vpc-existing.tfvars >>terraform.tfvars ; fi >>$@
+	# Elide the vpc-existing.tfvars into the tfvars
 
 ## terraform apply
 apply: plan ; terraform apply
