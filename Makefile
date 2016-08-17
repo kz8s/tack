@@ -10,6 +10,14 @@ AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .ssl
 
+USE_NAMED_INTERNAL_TLD := true
+
+export INTERNAL_TLD ?= k8s
+
+ifeq (${USE_NAMED_INTERNAL_TLD}, true)
+  export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
+endif 
+
 tt:
 	@echo CLUSTER_NAME = ${CLUSTER_NAME}
 	@echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}

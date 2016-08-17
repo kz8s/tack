@@ -7,5 +7,6 @@ variable "name" {}
 variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
+variable "internal-tld" {}
 
 output "ip" { value = "${ aws_instance.bastion.public_ip }" }

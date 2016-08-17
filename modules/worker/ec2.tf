@@ -28,7 +28,7 @@ resource "aws_launch_configuration" "worker" {
 }
 
 resource "aws_autoscaling_group" "worker" {
-  name = "worker"
+  name = "worker-${ var.name }"
 
   desired_capacity = "5"
   health_check_grace_period = 60
@@ -60,7 +60,7 @@ resource "aws_autoscaling_group" "worker" {
 
   tag {
     key = "Name"
-    value = "worker"
+    value = "worker-${ var.name }"
     propagate_at_launch = true
   }
 }

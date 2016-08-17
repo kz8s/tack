@@ -6,6 +6,7 @@ module "s3" {
   k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
   region = "${ var.aws.region }"
+  internal-tld = "${ var.internal-tld }"
 }
 
 module "vpc" {
@@ -75,6 +76,7 @@ module "bastion" {
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
+  internal-tld = "${ var.internal-tld }"
 }
 
 resource "null_resource" "verify-etcd" {
