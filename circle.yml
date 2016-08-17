@@ -20,9 +20,9 @@ dependencies:
 
 test:
   pre:
-    - make ssl init
-  override:
-    - make plan
+    - make ssl
+  # override:
+  #  - make plan
   # post:
   #   - make clean
 
