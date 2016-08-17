@@ -118,10 +118,12 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubelet
+        # ConditionFileIsExecutable=/opt/bin/kubelet
         Requires=docker.socket
         [Service]
-        ExecStart=/opt/bin/kubelet \
+        Environment=KUBELET_VERSION=v1.3.4_coreos.0
+        # ExecStart=/opt/bin/kubelet \
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.k8s:8080 \
           --cloud-provider=aws \
