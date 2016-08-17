@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
     k8s-app: kube-dns
-  clusterIP: 10.3.0.10
+  clusterIP: ${DNS_SERVICE_IP}
   ports:
   - name: dns
     port: 53
@@ -52,8 +52,8 @@ spec:
         args:
         # command = "/kube2sky"
         - -domain=cluster.local
-        - -etcd-server=http://etcd.k8s:2379
-        - -kube_master_url=http://master.k8s:8080
+        - -etcd-server=http://etcd.${INTERNAL_TLD}:2379
+        - -kube_master_url=http://master.${INTERNAL_TLD}:8080
         - -v=6
         - -logtostderr
       - name: skydns
@@ -64,7 +64,7 @@ spec:
             memory: 50Mi
         args:
         # command = "/skydns"
-        - -machines=http://etcd.k8s:2379
+        - -machines=http://etcd.${INTERNAL_TLD}:2379
         - -addr=0.0.0.0:53
         - -domain=cluster.local.
         # - -ns-rotate=false

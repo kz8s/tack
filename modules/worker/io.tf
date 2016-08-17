@@ -11,3 +11,4 @@ variable "region" {}
 variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
+variable "dns-service-ip" {} 

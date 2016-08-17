@@ -6,6 +6,8 @@ module "s3" {
   k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
   region = "${ var.aws.region }"
+  internal-tld = "${ var.internal-tld }"
+  service-ip-range = "${ var.service-ip-range }"
 }
 
 module "vpc" {
@@ -61,6 +63,8 @@ module "etcd" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
+  dns-service-ip = "${ var.dns-service-ip }"
+  service-ip-range = "${ var.service-ip-range }"
 }
 
 module "bastion" {
@@ -75,6 +79,7 @@ module "bastion" {
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
+  internal-tld = "${ var.internal-tld }"
 }
 
 resource "null_resource" "verify-etcd" {
@@ -95,7 +100,7 @@ resource "null_resource" "verify-etcd" {
   provisioner "remote-exec" {
     inline = [
       "/bin/bash -c 'echo ❤ checking etcd cluster health'",
-      "/bin/bash -c 'until curl http://etcd.k8s:2379/health || echo retrying; do sleep 14 && echo .; done'",
+      "/bin/bash -c 'until curl http://etcd.${ var.internal-tld }:2379/health || echo retrying; do sleep 14 && echo .; done'",
       "/bin/bash -c 'echo ✓ etcd cluster is reporting healthy'",
     ]
   }
@@ -117,6 +122,7 @@ module "worker" {
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
+  dns-service-ip = "${ var.dns-service-ip }"
 }
 
 module "kubeconfig" {

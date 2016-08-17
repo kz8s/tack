@@ -123,9 +123,9 @@ coreos:
         [Service]
         ExecStart=/opt/bin/kubelet \
           --allow-privileged=true \
-          --api-servers=http://master.k8s:8080 \
+          --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
-          --cluster-dns=10.3.0.10 \
+          --cluster-dns=${ dns-service-ip } \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
@@ -177,7 +177,7 @@ write-files:
           - /hyperkube
           - proxy
           - --kubeconfig=/etc/kubernetes/kubeconfig.yml
-          - --master=https://master.k8s
+          - --master=https://master.${ internal-tld }
           - --proxy-mode=iptables
           securityContext:
             privileged: true
@@ -210,5 +210,6 @@ EOF
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "/ssl/k8s-worker.tar"
+    dns-service-ip = "${ var.dns-service-ip }"
   }
 }

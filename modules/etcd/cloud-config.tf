@@ -40,7 +40,7 @@ coreos:
           content: |
             [Service]
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
-              '{ "Network": "10.3.0.0/16", "Backend": { "Type": "vxlan" } }'
+              '{ "Network": "${ service-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always
             RestartSec=10
 
@@ -135,7 +135,7 @@ coreos:
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
           --cloud-provider=aws \
-          --cluster-dns=10.3.0.10 \
+          --cluster-dns=${ dns-service-ip } \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
           --register-schedulable=false
@@ -151,7 +151,7 @@ EOF
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-token = "etcd-cluster-${ var.name }"
-    fqdn = "etcd${ count.index + 1 }.k8s"
+    fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     # hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
@@ -160,5 +160,7 @@ EOF
     region = "${ var.region }"
     ssl-tar = "ssl/k8s-apiserver.tar"
     etc-tar = "/manifests/etc.tar"
+    dns-service-ip = "${ var.dns-service-ip }"
+    service-ip-range = "${ var.service-ip-range }"
   }
 }

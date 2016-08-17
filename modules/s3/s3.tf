@@ -11,9 +11,11 @@ resource "aws_s3_bucket" "ssl" {
 
   provisioner "local-exec" {
     command = <<EOF
-      HYPERKUBE=${ var.hyperkube-image } \
-      REGION=${ var.region } \
-        ${ path.module }/s3-cp ${ var.bucket-prefix }
+REGION=${ var.region } \
+INTERNAL_TLD=${ var.internal-tld } \
+HYPERKUBE=${ var.hyperkube-image } \
+SERVICE_IP_RANGE=${ var.service-ip-range } \
+${ path.module }/s3-cp ${ var.bucket-prefix }
 EOF
   }
 

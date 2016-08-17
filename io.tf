@@ -23,6 +23,9 @@ variable "coreos-aws" {
   }
 }
 variable "etcd-ips" { default = "10.0.0.10,10.0.0.11,10.0.0.12" }
+variable "service-ip-range" { default = "10.3.0.0/24" }
+variable "k8s-service-ip" { default = "10.3.0.1" }
+variable "dns-service-ip" { default = "10.3.0.10" }
 variable "instance-type" {
   default = {
     bastion = "t2.nano"
@@ -44,3 +47,5 @@ output "azs" { value = "${ var.aws.azs }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
 output "subnet-ids" { value = "${ module.vpc.subnet-ids }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
+output "internal-tld" { value = "${ var.internal-tld }" }
+output "dns-service-ip" { value = "${ var.dns-service-ip }" } 
