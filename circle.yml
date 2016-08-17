@@ -1,4 +1,10 @@
 # circle.yml
+general:
+  branches:
+    only:
+      - master
+      - test
+
 machine:
   environment:
     CFSSL_VERSION: R1.2
