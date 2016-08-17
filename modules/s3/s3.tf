@@ -19,3 +19,6 @@ EOF
 
   region = "${ var.region }"
 }
+resource "null_resource" "dummy_dependency" {
+  depends_on = ["aws_s3_bucket.ssl"]
+}

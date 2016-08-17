@@ -24,5 +24,10 @@ resource "aws_instance" "etcd" {
     KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
     Name = "etcd${ count.index + 1 }"
     role = "etcd,apiserver"
+    Depends_id = "${var.depends-id}"
   }
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = ["aws_instance.etcd"]
 }

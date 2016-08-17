@@ -19,6 +19,7 @@ resource "aws_instance" "bastion" {
     Cluster = "${ var.name }"
     Role = "bastion"
     builtWith = "terraform"
+    Depends_id = "${var.depends-id}"    
   }
 
   /*user_data = "${ var.user-data }"*/
@@ -50,4 +51,8 @@ coreos:
           https://raw.githubusercontent.com/kz8s/s3-iam-get/master/s3-iam-get
         ExecStart=/usr/bin/chmod +x /opt/bin/s3-iam-get
 EOF
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = ["aws_instance.bastion"]
 }
