@@ -1,15 +1,31 @@
 .terraform: ; terraform get
 
 terraform.tfvars:
-	./scripts/init-variables ${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} >$@
-	echo "name = \"${CLUSTER_NAME}\"" >>$@
-	IP=`scripts/myip` && echo "cidr.allow-ssh = \"$${IP}\"" >>$@
-	echo "aws.key-name = \"${AWS_EC2_KEY_NAME}\"" >>$@
-	echo "aws.region = \"${AWS_REGION}\"" >>$@
-	echo "internal-tld = \"${INTERNAL_TLD}\"" >>$@
-	
+	@./scripts/init-variables \
+		${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} \
+		${INTERNAL_TLD} ${CLUSTER_NAME} `scripts/myip`
+
+module.%:
+	@echo "${BLUE}❤ make $@ - commencing${NC}"
+	@time terraform apply -target $@
+	@echo "${GREEN}✓ make $@ - success${NC}"
+	@sleep 5.2
+
 ## terraform apply
-apply: plan ; terraform apply
+apply: plan
+	# building these terraform targets serparately helps ensure prerequisites are
+	# ready for subsequent steps
+	@$(MAKE) module.iam
+	@$(MAKE) module.s3
+	@$(MAKE) module.vpc
+	@$(MAKE) module.security
+	@$(MAKE) module.bastion
+	@$(MAKE) module.route53
+	@$(MAKE) module.etcd
+	# now just do the rest
+	@echo "${BLUE}❤ terraform apply - commencing${NC}"
+	terraform apply
+	@echo "${GREEN}✓ make $@ - success${NC}"
 
 ## terraform destroy
 destroy: ; terraform destroy
@@ -28,4 +44,4 @@ plan: get init
 ## terraform show
 show: ; terraform show
 
-.PHONY: apply destroy get init plan show
+.PHONY: apply destroy get init module.% plan show
