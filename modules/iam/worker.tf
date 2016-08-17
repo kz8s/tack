@@ -54,3 +54,7 @@ resource "aws_iam_role_policy" "worker" {
 }
 EOS
 }
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = ["aws_iam_role.worker","aws_iam_role_policy.worker","aws_iam_instance_profile.worker"]
+}
