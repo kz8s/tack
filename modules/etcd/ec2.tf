@@ -15,7 +15,7 @@ resource "aws_instance" "etcd" {
 
   vpc_security_group_ids = [ "${ var.etcd-security-group-id }" ]
   source_dest_check = false
-  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
+  subnet_id = "${ element( split(",", var.subnet-ids), count.index ) }"
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
 
   tags {
