@@ -1,5 +1,6 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
+variable "depends-id" {}
 variable "hyperkube-image" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
@@ -12,5 +13,4 @@ variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
 
-variable "depends-id" {}
-output "depends-id" { value = "${null_resource.dummy_dependency.id}" }
+output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

@@ -64,5 +64,8 @@ resource "aws_route53_record" "etcd-server-tcp" {
 }
 
 resource "null_resource" "dummy_dependency" {
-  depends_on = ["aws_route53_record.etcd-server-tcp","aws_route53_record.A-etcd"]
+  depends_on = [
+    "aws_route53_record.etcd-server-tcp",
+    "aws_route53_record.A-etcd",
+  ]
 }

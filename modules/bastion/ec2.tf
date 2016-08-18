@@ -13,7 +13,7 @@ resource "aws_instance" "bastion" {
   tags  {
     builtWith = "terraform"
     Cluster = "${ var.name }"
-    Depends_id = "${ var.depends-id }"
+    depends-id = "${ var.depends-id }"
     Name = "bastion-${ var.name }"
     Role = "bastion"
   }
