@@ -8,7 +8,8 @@ coreos:
 
   etcd2:
     discovery-srv: ${ internal-tld }
-    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
@@ -122,7 +123,9 @@ coreos:
         Requires=docker.socket
         [Service]
         Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
-        Environment="RKT_OPTS=--volume=resolv,kind=host,source=/etc/resolv.conf --mount volume=resolv,target=/etc/resolv.conf"
+        Environment="RKT_OPTS=\
+        --volume=resolv,kind=host,source=/etc/resolv.conf \
+        --mount volume=resolv,target=/etc/resolv.conf"
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \

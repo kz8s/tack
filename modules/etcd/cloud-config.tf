@@ -19,7 +19,8 @@ coreos:
     listen-client-urls: http://0.0.0.0:2379
     listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
-    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
@@ -132,7 +133,9 @@ coreos:
         Requires=docker.socket
         [Service]
         Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
-        Environment="RKT_OPTS=--volume=resolv,kind=host,source=/etc/resolv.conf --mount volume=resolv,target=/etc/resolv.conf"
+        Environment="RKT_OPTS=\
+        --volume=resolv,kind=host,source=/etc/resolv.conf \
+        --mount volume=resolv,target=/etc/resolv.conf"
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
