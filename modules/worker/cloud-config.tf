@@ -118,11 +118,11 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        # ConditionFileIsExecutable=/opt/bin/kubelet
+        ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        Environment=KUBELET_VERSION=v1.3.4_coreos.0
-        # ExecStart=/opt/bin/kubelet \
+        Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
+        Environment="RKT_OPTS=--volume=resolv,kind=host,source=/etc/resolv.conf --mount volume=resolv,target=/etc/resolv.conf"
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
@@ -206,6 +206,7 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
+    coreos-kyperkube-tag = "${ var.coreos-kyperkube-tag }"
     hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
     k8s-version = "${ var.k8s-version }"

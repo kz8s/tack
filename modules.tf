@@ -53,6 +53,7 @@ module "etcd" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
+  coreos-kyperkube-tag = "${ var.k8s.coreos-kyperkube-tag }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
   external-elb-security-group-id = "${ module.security.external-elb-id }"
@@ -115,6 +116,7 @@ module "worker" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
+  coreos-kyperkube-tag = "${ var.k8s.coreos-kyperkube-tag }"
   hyperkube-image = "${ var.k8s.hyperkube-image }"
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type.worker }"

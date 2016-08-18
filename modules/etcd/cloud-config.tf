@@ -128,10 +128,12 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubelet
+        ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        ExecStart=/opt/bin/kubelet \
+        Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
+        Environment="RKT_OPTS=--volume=resolv,kind=host,source=/etc/resolv.conf --mount volume=resolv,target=/etc/resolv.conf"
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
           --cloud-provider=aws \
@@ -151,6 +153,7 @@ EOF
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-token = "etcd-cluster-${ var.name }"
+    coreos-kyperkube-tag = "${ var.coreos-kyperkube-tag }"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     # hyperkube-image = "${ var.hyperkube-image }"
