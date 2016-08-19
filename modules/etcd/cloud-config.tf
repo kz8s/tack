@@ -32,7 +32,8 @@ coreos:
         Description=Accelerate spin up by prefetching hyperkube
         After=network-online.target
         [Service]
-        ExecStart=/usr/bin/rkt fetch quay.io/coreos/hyperkube:${ coreos-kyperkube-tag }
+        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
+          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
         RemainAfterExit=yes
         Type=oneshot
 
@@ -71,24 +72,6 @@ coreos:
           content: |
             [Service]
             Environment="DOCKER_OPTS=--storage-driver=overlay"
-
-    - name: download-kubernetes.service
-      command: start
-      content: |
-        [Unit]
-        After=network-online.target
-        Description=Download Kubernetes Binaries
-        Documentation=https://github.com/kubernetes/kubernetes
-        Requires=network-online.target
-
-        [Service]
-        Environment=K8S_VER=${ k8s-version }
-        Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubectl
-        RemainAfterExit=yes
-        Type=oneshot
 
     - name: s3-get-presigned-url.service
       command: start
@@ -141,7 +124,7 @@ coreos:
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
+        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
         Environment="RKT_OPTS=\
         --volume=resolv,kind=host,source=/etc/resolv.conf \
         --mount volume=resolv,target=/etc/resolv.conf"
@@ -165,12 +148,11 @@ EOF
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-token = "etcd-cluster-${ var.name }"
-    coreos-kyperkube-tag = "${ var.coreos-kyperkube-tag }"
+    coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
+    coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
-    # hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
-    k8s-version = "${ var.k8s-version }"
     log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "ssl/k8s-apiserver.tar"

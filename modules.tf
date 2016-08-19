@@ -3,9 +3,9 @@ module "s3" {
   depends-id = "${ module.vpc.depends-id }"
 
   bucket-prefix = "${ var.s3-bucket }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
   internal-tld = "${ var.internal-tld }"
-  k8s-version = "${var.k8s.version}"
   name = "${ var.name }"
   region = "${ var.aws.region }"
 }
@@ -53,15 +53,14 @@ module "etcd" {
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
-  coreos-kyperkube-tag = "${ var.k8s.coreos-kyperkube-tag }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
   external-elb-security-group-id = "${ module.security.external-elb-id }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   instance-type = "${ var.instance-type.etcd }"
   internal-tld = "${ var.internal-tld }"
-  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
@@ -112,16 +111,14 @@ resource "null_resource" "verify-etcd" {
 
 module "worker" {
   source = "./modules/worker"
-  depends-id = "${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
-  coreos-kyperkube-tag = "${ var.k8s.coreos-kyperkube-tag }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type.worker }"
   internal-tld = "${ var.internal-tld }"
-  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"

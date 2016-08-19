@@ -1,12 +1,11 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
-variable "coreos-kyperkube-tag" {}
-variable "depends-id" {}
-variable "hyperkube-image" {}
+variable "coreos-hyperkube-image" {}
+variable "coreos-hyperkube-tag" {}
+variable "depends-id" { default = "self" }
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
-variable "k8s-version" {}
 variable "key-name" {}
 variable "name" {}
 variable "region" {}

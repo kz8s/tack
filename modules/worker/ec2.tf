@@ -10,19 +10,17 @@ resource "aws_launch_configuration" "worker" {
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
 
+  # Storage
+  root_block_device {
+    volume_size = 52
+    volume_type = "gp2"
+  }
+
   security_groups = [
     "${ var.security-group-id }",
   ]
 
   user_data = "${ template_file.cloud-config.rendered }"
-
-  # Storage
-
-
-  root_block_device {
-    volume_size = 52
-    volume_type = "gp2"
-  }
 
   /*lifecycle {
     create_before_destroy = true
@@ -69,6 +67,12 @@ resource "aws_autoscaling_group" "worker" {
   tag {
     key = "Name"
     value = "worker-${ var.name }"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "version"
+    value = "${ var.coreos-hyperkube-tag }"
     propagate_at_launch = true
   }
 }

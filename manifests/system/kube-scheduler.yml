@@ -13,6 +13,9 @@ spec:
     - scheduler
     - --leader-elect=true
     - --master=http://127.0.0.1:8080
+    resources:
+      requests:
+        cpu: 100m
     livenessProbe:
       httpGet:
         host: 127.0.0.1
