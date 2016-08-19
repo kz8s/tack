@@ -159,7 +159,9 @@ resource "null_resource" "verify" {
 
   provisioner "remote-exec" {
     inline = [
+      "/bin/bash -c 'echo ❤ waiting for kubelet-wrapper to start - this can take serveral minutes'",
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
+      "/bin/bash -c 'echo ✓ kubelet-warapper is up'",
     ]
   }
 }

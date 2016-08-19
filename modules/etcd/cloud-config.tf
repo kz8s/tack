@@ -25,6 +25,17 @@ coreos:
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   units:
+    - name: prefetch-hyperkube-container.service
+      command: start
+      content: |
+        [Unit]
+        Description=Accelerate spin up by prefetching hyperkube
+        After=network-online.target
+        [Service]
+        ExecStart=/usr/bin/rkt fetch quay.io/coreos/hyperkube:${ coreos-kyperkube-tag }
+        RemainAfterExit=yes
+        Type=oneshot
+
     - name: etcd2.service
       command: start
       drop-ins:
@@ -75,9 +86,7 @@ coreos:
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubelet $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubelet
         ExecStart=/usr/bin/chmod +x /opt/bin/kubectl
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
         RemainAfterExit=yes
         Type=oneshot
 
