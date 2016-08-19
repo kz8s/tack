@@ -1,5 +1,6 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
+variable "coreos-kyperkube-tag" {}
 variable "depends-id" {}
 variable "etcd-ips" {}
 variable "etcd-security-group-id" {}

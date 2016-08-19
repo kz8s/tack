@@ -1,5 +1,6 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
+variable "coreos-kyperkube-tag" {}
 variable "depends-id" {}
 variable "hyperkube-image" {}
 variable "instance-profile-name" {}

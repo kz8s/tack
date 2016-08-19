@@ -8,12 +8,24 @@ coreos:
 
   etcd2:
     discovery-srv: ${ internal-tld }
-    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
 
   units:
+    - name: prefetch-hyperkube-container.service
+      command: start
+      content: |
+        [Unit]
+        Description=Accelerate spin up by prefetching hyperkube
+        After=network-online.target
+        [Service]
+        ExecStart=/usr/bin/rkt fetch quay.io/coreos/hyperkube:${ coreos-kyperkube-tag }
+        RemainAfterExit=yes
+        Type=oneshot
+
     - name: format-ephemeral.service
       command: start
       content: |
@@ -78,9 +90,7 @@ coreos:
         Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
         ExecStartPre=-/usr/bin/mkdir -p /opt/bin
         ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubelet $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubelet
         ExecStart=/usr/bin/chmod +x /opt/bin/kubectl
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
         RemainAfterExit=yes
         Type=oneshot
 
@@ -118,10 +128,14 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubelet
+        ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        ExecStart=/opt/bin/kubelet \
+        Environment="KUBELET_VERSION=${ coreos-kyperkube-tag }"
+        Environment="RKT_OPTS=\
+        --volume=resolv,kind=host,source=/etc/resolv.conf \
+        --mount volume=resolv,target=/etc/resolv.conf"
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
@@ -204,6 +218,7 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
+    coreos-kyperkube-tag = "${ var.coreos-kyperkube-tag }"
     hyperkube-image = "${ var.hyperkube-image }"
     internal-tld = "${ var.internal-tld }"
     k8s-version = "${ var.k8s-version }"
