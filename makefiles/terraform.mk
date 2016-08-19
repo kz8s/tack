@@ -13,16 +13,6 @@ module.%:
 
 ## terraform apply
 apply: plan
-	# building these terraform targets serparately helps ensure prerequisites are
-	# ready for subsequent steps
-	@$(MAKE) module.iam
-	@$(MAKE) module.s3
-	@$(MAKE) module.vpc
-	@$(MAKE) module.security
-	@$(MAKE) module.bastion
-	@$(MAKE) module.route53
-	@$(MAKE) module.etcd
-	# now just do the rest
 	@echo "${BLUE}❤ terraform apply - commencing${NC}"
 	terraform apply
 	@echo "${GREEN}✓ make $@ - success${NC}"
@@ -39,6 +29,7 @@ init: terraform.tfvars
 ## terraform plan
 plan: get init
 	terraform validate
+	@echo "${GREEN}✓ terraform validate - success${NC}"
 	terraform plan -out terraform.tfplan
 
 ## terraform show

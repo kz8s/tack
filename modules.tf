@@ -1,5 +1,6 @@
 module "s3" {
   source = "./modules/s3"
+  depends-id = "${ module.vpc.depends-id }"
 
   bucket-prefix = "${ var.s3-bucket }"
   hyperkube-image = "${ var.k8s.hyperkube-image }"
@@ -11,6 +12,7 @@ module "s3" {
 
 module "vpc" {
   source = "./modules/vpc"
+  depends-id = ""
 
   azs = "${ var.aws.azs }"
   cidr = "${ var.cidr.vpc }"
@@ -29,6 +31,7 @@ module "security" {
 
 module "iam" {
   source = "./modules/iam"
+  depends-id = "${ module.s3.depends-id }"
 
   bucket-prefix = "${ var.s3-bucket }"
   name = "${ var.name }"
@@ -36,6 +39,7 @@ module "iam" {
 
 module "route53" {
   source = "./modules/route53"
+  depends-id = "${ module.iam.depends-id }"
 
   etcd-ips = "${ var.etcd-ips }"
   name = "${ var.name }"
@@ -45,6 +49,7 @@ module "route53" {
 
 module "etcd" {
   source = "./modules/etcd"
+  depends-id = "${ module.route53.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
@@ -66,6 +71,7 @@ module "etcd" {
 
 module "bastion" {
   source = "./modules/bastion"
+  depends-id = "${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"
@@ -105,6 +111,7 @@ resource "null_resource" "verify-etcd" {
 
 module "worker" {
   source = "./modules/worker"
+  depends-id = "${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
   bucket-prefix = "${ var.s3-bucket }"

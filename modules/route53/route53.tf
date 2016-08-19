@@ -62,3 +62,10 @@ resource "aws_route53_record" "etcd-server-tcp" {
   records = [ "${ template_file.discover-server.*.rendered }" ]
   zone_id = "${ aws_route53_zone.internal.zone_id }"
 }
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [
+    "aws_route53_record.etcd-server-tcp",
+    "aws_route53_record.A-etcd",
+  ]
+}
