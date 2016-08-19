@@ -33,9 +33,8 @@ variable "instance-type" {
 variable "internal-tld" {}
 variable "k8s" {
   default = {
-    coreos-kyperkube-tag = "v1.3.5_coreos.0"
-    hyperkube-image = "gcr.io/google_containers/hyperkube:v1.3.5"
-    version = "v1.3.5"
+    coreos-hyperkube-image = "quay.io/coreos/hyperkube"
+    coreos-hyperkube-tag = "v1.3.5_coreos.0"
   }
 }
 variable "name" {}

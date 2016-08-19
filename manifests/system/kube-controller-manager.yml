@@ -16,6 +16,9 @@ spec:
     - --master=http://127.0.0.1:8080
     - --root-ca-file=/etc/kubernetes/ssl/ca.pem
     - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+    resources:
+      requests:
+        cpu: 200m
     livenessProbe:
       httpGet:
         host: 127.0.0.1
