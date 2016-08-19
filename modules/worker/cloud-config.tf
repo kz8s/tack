@@ -22,7 +22,8 @@ coreos:
         Description=Accelerate spin up by prefetching hyperkube
         After=network-online.target
         [Service]
-        ExecStart=/usr/bin/rkt fetch ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
+        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
+          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
         RemainAfterExit=yes
         Type=oneshot
 
