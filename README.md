@@ -52,8 +52,9 @@ creation
 
 ### CoreOS (1068.9.0, 1122.1.0, 1122.0.0)
 * etcd DNS Discovery Bootstrap
+* kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.3.4)
+### Kubernetes (v1.3.5)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
