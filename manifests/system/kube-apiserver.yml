@@ -31,6 +31,13 @@ spec:
     - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
     - --v=2
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        port: 8080
+        path: /healthz
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
     ports:
     - containerPort: 443
       hostPort: 443

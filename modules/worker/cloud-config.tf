@@ -8,12 +8,25 @@ coreos:
 
   etcd2:
     discovery-srv: ${ internal-tld }
-    peer-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
 
   units:
+    - name: prefetch-hyperkube-container.service
+      command: start
+      content: |
+        [Unit]
+        Description=Accelerate spin up by prefetching hyperkube
+        After=network-online.target
+        [Service]
+        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
+          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
+        RemainAfterExit=yes
+        Type=oneshot
+
     - name: format-ephemeral.service
       command: start
       content: |
@@ -64,26 +77,6 @@ coreos:
             Restart=always
             RestartSec=10
 
-    - name: download-kubernetes.service
-      command: start
-      content: |
-        [Unit]
-        After=network-online.target
-        Description=Download Kubernetes Binaries
-        Documentation=https://github.com/kubernetes/kubernetes
-        Requires=network-online.target
-
-        [Service]
-        Environment=K8S_VER=${ k8s-version }
-        Environment="K8S_URL=https://storage.googleapis.com/kubernetes-release/release"
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubectl $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubectl
-        ExecStart=/usr/bin/curl -L -o /opt/bin/kubelet $${K8S_URL}/$${K8S_VER}/bin/linux/amd64/kubelet
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubectl
-        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: s3-get-presigned-url.service
       command: start
       content: |
@@ -118,10 +111,14 @@ coreos:
       content: |
         [Unit]
         After=docker.socket
-        ConditionFileIsExecutable=/opt/bin/kubelet
+        ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        ExecStart=/opt/bin/kubelet \
+        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
+        Environment="RKT_OPTS=\
+        --volume=resolv,kind=host,source=/etc/resolv.conf \
+        --mount volume=resolv,target=/etc/resolv.conf"
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
@@ -172,7 +169,7 @@ write-files:
         hostNetwork: true
         containers:
         - name: kube-proxy
-          image: ${ hyperkube-image }
+          image: ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
           command:
           - /hyperkube
           - proxy
@@ -204,10 +201,9 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
-    hyperkube-image = "${ var.hyperkube-image }"
+    coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
+    coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
     internal-tld = "${ var.internal-tld }"
-    k8s-version = "${ var.k8s-version }"
-    log-group = "k8s-${ var.name }"
     region = "${ var.region }"
     ssl-tar = "/ssl/k8s-worker.tar"
   }

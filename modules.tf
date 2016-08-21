@@ -1,16 +1,18 @@
 module "s3" {
   source = "./modules/s3"
+  depends-id = "${ module.vpc.depends-id }"
 
-  bucket-prefix = "${ var.aws.account-id }-${ var.name }-${ var.aws.region }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
-  k8s-version = "${var.k8s.version}"
+  bucket-prefix = "${ var.s3-bucket }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
+  internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
-  internal-tld = "${ var.internal-tld }"
 }
 
 module "vpc" {
   source = "./modules/vpc"
+  depends-id = ""
 
   azs = "${ var.aws.azs }"
   cidr = "${ var.cidr.vpc }"
@@ -29,13 +31,15 @@ module "security" {
 
 module "iam" {
   source = "./modules/iam"
+  depends-id = "${ module.s3.depends-id }"
 
-  bucket-prefix = "${ module.s3.bucket-prefix }"
+  bucket-prefix = "${ var.s3-bucket }"
   name = "${ var.name }"
 }
 
 module "route53" {
   source = "./modules/route53"
+  depends-id = "${ module.iam.depends-id }"
 
   etcd-ips = "${ var.etcd-ips }"
   name = "${ var.name }"
@@ -45,17 +49,18 @@ module "route53" {
 
 module "etcd" {
   source = "./modules/etcd"
+  depends-id = "${ module.route53.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
-  bucket-prefix = "${ module.s3.bucket-prefix }"
-  external-elb-security-group-id = "${ module.security.external-elb-id }"
+  bucket-prefix = "${ var.s3-bucket }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
+  external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   instance-type = "${ var.instance-type.etcd }"
   internal-tld = "${ var.internal-tld }"
-  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
@@ -66,17 +71,18 @@ module "etcd" {
 
 module "bastion" {
   source = "./modules/bastion"
+  depends-id = "${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws.ami }"
-  bucket-prefix = "${ module.s3.bucket-prefix }"
+  bucket-prefix = "${ var.s3-bucket }"
   cidr-allow-ssh = "${ var.cidr.allow-ssh }"
   instance-type = "${ var.instance-type.bastion }"
+  internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-id = "${ module.vpc.id }"
-  internal-tld = "${ var.internal-tld }"
 }
 
 resource "null_resource" "verify-etcd" {
@@ -97,7 +103,7 @@ resource "null_resource" "verify-etcd" {
   provisioner "remote-exec" {
     inline = [
       "/bin/bash -c 'echo ❤ checking etcd cluster health'",
-      "/bin/bash -c 'until curl http://etcd.k8s:2379/health || echo retrying; do sleep 14 && echo .; done'",
+      "/bin/bash -c 'until curl http://etcd.${ var.internal-tld }:2379/health || echo retrying; do sleep 14 && echo .; done'",
       "/bin/bash -c 'echo ✓ etcd cluster is reporting healthy'",
     ]
   }
@@ -107,12 +113,12 @@ module "worker" {
   source = "./modules/worker"
 
   ami-id = "${ var.coreos-aws.ami }"
-  bucket-prefix = "${ module.s3.bucket-prefix }"
-  hyperkube-image = "${ var.k8s.hyperkube-image }"
+  bucket-prefix = "${ var.s3-bucket }"
+  coreos-hyperkube-image = "${ var.k8s.coreos-hyperkube-image }"
+  coreos-hyperkube-tag = "${ var.k8s.coreos-hyperkube-tag }"
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type.worker }"
   internal-tld = "${ var.internal-tld }"
-  k8s-version = "${var.k8s.version}"
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
@@ -150,7 +156,9 @@ resource "null_resource" "verify" {
 
   provisioner "remote-exec" {
     inline = [
+      "/bin/bash -c 'echo ❤ waiting for kubelet-wrapper to start - this can take serveral minutes'",
       "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
+      "/bin/bash -c 'echo ✓ kubelet-warapper is up'",
     ]
   }
 }

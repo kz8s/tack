@@ -10,3 +10,10 @@ resource "aws_vpc" "main" {
     builtWith = "terraform"
   }
 }
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [
+    "aws_vpc.main",
+    "aws_nat_gateway.nat"
+  ]
+}

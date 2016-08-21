@@ -1,11 +1,10 @@
 #!/bin/bash -e
 
 function usage { cat <<EOF
-USAGE: $0 [output-dir] [aws-region]
-  example: $0 .cfssl us-west-1
+USAGE: $0 output-dir aws-region internal-tld
+  example: $0 .cfssl us-west-1 test.k8s
 EOF
-  # echo "USAGE: $0 output-dir aws-region"
-  # echo "  example: $0 .cfssl us-west-1"
+
   exit 1
 }
 
@@ -14,6 +13,9 @@ OUTDIR=$1
 
 REGION=$2
 [ -z "$REGION" ] && usage
+
+INTERNAL_TLD=$3
+[ -z "$INTERNAL_TLD" ] && usage
 
 set -o nounset
 set -o pipefail

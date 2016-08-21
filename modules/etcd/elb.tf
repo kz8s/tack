@@ -26,5 +26,6 @@ resource "aws_elb" "external" {
     Cluster = "${ var.name }"
     Name = "apiserver-public-${ var.name }"
     role = "apiserver"
+    version = "${ var.coreos-hyperkube-tag }"
   }
 }

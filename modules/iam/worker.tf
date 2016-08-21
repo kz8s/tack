@@ -1,5 +1,4 @@
 resource "aws_iam_role" "worker" {
-  name = "k8s-worker-${ var.name }"
   assume_role_policy = <<EOS
 {
   "Version": "2012-10-17",
@@ -14,6 +13,8 @@ resource "aws_iam_role" "worker" {
   ]
 }
 EOS
+
+  name = "k8s-worker-${ var.name }"
 }
 
 resource "aws_iam_instance_profile" "worker" {
@@ -53,4 +54,12 @@ resource "aws_iam_role_policy" "worker" {
   ]
 }
 EOS
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [
+    "aws_iam_role.worker",
+    "aws_iam_role_policy.worker",
+    "aws_iam_instance_profile.worker",
+  ]
 }

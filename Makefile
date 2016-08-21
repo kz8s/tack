@@ -1,50 +1,44 @@
 SHELL += -eu
 
-AWS_REGION ?= us-west-1
+BLUE := \033[0;34m
+GREEN := \033[0;32m
+RED := \033[0;31m
+NC := \033[0m
+
+
+AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
 CLUSTER_NAME ?= testing
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
+INTERNAL_TLD := ${CLUSTER_NAME}.k8s
+
 DIR_KEY_PAIR := .keypair
-DIR_SSL := .ssl
-
-USE_NAMED_INTERNAL_TLD := true
-
-export INTERNAL_TLD ?= k8s
-
-ifeq (${USE_NAMED_INTERNAL_TLD}, true)
-  export INTERNAL_TLD := ${CLUSTER_NAME}.k8s
-endif 
-
-tt:
-	@echo CLUSTER_NAME = ${CLUSTER_NAME}
-	@echo AWS_EC2_KEY_NAME = ${AWS_EC2_KEY_NAME}
+DIR_SSL := .cfssl
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@printf "\nInitializing add-ons\n" && ./scripts/init-addons
+	@echo "${GREEN}✓ terraform portion of 'make all' has completed${NC}"
+	@echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
 
 ## destroy and remove everything
 clean: destroy delete-keypair
 	pkill -f "kubectl proxy" ||:
+	rm -rf .addons ||:
 	rm terraform.{tfvars,tfplan} ||:
 	rm -rf .terraform ||:
 	rm -rf tmp ||:
-	rm -rf .cfssl ||:
+	rm -rf ${DIR_SSL} ||:
 
-.cfssl: ; ./scripts/init-cfssl .cfssl ${AWS_REGION}
+.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD}
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
 
 ## journalctl on etcd1 (10.0.0.10)
 journal: ; @ssh -At core@`terraform output bastion-ip` ssh 10.0.0.10 journalctl -fl
-
-module.%: get init
-	terraform plan -target $@
-	terraform apply -target $@
 
 prereqs:
 	aws --version
@@ -72,4 +66,4 @@ test: test-ssl test-route53 test-etcd pods dns
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean journal module.% prereqs ssh ssh-bastion ssl test tt
+.PHONY: all clean journal prereqs ssh ssh-bastion ssl test tt
