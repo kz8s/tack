@@ -6,7 +6,7 @@ RED := \033[0;31m
 NC := \033[0m
 
 
-AWS_REGION ?= us-west-1
+AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
