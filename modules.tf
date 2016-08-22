@@ -64,7 +64,7 @@ module "etcd" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
 }
@@ -81,7 +81,7 @@ module "bastion" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   security-group-id = "${ module.security.bastion-id }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"
 }
 

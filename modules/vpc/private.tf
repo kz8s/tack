@@ -15,9 +15,10 @@ resource "aws_subnet" "private" {
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
-    Name = "private"
-    Cluster = "${ var.name }"
+    "kubernetes.io/role/internal-elb" = "${ var.name }"
     builtWith = "terraform"
+    KubernetesCluster = "${ var.name }"
+    Name = "private"
   }
 }
 
