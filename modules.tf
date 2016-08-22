@@ -96,7 +96,7 @@ resource "null_resource" "verify-etcd" {
     agent = true
     bastion_host = "${ module.bastion.ip }"
     bastion_user = "core"
-    host = "10.0.0.10"
+    host = "${ element( split(",", var.etcd-ips), 0 ) }"
     user = "core"
   }
 
@@ -150,7 +150,7 @@ resource "null_resource" "verify" {
     agent = true
     bastion_host = "${ module.bastion.ip }"
     bastion_user = "core"
-    host = "10.0.0.10"
+    host = "${ element( split(",", var.etcd-ips), 0 ) }"
     user = "core"
   }
 

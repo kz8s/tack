@@ -43,6 +43,7 @@ variable "s3-bucket" {}
 # outputs
 output "azs" { value = "${ var.aws.azs }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
+output "etcd1-ip" { value = "${ element( split(",", var.etcd-ips), 0 ) }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
 output "internal-tld" { value = "${ var.internal-tld }" }
 output "s3-bucket" { value = "${ var.s3-bucket }" }
