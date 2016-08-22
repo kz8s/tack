@@ -64,7 +64,7 @@ module "etcd" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   region = "${ var.aws.region }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
   pod-ip-range = "${ var.pod-ip-range }"
@@ -84,7 +84,7 @@ module "bastion" {
   key-name = "${ var.aws.key-name }"
   name = "${ var.name }"
   security-group-id = "${ module.security.bastion-id }"
-  subnet-ids = "${ module.vpc.subnet-ids }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -99,7 +99,7 @@ resource "null_resource" "verify-etcd" {
     agent = true
     bastion_host = "${ module.bastion.ip }"
     bastion_user = "core"
-    host = "10.0.0.10"
+    host = "${ element( split(",", var.etcd-ips), 0 ) }"
     user = "core"
   }
 
@@ -154,7 +154,7 @@ resource "null_resource" "verify" {
     agent = true
     bastion_host = "${ module.bastion.ip }"
     bastion_user = "core"
-    host = "10.0.0.10"
+    host = "${ element( split(",", var.etcd-ips), 0 ) }"
     user = "core"
   }
 

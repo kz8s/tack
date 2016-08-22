@@ -48,8 +48,8 @@ clean: destroy delete-keypair
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
 
-## journalctl on etcd1 (10.0.0.10)
-journal: ; @ssh -At core@`terraform output bastion-ip` ssh 10.0.0.10 journalctl -fl
+## journalctl on etcd1
+journal: ; @ssh -At core@`terraform output bastion-ip` ssh `terraform output etcd1-ip` journalctl -fl
 
 prereqs:
 	aws --version
@@ -62,8 +62,8 @@ prereqs:
 	@echo
 	terraform --version
 
-## ssh into etcd1 (10.0.0.10)
-ssh: ; @ssh -A -t core@`terraform output bastion-ip` ssh 10.0.0.10
+## ssh into etcd1
+ssh: ; @ssh -A -t core@`terraform output bastion-ip` ssh `terraform output etcd1-ip`
 
 ## ssh into bastion host
 ssh-bastion: ; @ssh -A core@`terraform output bastion-ip`
