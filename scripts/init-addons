@@ -2,6 +2,7 @@
 
 ELB=$(terraform output external-elb)
 INTERNAL_TLD=$(terraform output internal-tld)
+DNS_SERVICE_IP=$(terraform output dns-service-ip)
 OUTDIR=.addons
 
 _retry() {
@@ -19,6 +20,7 @@ echo "❤ Patching addon scripts "
 [ -d $OUTDIR ] || mkdir $OUTDIR
 cp manifests/addons/* $OUTDIR
 sed -i.bak 's|${INTERNAL_TLD}|'"$INTERNAL_TLD|g" "$OUTDIR/"*.tpl
+sed -i.bak 's|${DNS_SERVICE_IP}|'"$DNS_SERVICE_IP|g" "$OUTDIR/"*.tpl
 for file in $OUTDIR/*.tpl
   do mv "$file" ${file/.tpl/}
 done

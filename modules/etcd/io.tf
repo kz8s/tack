@@ -15,6 +15,8 @@ variable "region" {}
 variable "subnet-ids" {}
 variable "vpc-cidr" {}
 variable "vpc-id" {}
+variable "dns-service-ip" {}
+variable "service-ip-range" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
 output "external-elb" { value = "${ aws_elb.external.dns_name }" }

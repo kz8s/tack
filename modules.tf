@@ -67,6 +67,8 @@ module "etcd" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
+  dns-service-ip = "${ var.dns-service-ip }"
+  service-ip-range = "${ var.service-ip-range }"
 }
 
 module "bastion" {
@@ -125,6 +127,7 @@ module "worker" {
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
+  dns-service-ip = "${ var.dns-service-ip }"
 }
 
 module "kubeconfig" {

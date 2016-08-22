@@ -6,7 +6,7 @@ RED := \033[0;31m
 NC := \033[0m
 
 
-AWS_REGION ?= us-east-1
+AWS_REGION ?= us-west-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
@@ -14,6 +14,15 @@ CLUSTER_NAME ?= testing
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 INTERNAL_TLD := ${CLUSTER_NAME}.k8s
+
+K8S_SERVICE_IP_RANGE ?= "10.3.0.0/24"
+K8S_SERVICE_IP ?= 10.3.0.1
+K8S_DNS_IP ?= 10.3.0.10
+
+# Alternative: 
+# K8S_SERVICE_IP_RANGE ?= "172.16.0.0/16"
+# K8S_SERVICE_IP ?= 172.16.0.1
+# K8S_DNS_IP ?= 172.16.0.10
 
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl
@@ -32,7 +41,7 @@ clean: destroy delete-keypair
 	rm -rf tmp ||:
 	rm -rf ${DIR_SSL} ||:
 
-.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD}
+.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; ./scripts/dashboard
