@@ -23,6 +23,7 @@ variable "coreos-aws" {
   }
 }
 variable "etcd-ips" { default = "10.0.0.10,10.0.0.11,10.0.0.12" }
+variable "pod-ip-range" { default = "10.2.0.0/16" }
 variable "service-ip-range" { default = "10.3.0.0/24" }
 variable "k8s-service-ip" { default = "10.3.0.1" }
 variable "dns-service-ip" { default = "10.3.0.10" }

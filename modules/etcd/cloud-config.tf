@@ -53,7 +53,7 @@ coreos:
           content: |
             [Service]
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
-              '{ "Network": "${ service-ip-range }", "Backend": { "Type": "vxlan" } }'
+              '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always
             RestartSec=10
 
@@ -159,5 +159,6 @@ EOF
     etc-tar = "/manifests/etc.tar"
     dns-service-ip = "${ var.dns-service-ip }"
     service-ip-range = "${ var.service-ip-range }"
+    pod-ip-range = "${ var.pod-ip-range }"
   }
 }

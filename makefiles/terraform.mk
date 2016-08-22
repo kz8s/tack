@@ -4,7 +4,7 @@ terraform.tfvars:
 	@./scripts/init-variables \
 		${AWS_REGION} ${COREOS_CHANNEL} ${COREOS_VM_TYPE} ${AWS_EC2_KEY_NAME} \
 		${INTERNAL_TLD} ${CLUSTER_NAME} `scripts/myip` \
-		${K8S_SERVICE_IP_RANGE} ${K8S_SERVICE_IP} ${K8S_DNS_IP}
+		${POD_IP_RANGE} ${K8S_SERVICE_IP_RANGE} ${K8S_SERVICE_IP} ${K8S_DNS_IP}
 
 module.%:
 	@echo "${BLUE}❤ make $@ - commencing${NC}"

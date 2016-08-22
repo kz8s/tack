@@ -67,6 +67,7 @@ module "etcd" {
   subnet-ids = "${ module.vpc.subnet-ids }"
   vpc-cidr = "${ var.cidr.vpc }"
   vpc-id = "${ module.vpc.id }"
+  pod-ip-range = "${ var.pod-ip-range }"
   dns-service-ip = "${ var.dns-service-ip }"
   service-ip-range = "${ var.service-ip-range }"
 }

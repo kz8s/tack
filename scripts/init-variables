@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 function usage {
-  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip>"
-  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.3.0.0/24 10.3.0.1 10.3.0.10"
+  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <pod-ip-range> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip>"
+  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.2.0.0/16 10.3.0.0/24 10.3.0.1 10.3.0.10"
 
   exit 1
 }
 
-if [[ $# -ne 10 ]]; then
+if [[ $# -ne 11 ]]; then
   usage
 fi
 
@@ -18,9 +18,10 @@ AWS_EC2_KEY_NAME="$4"
 INTERNAL_TLD="$5"
 CLUSTER_NAME="$6"
 CIDR_ALLOW_SSH="$7"
-K8S_SERVICE_IP_RANGE="$8"
-K8S_SERVICE_IP="$9"
-K8S_DNS_IP="${10}"
+POD_IP_RANGE="$8"
+K8S_SERVICE_IP_RANGE="$9"
+K8S_SERVICE_IP="${10}"
+K8S_DNS_IP="${11}"
 
 COREOS_AMI_ID=`curl -s \
   $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
@@ -49,6 +50,7 @@ coreos-aws.type = "${COREOS_VM_TYPE}"
 internal-tld = "${INTERNAL_TLD}"
 name = "${CLUSTER_NAME}"
 s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
+pod-ip-range = "${POD_IP_RANGE}"
 service-ip-range = "${K8S_SERVICE_IP_RANGE}"
 k8s-service-ip = "${K8S_SERVICE_IP}"
 dns-service-ip =" ${K8S_DNS_IP}"
