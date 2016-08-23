@@ -19,6 +19,9 @@ DNS, Dashboard and UI.
 # prereqs
 $ brew update && brew install awscli cfssl jq kubernetes-cli terraform
 
+# switch to terraform 0.6.16 - 0.7.0 contains breaking changes
+$ brew switch terraform 0.6.16
+
 # build artifacts and deploy cluster
 $ make all
 
@@ -63,6 +66,9 @@ creation
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
+terraform 0.7.0 contains some [breaking changes](https://github.com/hashicorp/terraform/blob/master/CHANGELOG.md#070-august-2-2016). The most significant of which is the map value access syntax change.
+For the time being use 0.6.16.
+
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
@@ -80,7 +86,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.51 Python/2.7.10 Darwin/15.6.0 botocore/1.4.41
+aws-cli/1.10.58 Python/2.7.10 Darwin/15.6.0 botocore/1.4.48
 
 $ cfssl version
 Version: 1.2.0
@@ -91,7 +97,7 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.0+2831379", GitCommit:"283137936a498aed572ee22af6774b6fb6e9fd94", GitTreeState:"not a git tree", BuildDate:"2016-07-05T15:40:13Z", GoVersion:"go1.6.2", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.5+b0deb2e", GitCommit:"b0deb2eb8f4037421077f77cb163dbb4c0a2a9f5", GitTreeState:"not a git tree", BuildDate:"2016-08-21T12:21:36Z", GoVersion:"go1.7", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
 Terraform v0.6.16
