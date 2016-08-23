@@ -16,6 +16,7 @@ resource "aws_s3_bucket" "ssl" {
 HYPERKUBE=${ var.coreos-hyperkube-image }:${ var.coreos-hyperkube-tag } \
 INTERNAL_TLD=${ var.internal-tld } \
 REGION=${ var.region } \
+SERVICE_IP_RANGE=${ var.service-ip-range } \
 ${ path.module }/s3-cp ${ var.bucket-prefix }
 EOF
 

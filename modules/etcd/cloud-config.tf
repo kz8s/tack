@@ -53,7 +53,7 @@ coreos:
           content: |
             [Service]
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
-              '{ "Network": "10.3.0.0/16", "Backend": { "Type": "vxlan" } }'
+              '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always
             RestartSec=10
 
@@ -132,7 +132,7 @@ coreos:
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
           --cloud-provider=aws \
-          --cluster-dns=10.3.0.10 \
+          --cluster-dns=${ dns-service-ip } \
           --cluster-domain=cluster.local \
           --config=/etc/kubernetes/manifests \
           --register-schedulable=false
@@ -150,12 +150,15 @@ EOF
     cluster-token = "etcd-cluster-${ var.name }"
     coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
     coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
+    dns-service-ip = "${ var.dns-service-ip }"
+    etc-tar = "/manifests/etc.tar"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     internal-tld = "${ var.internal-tld }"
     log-group = "k8s-${ var.name }"
+    pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
+    service-ip-range = "${ var.service-ip-range }"
     ssl-tar = "ssl/k8s-apiserver.tar"
-    etc-tar = "/manifests/etc.tar"
   }
 }

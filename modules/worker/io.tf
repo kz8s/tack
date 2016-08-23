@@ -3,6 +3,7 @@ variable "bucket-prefix" {}
 variable "coreos-hyperkube-image" {}
 variable "coreos-hyperkube-tag" {}
 variable "depends-id" { default = "self" }
+variable "dns-service-ip" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
