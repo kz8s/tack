@@ -203,9 +203,9 @@ EOF
     bucket = "${ var.bucket-prefix }"
     coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
     coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
+    dns-service-ip = "${ var.dns-service-ip }"
     internal-tld = "${ var.internal-tld }"
     region = "${ var.region }"
     ssl-tar = "/ssl/k8s-worker.tar"
-    dns-service-ip = "${ var.dns-service-ip }"
   }
 }

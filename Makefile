@@ -6,6 +6,8 @@ RED := \033[0;31m
 NC := \033[0m
 
 
+# ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
+
 AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
@@ -20,11 +22,14 @@ K8S_SERVICE_IP_RANGE ?= "10.3.0.0/24"
 K8S_SERVICE_IP ?= 10.3.0.1
 K8S_DNS_IP ?= 10.3.0.10
 
-# Alternative: 
+# Alternative:
 # POD_IP_RANGE ?= "172.15.0.0/16"
 # K8S_SERVICE_IP_RANGE ?= "172.16.0.0/24"
 # K8S_SERVICE_IP ?= 172.16.0.1
 # K8S_DNS_IP ?= 172.16.0.10
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
 
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl

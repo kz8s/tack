@@ -1,7 +1,7 @@
 variable "bucket-prefix" {}
-variable "depends-id" {}
 variable "coreos-hyperkube-image" {}
 variable "coreos-hyperkube-tag" {}
+variable "depends-id" {}
 variable "internal-tld" {}
 variable "name" {}
 variable "region" {}
