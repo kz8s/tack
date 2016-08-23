@@ -53,7 +53,7 @@ s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
 pod-ip-range = "${POD_IP_RANGE}"
 service-ip-range = "${K8S_SERVICE_IP_RANGE}"
 k8s-service-ip = "${K8S_SERVICE_IP}"
-dns-service-ip =" ${K8S_DNS_IP}"
+dns-service-ip = "${K8S_DNS_IP}"
 EOF
 
 cat terraform.tfvars
