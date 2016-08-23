@@ -1,12 +1,13 @@
 #!/bin/bash -e
 
 function usage { cat <<EOF
-USAGE: $0 [bucket]
+USAGE: $0 bucket
   example: $0 23234-bigbucket-us-west-1
 
-  Environment variables required: HYPERKUBE and REGION.
+  Environment variables required: HYPERKUBE, INTERNAL_TLD and REGION.
   example:
     HYPERKUBE=gcr.io/google_containers/hyperkube:v1.2.4 \
+    INTERNAL_TLD=test.k8s \
     REGION=us-west-1 \
     $0 23234-bigbucket-us-west-1
 EOF
@@ -24,15 +25,25 @@ function error {
 }
 trap 'error ${LINENO}' ERR
 
-
+# check parameters
 BUCKET=$1
 [ -z "$BUCKET" ] && usage
 
+# assert environment variables
+[ -z "$HYPERKUBE" ] && usage
+[ -z "$INTERNAL_TLD" ] && usage
+[ -z "$REGION" ] && usage
+
+# print environment and parameter
+echo "❤ s3-cp using these settings"
+echo envvar HYPERKUBE=${HYPERKUBE}
+echo envvar INTERNAL_TLD=${INTERNAL_TLD}
+echo envvar REGION=${REGION}
+echo parameter BUCKET=${BUCKET}
+echo "✓ Print environment variables and parameters success"
+
 set -o nounset
 set -o pipefail
-
-# docker images
-# HYPERKUBE=${HYPERKUBE:-"gcr.io/google_containers/hyperkube:v1.2.2"}
 
 # directories
 CFSSL=.cfssl
@@ -53,6 +64,7 @@ TMP=$(mktemp -d)
 trap cleanup EXIT
 cp $MANIFESTS/* $TMP
 sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
+sed -i.bak 's|${INTERNAL_TLD}|'"$INTERNAL_TLD|g" "$TMP/"*.yml
 
 # tar and cp etc manifests
 echo "❤ Tar and copy etc manifests to ${BUCKET}"

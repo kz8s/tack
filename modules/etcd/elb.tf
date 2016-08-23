@@ -1,5 +1,5 @@
 resource "aws_elb" "external" {
-  name = "k8s-master-external"
+  name = "k8s-master-ext-${ var.name }"
   subnets = [ "${ split(",", var.subnet-ids) }" ]
   cross_zone_load_balancing = false
   security_groups = [ "${ var.external-elb-security-group-id }" ]
@@ -24,7 +24,8 @@ resource "aws_elb" "external" {
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
-    Name = "apiserver-public"
+    Name = "apiserver-public-${ var.name }"
     role = "apiserver"
+    version = "${ var.coreos-hyperkube-tag }"
   }
 }

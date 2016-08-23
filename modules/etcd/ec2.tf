@@ -13,16 +13,23 @@ resource "aws_instance" "etcd" {
     volume_type = "gp2"
   }
 
-  vpc_security_group_ids = [ "${ var.etcd-security-group-id }" ]
   source_dest_check = false
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
-  user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
 
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
+    depends-id = "${ var.depends-id }"
     KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
-    Name = "etcd${ count.index + 1 }"
+    Name = "etcd${ count.index + 1 }-${ var.name }"
     role = "etcd,apiserver"
+    version = "${ var.coreos-hyperkube-tag}"
   }
+
+  user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
+  vpc_security_group_ids = [ "${ var.etcd-security-group-id }" ]
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [ "aws_instance.etcd" ]
 }

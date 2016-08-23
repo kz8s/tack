@@ -15,11 +15,11 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = [ "${ var.cidr-allow-ssh }" ]
   }
 
-  name = "bastion"
+  name = "bastion-${ var.name }"
 
   tags {
     Cluster = "${ var.name }"
-    Name = "bastion"
+    Name = "bastion-${ var.name }"
     builtWith = "terraform"
   }
 
@@ -45,11 +45,11 @@ resource "aws_security_group" "etcd" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "etcd"
+  name = "etcd-${ var.name }"
 
   tags {
     Cluster = "${ var.name }"
-    Name = "etcd"
+    Name = "etcd-${ var.name }"
     builtWith = "terraform"
   }
 
@@ -81,11 +81,11 @@ resource "aws_security_group" "external-elb" {
     cidr_blocks = [ "0.0.0.0/0" ]
   }
 
-  name = "master-external-elb"
+  name = "master-external-elb-${ var.name }"
 
   tags {
     Cluster = "${ var.name }"
-    Name = "master-external-elb"
+    Name = "master-external-elb-${ var.name }"
     builtWith = "terraform"
   }
 
@@ -111,11 +111,11 @@ resource "aws_security_group" "worker" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "worker"
+  name = "worker-${ var.name }"
 
   tags {
     Cluster = "${ var.name }"
-    Name = "worker"
+    Name = "worker-${ var.name }"
     builtWith = "terraform"
   }
 

@@ -1,8 +1,20 @@
 resource "aws_launch_configuration" "worker" {
+  ebs_block_device {
+    device_name = "/dev/xvdf"
+    volume_size = 250
+    volume_type = "gp2"
+  }
+
   iam_instance_profile = "${ var.instance-profile-name }"
   image_id = "${ var.ami-id }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
+
+  # Storage
+  root_block_device {
+    volume_size = 52
+    volume_type = "gp2"
+  }
 
   security_groups = [
     "${ var.security-group-id }",
@@ -10,25 +22,13 @@ resource "aws_launch_configuration" "worker" {
 
   user_data = "${ template_file.cloud-config.rendered }"
 
-  # Storage
-  ebs_block_device {
-    device_name = "/dev/xvdf"
-    volume_size = 250
-    volume_type = "gp2"
-  }
-
-  root_block_device {
-    volume_size = 52
-    volume_type = "gp2"
-  }
-
   /*lifecycle {
     create_before_destroy = true
   }*/
 }
 
 resource "aws_autoscaling_group" "worker" {
-  name = "worker"
+  name = "worker-${ var.name }"
 
   desired_capacity = "5"
   health_check_grace_period = 60
@@ -51,6 +51,12 @@ resource "aws_autoscaling_group" "worker" {
     propagate_at_launch = true
   }
 
+  tag {
+    key = "depends-id"
+    value = "${ var.depends-id }"
+    propagate_at_launch = false
+  }
+
   # used by kubelet's aws provider to determine cluster
   tag {
     key = "KubernetesCluster"
@@ -60,7 +66,20 @@ resource "aws_autoscaling_group" "worker" {
 
   tag {
     key = "Name"
-    value = "worker"
+    value = "worker-${ var.name }"
     propagate_at_launch = true
   }
+
+  tag {
+    key = "version"
+    value = "${ var.coreos-hyperkube-tag }"
+    propagate_at_launch = true
+  }
+}
+
+resource "null_resource" "dummy_dependency" {
+  depends_on = [
+    "aws_launch_configuration.worker",
+    "aws_autoscaling_group.worker",
+  ]
 }
