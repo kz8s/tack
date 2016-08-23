@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1068.9.0, 1122.1.0, 1122.0.0)
+### CoreOS (1068.10.0, 1122.1.0, 1122.0.0)
 * etcd DNS Discovery Bootstrap
 * kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
