@@ -1,4 +1,10 @@
 # circle.yml
+general:
+  branches:
+    only:
+      - master
+      - test
+
 machine:
   environment:
     CFSSL_VERSION: R1.2
@@ -14,9 +20,9 @@ dependencies:
 
 test:
   pre:
-    - make ssl init
-  override:
-    - make plan
+    - make ssl
+  # override:
+  #  - make plan
   # post:
   #   - make clean
 

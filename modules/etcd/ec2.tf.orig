@@ -14,7 +14,12 @@ resource "aws_instance" "etcd" {
   }
 
   source_dest_check = false
+<<<<<<< HEAD
   subnet_id = "${ element( split(",", var.subnet-ids), count.index ) }"
+  user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
+=======
+  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
+>>>>>>> 860dbd5087684559f598e3568a3a25ede38f57c5
 
   tags {
     builtWith = "terraform"

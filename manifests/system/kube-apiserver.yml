@@ -20,7 +20,7 @@ spec:
     - --allow-privileged=true
     - --client-ca-file=/etc/kubernetes/ssl/ca.pem
     - --cloud-provider=aws
-    - --etcd-servers=http://etcd.k8s:2379
+    - --etcd-servers=http://etcd.${INTERNAL_TLD}:2379
     - --insecure-bind-address=0.0.0.0
     - --runtime-config=extensions/v1beta1=true
     - --runtime-config=extensions/v1beta1/daemonsets=true
@@ -31,6 +31,13 @@ spec:
     - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
     - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
     - --v=2
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        port: 8080
+        path: /healthz
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
     ports:
     - containerPort: 443
       hostPort: 443

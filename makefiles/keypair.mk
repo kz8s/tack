@@ -16,8 +16,8 @@ create-keypair: $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem
 delete-keypair:
 	# todo: rework this delete logic
 	aws --region ${AWS_REGION} ec2 delete-key-pair --key-name ${AWS_EC2_KEY_NAME} || true
-	ssh-add -L | grep "${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem" > ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub
-	if [ -a ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub ]; then \
+	ssh-add -L | grep "${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem" > ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub || true
+	if [ -s ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub ]; then \
 		ssh-add -d ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pub; \
 	fi;
 	@-rm -rf $(DIR_KEY_PAIR)/
