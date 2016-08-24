@@ -36,7 +36,7 @@ DIR_SSL := .cfssl
 
 .addons:
 	@[[ -d $@ ]] || \
-		@echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
+		echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
