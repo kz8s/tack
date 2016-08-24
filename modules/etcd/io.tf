@@ -3,6 +3,7 @@ variable "bucket-prefix" {}
 variable "coreos-hyperkube-image" {}
 variable "coreos-hyperkube-tag" {}
 variable "depends-id" {}
+variable "dns-service-ip" {}
 variable "etcd-ips" {}
 variable "etcd-security-group-id" {}
 variable "external-elb-security-group-id" {}
@@ -11,7 +12,9 @@ variable "instance-type" {}
 variable "internal-tld" {}
 variable "key-name" {}
 variable "name" {}
+variable "pod-ip-range" {}
 variable "region" {}
+variable "service-ip-range" {}
 variable "subnet-ids" {}
 variable "vpc-cidr" {}
 variable "vpc-id" {}
