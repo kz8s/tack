@@ -1,6 +1,4 @@
 resource "template_file" "cloud-config" {
-  count = "${ length( split(",", var.etcd-ips) ) }"
-
   template = <<EOF
 #cloud-config
 
@@ -8,31 +6,55 @@ resource "template_file" "cloud-config" {
 coreos:
 
   etcd2:
-    advertise-client-urls: http://${ fqdn }:2379
-    # cert-file: /etc/etcd/ssl/k8s-etcd.pem
-    # debug: true
     discovery-srv: ${ internal-tld }
-    initial-advertise-peer-urls: https://${ fqdn }:2380
-    initial-cluster-state: new
-    initial-cluster-token: ${ cluster-token }
-    # key-file: /etc/etcd/ssl/k8s-etcd-key.pem
-    listen-client-urls: http://0.0.0.0:2379
-    listen-peer-urls: https://0.0.0.0:2380
-    name: ${ hostname }
-    peer-trusted-ca-file: /etc/etcd/ssl/ca.pem
+    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
     peer-client-cert-auth: true
-    peer-cert-file: /etc/etcd/ssl/k8s-etcd.pem
-    peer-key-file: /etc/etcd/ssl/k8s-etcd-key.pem
+    peer-cert-file: /etc/kubernetes/ssl/k8s-apiserver.pem
+    peer-key-file: /etc/kubernetes/ssl/k8s-apiserver-key.pem
+    proxy: on
 
   units:
+    - name: prefetch-hyperkube-container.service
+      command: start
+      content: |
+        [Unit]
+        Description=Accelerate spin up by prefetching hyperkube
+        After=network-online.target
+        [Service]
+        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
+          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
+        RemainAfterExit=yes
+        Type=oneshot
+
     - name: etcd2.service
       command: start
+
+    - name: flanneld.service
+      command: start
       drop-ins:
-        - name: wait-for-certs.conf
+        - name: 50-network-config.conf
+          content: |
+            [Service]
+            ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
+              '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
+            Restart=always
+            RestartSec=10
+
+    - name: docker.service
+      command: start
+      drop-ins:
+        - name: 40-flannel.conf
           content: |
             [Unit]
-            After=get-ssl.service
-            Requires=get-ssl.service
+            After=flanneld.service
+            Requires=flanneld.service
+            [Service]
+            Restart=always
+            RestartSec=10
+        - name: overlay.conf
+          content: |
+            [Service]
+            Environment="DOCKER_OPTS=--storage-driver=overlay"
 
     - name: s3-get-presigned-url.service
       command: start
@@ -57,9 +79,9 @@ coreos:
         Description=Get ssl artifacts from s3 bucket using IAM role
         Requires=s3-get-presigned-url.service
         [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/etcd/ssl
+        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/etcd/ssl/"
+          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
         RemainAfterExit=yes
         Type=oneshot
 
@@ -76,6 +98,31 @@ coreos:
           ${ region } ${ bucket } ${ etc-tar }) | tar xv -C /etc/kubernetes/manifests/"
         RemainAfterExit=yes
         Type=oneshot
+
+    - name: kubelet.service
+      command: start
+      content: |
+        [Unit]
+        After=docker.socket
+        ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
+        Requires=docker.socket
+        [Service]
+        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
+        Environment="RKT_OPTS=\
+        --volume=resolv,kind=host,source=/etc/resolv.conf \
+        --mount volume=resolv,target=/etc/resolv.conf"
+        ExecStart=/usr/lib/coreos/kubelet-wrapper \
+          --allow-privileged=true \
+          --api-servers=http://127.0.0.1:8080 \
+          --cloud-provider=aws \
+          --cluster-dns=${ dns-service-ip } \
+          --cluster-domain=cluster.local \
+          --config=/etc/kubernetes/manifests \
+          --register-schedulable=false
+        Restart=always
+        RestartSec=5
+        [Install]
+        WantedBy=multi-user.target
 
   update:
     reboot-strategy: etcd-lock
@@ -95,6 +142,6 @@ EOF
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
     service-ip-range = "${ var.service-ip-range }"
-    ssl-tar = "ssl/k8s-etcd.tar"
+    ssl-tar = "ssl/k8s-apiserver.tar"
   }
 }

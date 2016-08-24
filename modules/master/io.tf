@@ -5,7 +5,7 @@ variable "coreos-hyperkube-tag" {}
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}
-variable "etcd-security-group-id" {}
+variable "master-security-group-id" {}
 variable "external-elb-security-group-id" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
@@ -18,6 +18,8 @@ variable "service-ip-range" {}
 variable "subnet-ids" {}
 variable "vpc-cidr" {}
 variable "vpc-id" {}
+variable "internal-zone-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
-output "internal-ips" { value = "${ join(",", aws_instance.etcd.*.public_ip) }" }
+output "external-elb" { value = "${ aws_elb.external.dns_name }" }
+output "internal-ips" { value = "${ join(",", aws_instance.master.*.public_ip) }" }
