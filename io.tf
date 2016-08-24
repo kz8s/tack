@@ -1,4 +1,4 @@
-provider "aws" { region = "${ var.aws.region }" }
+provider "aws" { region = "${ var.aws["region"] }" }
 
 # variables
 variable "aws" {
@@ -45,7 +45,7 @@ variable "s3-bucket" {}
 variable "service-ip-range" { default = "10.3.0.0/24" }
 
 # outputs
-output "azs" { value = "${ var.aws.azs }" }
+output "azs" { value = "${ var.aws["azs"] }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
 output "dns-service-ip" { value = "${ var.dns-service-ip }" }
 output "etcd1-ip" { value = "${ element( split(",", var.etcd-ips), 0 ) }" }
