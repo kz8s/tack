@@ -47,6 +47,7 @@ aws = {
 }
 cidr = {
   allow-ssh = "${CIDR_ALLOW_SSH}"
+  service = "${K8S_SERVICE_IP_RANGE}"
 }
 coreos-aws = {
   ami = "${COREOS_AMI_ID}"
@@ -59,7 +60,6 @@ k8s-service-ip = "${K8S_SERVICE_IP}"
 name = "${CLUSTER_NAME}"
 pod-ip-range = "${POD_IP_RANGE}"
 s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
-service-ip-range = "${K8S_SERVICE_IP_RANGE}"
 EOF
 
 cat terraform.tfvars

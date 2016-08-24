@@ -11,8 +11,9 @@ variable "aws" {
 }
 variable "cidr" {
   default = {
-    vpc = "10.0.0.0/16"
     allow-ssh = "0.0.0.0/0"
+    service = "10.3.0.0/24"
+    vpc = "10.0.0.0/16"
   }
 }
 variable "coreos-aws" {
@@ -42,7 +43,6 @@ variable "k8s-service-ip" { default = "10.3.0.1" }
 variable "name" {}
 variable "pod-ip-range" { default = "10.2.0.0/16" }
 variable "s3-bucket" {}
-variable "service-ip-range" { default = "10.3.0.0/24" }
 
 # outputs
 output "azs" { value = "${ var.aws["azs"] }" }
