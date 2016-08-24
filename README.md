@@ -19,9 +19,6 @@ DNS, Dashboard and UI.
 # prereqs
 $ brew update && brew install awscli cfssl jq kubernetes-cli terraform
 
-# switch to terraform 0.6.16 - 0.7.0 contains breaking changes
-$ brew switch terraform 0.6.16
-
 # build artifacts and deploy cluster
 $ make all
 
@@ -62,12 +59,9 @@ creation
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.6.16)
+### Terraform (v0.7.1)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
-
-terraform 0.7.0 contains some [breaking changes](https://github.com/hashicorp/terraform/blob/master/CHANGELOG.md#070-august-2-2016). The most significant of which is the map value access syntax change.
-For the time being use 0.6.16.
 
 ## Prerequisites
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
@@ -100,7 +94,7 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.5+b0deb2e", GitCommit:"b0deb2eb8f4037421077f77cb163dbb4c0a2a9f5", GitTreeState:"not a git tree", BuildDate:"2016-08-21T12:21:36Z", GoVersion:"go1.7", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.6.16
+Terraform v0.7.1
 ```
 
 ## Launch Cluster
