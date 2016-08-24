@@ -64,7 +64,7 @@ module "etcd" {
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
-  pod-ip-range = "${ var.pod-ip-range }"
+  pod-ip-range = "${ var.cidr["pods"] }"
   region = "${ var.aws["region"] }"
   service-ip-range = "${ var.cidr["service"] }"
   subnet-ids = "${ module.vpc.subnet-ids-public }"

@@ -47,6 +47,7 @@ aws = {
 }
 cidr = {
   allow-ssh = "${CIDR_ALLOW_SSH}"
+  pods = "${POD_IP_RANGE}"
   service = "${K8S_SERVICE_IP_RANGE}"
 }
 coreos-aws = {
@@ -58,7 +59,6 @@ dns-service-ip = "${K8S_DNS_IP}"
 internal-tld = "${INTERNAL_TLD}"
 k8s-service-ip = "${K8S_SERVICE_IP}"
 name = "${CLUSTER_NAME}"
-pod-ip-range = "${POD_IP_RANGE}"
 s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
 EOF
 

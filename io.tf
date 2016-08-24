@@ -12,6 +12,7 @@ variable "aws" {
 variable "cidr" {
   default = {
     allow-ssh = "0.0.0.0/0"
+    pods = "10.2.0.0/16"
     service = "10.3.0.0/24"
     vpc = "10.0.0.0/16"
   }
@@ -41,7 +42,6 @@ variable "k8s" {
 }
 variable "k8s-service-ip" { default = "10.3.0.1" }
 variable "name" {}
-variable "pod-ip-range" { default = "10.2.0.0/16" }
 variable "s3-bucket" {}
 
 # outputs
