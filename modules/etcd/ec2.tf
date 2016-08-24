@@ -14,7 +14,7 @@ resource "aws_instance" "etcd" {
   }
 
   source_dest_check = false
-  subnet_id = "${ element( split(",", var.subnet-ids), count.index ) }"
+  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
 
   tags {
     builtWith = "terraform"

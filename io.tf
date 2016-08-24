@@ -44,7 +44,7 @@ variable "vpc-existing" {
   default = {
     id = ""
     gateway-id = ""
-    subnet-ids = ""
+    subnet-ids-public = ""
     subnet-ids-private = ""
   }
 }
