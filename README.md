@@ -188,12 +188,19 @@ Starting to serve on localhost:8001
 * [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging ](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging)
 * [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging)
 
+
+## FAQs
+
+* [Create an etcd cluster with more than 3 instances](https://github.com/kz8s/tack/wiki/How-to:-change-etcd-cluster-size)
+
+
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
 * [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
+
 
 ## Other Terraform Projects
 * [bakins/kubernetes-coreos-terraform](https://github.com/bakins/kubernetes-coreos-terraform)
