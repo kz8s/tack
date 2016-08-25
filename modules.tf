@@ -117,6 +117,11 @@ module "worker" {
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
+  capacity = {
+    desired = 5
+    max = 5
+    min = 3
+  }
   coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
   coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
   dns-service-ip = "${ var.dns-service-ip }"
@@ -128,6 +133,10 @@ module "worker" {
   region = "${ var.aws["region"] }"
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
+  volume_size = {
+    ebs = 250
+    root = 52
+  }
   vpc-id = "${ module.vpc.id }"
 }
 
