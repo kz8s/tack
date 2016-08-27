@@ -181,7 +181,7 @@ resource "null_resource" "verify" {
     agent = true
     bastion_host = "${ module.bastion.ip }"
     bastion_user = "core"
-    host = "${ element( split(",", var.etcd-ips), 0 ) }"
+    host = "${ element( split(",", module.master.internal-ips), 0 ) }"
     user = "core"
   }
 
