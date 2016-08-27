@@ -60,7 +60,7 @@ aws s3 cp .cfssl s3://${BUCKET}/ssl --recursive --exclude "*" --include "*.tar" 
 echo "✓ tls copy success"
 
 # mk tmp dir for manifests and do substituions
-TMP=$(mktemp -d)
+TMP=$(mktemp -d "${TMPDIR:-/tmp}/tack.XXXXXXXXX")
 trap cleanup EXIT
 cp $MANIFESTS/* $TMP
 sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
