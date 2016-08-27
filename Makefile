@@ -29,15 +29,19 @@ K8S_DNS_IP ?= 10.3.0.10
 # K8S_DNS_IP ?= 172.16.0.10
 
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
+
 
 DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl
 
+.addons:
+	@[[ -d $@ ]] || \
+		echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
+
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed${NC}"
-	@echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
+	$(MAKE) .addons
 
 ## destroy and remove everything
 clean: destroy delete-keypair
