@@ -85,7 +85,7 @@ module "master" {
   master-security-group-id = "${ module.security.master-id }"
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
-  instance-type = "${ var.instance-type["etcd"] }"
+  instance-type = "${ var.instance-type["master"] }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"

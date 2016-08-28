@@ -31,6 +31,7 @@ variable "instance-type" {
     bastion = "t2.nano"
     etcd = "c4.large"
     worker = "c4.large"
+    master = "c4.large"
   }
 }
 variable "internal-tld" {}
