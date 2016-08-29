@@ -117,7 +117,10 @@ coreos:
         Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
         Environment="RKT_OPTS=\
         --volume=resolv,kind=host,source=/etc/resolv.conf \
-        --mount volume=resolv,target=/etc/resolv.conf"
+        --mount volume=resolv,target=/etc/resolv.conf \
+        --volume var-log,kind=host,source=/var/log \
+        --mount volume=var-log,target=/var/log"
+        ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
