@@ -1,0 +1,11 @@
+#!/bin/bash -eux
+
+BASTION_IP=$(terraform output bastion-ip)
+INTERNAL_TLD=$(terraform output internal-tld)
+ETCD_URL="http://etcd.${INTERNAL_TLD}:2379"
+
+SSH_CMD="ssh -A core@${BASTION_IP}"
+
+${SSH_CMD} -- curl -s ${ETCD_URL}/version | grep '{"etcdserver":"2.3.2","etcdcluster":"2.3.0"}'
+${SSH_CMD} -- curl -s ${ETCD_URL}/health | grep true
+${SSH_CMD} -- curl -s ${ETCD_URL}/v2/members | grep -o 'name' | wc -l | grep 4
