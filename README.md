@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1068.10.0, 1122.1.0, 1122.0.0)
+### CoreOS (1122.2.0, 1122.1.0, 1122.0.0)
 * etcd DNS Discovery Bootstrap
 * kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
@@ -212,7 +212,7 @@ If you have an existing VPC you'd like to deploy a cluster into, there is an opt
 #### Testing Existing VPC Support from Scratch
 In order to test existing VPC support, we need to generate a VPC and then try the overrides with it. After that we can clean it all up.  These instructions are meant for someone wanting to ensure that the _tack_ existing VPC code works properly.
 * Run `make all` to generate a VPC with Terraform
-* Edit terraform.tfstate 
+* Edit terraform.tfstate
   * Search for the VPC block and cut it out and save it somewhere.  Look for "path": ["root","vpc"]
 * Run `make clean` to remove everything but the VPC and associated networking (we preserved it in the previous step)
 * Edit as per instructions above
