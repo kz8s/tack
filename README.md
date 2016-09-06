@@ -59,7 +59,7 @@ creation
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.7.1)
+### Terraform (v0.7.3)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -94,7 +94,7 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.5+b0deb2e", GitCommit:"b0deb2eb8f4037421077f77cb163dbb4c0a2a9f5", GitTreeState:"not a git tree", BuildDate:"2016-08-21T12:21:36Z", GoVersion:"go1.7", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.7.1
+Terraform v0.7.3
 ```
 
 ## Launch Cluster
