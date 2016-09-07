@@ -42,8 +42,15 @@ DIR_SSL := .cfssl
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@echo "${GREEN}✓ terraform portion of 'make all' has completed${NC}"
+	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}"
 	$(MAKE) .addons
+	@echo "${GREEN}✓ addon initialization has completed ${NC}"
+	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
+	@echo "View nodes:"
+	@echo "% make nodes"
+	@echo "---"
+	@echo "View uninitialized kube-system pods:"
+	@echo "% make pods"
 
 ## destroy and remove everything
 clean: destroy delete-keypair
