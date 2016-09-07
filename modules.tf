@@ -42,8 +42,8 @@ module "route53" {
   depends-id = "${ module.iam.depends-id }"
 
   etcd-ips = "${ var.etcd-ips }"
-  name = "${ var.name }"
   internal-tld = "${ var.internal-tld }"
+  name = "${ var.name }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -90,6 +90,7 @@ module "bastion" {
 
 module "worker" {
   source = "./modules/worker"
+  depends-id = "${ module.route53.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
