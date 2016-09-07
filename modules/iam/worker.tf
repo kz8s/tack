@@ -1,4 +1,6 @@
 resource "aws_iam_role" "worker" {
+  name = "worker-k8s-${ var.name }"
+
   assume_role_policy = <<EOS
 {
   "Version": "2012-10-17",
@@ -13,17 +15,16 @@ resource "aws_iam_role" "worker" {
   ]
 }
 EOS
-
-  name = "k8s-worker-${ var.name }"
 }
 
 resource "aws_iam_instance_profile" "worker" {
-  name = "k8s-worker-${ var.name }"
+  name = "worker-k8s-${ var.name }"
+
   roles = [ "${ aws_iam_role.worker.name }" ]
 }
 
 resource "aws_iam_role_policy" "worker" {
-  name = "k8s-worker-${var.name}"
+  name = "worker-k8s-${var.name}"
   role = "${ aws_iam_role.worker.id }"
   policy = <<EOS
 {
