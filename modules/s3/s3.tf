@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "ssl" {
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
-    Name = "k8s"
+    Name = "k8s-${ var.name }"
     version = "${ var.coreos-hyperkube-tag }"
   }
 

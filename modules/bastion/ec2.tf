@@ -14,7 +14,7 @@ resource "aws_instance" "bastion" {
     builtWith = "terraform"
     Cluster = "${ var.name }"
     depends-id = "${ var.depends-id }"
-    Name = "bastion-${ var.name }"
+    Name = "bastion-k8s-${ var.name }"
     Role = "bastion"
   }
 
