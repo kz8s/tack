@@ -1,5 +1,6 @@
 apiVersion: v1
 kind: Service
+
 metadata:
   name: kube-dns
   namespace: kube-system
@@ -7,6 +8,7 @@ metadata:
     k8s-app: kube-dns
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "KubeDNS"
+
 spec:
   selector:
     k8s-app: kube-dns
@@ -23,6 +25,7 @@ spec:
 
 apiVersion: v1
 kind: ReplicationController
+
 metadata:
   name: kube-dns-v10
   namespace: kube-system
@@ -30,6 +33,7 @@ metadata:
     k8s-app: kube-dns
     version: v10
     kubernetes.io/cluster-service: "true"
+    
 spec:
   replicas: 1
   selector:
