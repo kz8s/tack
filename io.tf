@@ -38,12 +38,20 @@ variable "internal-tld" {}
 variable "k8s" {
   default = {
     coreos-hyperkube-image = "quay.io/coreos/hyperkube"
-    coreos-hyperkube-tag = "v1.3.5_coreos.0"
+    coreos-hyperkube-tag = "v1.3.6_coreos.0"
   }
 }
 variable "k8s-service-ip" { default = "10.3.0.1" }
 variable "name" {}
 variable "s3-bucket" {}
+variable "vpc-existing" {
+  default = {
+    id = ""
+    gateway-id = ""
+    subnet-ids-public = ""
+    subnet-ids-private = ""
+  }
+}
 
 # outputs
 output "azs" { value = "${ var.aws["azs"] }" }

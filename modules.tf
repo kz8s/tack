@@ -8,6 +8,7 @@ module "s3" {
   internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
+  service-ip-range = "${ var.cidr["service"] }"  
 }
 
 module "vpc" {
@@ -42,8 +43,8 @@ module "route53" {
   depends-id = "${ module.iam.depends-id }"
 
   etcd-ips = "${ var.etcd-ips }"
-  name = "${ var.name }"
   internal-tld = "${ var.internal-tld }"
+  name = "${ var.name }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -114,33 +115,9 @@ module "bastion" {
   vpc-id = "${ module.vpc.id }"
 }
 
-resource "null_resource" "verify-etcd" {
-
-  triggers {
-    bastion-ip = "${ module.bastion.ip }"
-    etcd-ips = "${ module.etcd.internal-ips }"
-  }
-
-  connection {
-    agent = true
-    bastion_host = "${ module.bastion.ip }"
-    bastion_user = "core"
-    host = "${ element( split(",", var.etcd-ips), 0 ) }"
-    user = "core"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "/bin/bash -c 'echo ❤ checking etcd cluster health'",
-      "/bin/bash -c 'until curl http://etcd.${ var.internal-tld }:2379/health || echo retrying; do sleep 14 && echo .; done'",
-      "/bin/bash -c 'echo ✓ etcd cluster is reporting healthy'",
-    ]
-  }
-}
-
 module "worker" {
   source = "./modules/worker"
-  depends-id = "${ module.master.depends-id }"
+  depends-id = "${ module.route53.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
@@ -175,30 +152,4 @@ module "kubeconfig" {
   ca-pem = ".cfssl/ca.pem"
   master-elb = "${ module.master.external-elb }"
   name = "${ var.name }"
-}
-
-resource "null_resource" "verify" {
-
-  triggers {
-    bastion-ip = "${ module.bastion.ip }"
-    # todo: change trigger to etcd elb dns name
-    external-elb = "${ module.master.external-elb }"
-    etcd-ips = "${ module.etcd.internal-ips }"
-  }
-
-  connection {
-    agent = true
-    bastion_host = "${ module.bastion.ip }"
-    bastion_user = "core"
-    host = "${ element( split(",", module.master.internal-ips), 0 ) }"
-    user = "core"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "/bin/bash -c 'echo ❤ waiting for kubelet-wrapper to start - this can take serveral minutes'",
-      "/bin/bash -c 'until curl --silent http://127.0.0.1:8080/version; do sleep 5 && echo .; done'",
-      "/bin/bash -c 'echo ✓ kubelet-warapper is up'",
-    ]
-  }
 }

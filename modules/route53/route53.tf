@@ -4,7 +4,7 @@ resource "aws_route53_zone" "internal" {
   tags {
     builtWith = "terraform"
     Cluster = "${ var.name }"
-    Name = "k8s"
+    Name = "k8s-${ var.name }"
   }
   vpc_id = "${ var.vpc-id }"
 }
