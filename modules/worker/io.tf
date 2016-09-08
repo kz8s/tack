@@ -9,7 +9,7 @@ variable "capacity" {
 }
 variable "coreos-hyperkube-image" {}
 variable "coreos-hyperkube-tag" {}
-variable "depends-id" { default = "self" }
+variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}

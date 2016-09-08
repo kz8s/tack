@@ -2,7 +2,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
-    Name = "public"
+    Name = "k8s-${ var.name }"
     Cluster = "${ var.name }"
     builtWith = "terraform"
   }
@@ -19,7 +19,8 @@ resource "aws_subnet" "public" {
     "kubernetes.io/role/elb" = "${ var.name }"
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
-    Name = "public"
+    Name = "k8s-${ var.name }"
+    visibility = "public"
   }
 }
 
