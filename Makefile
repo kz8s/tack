@@ -22,6 +22,8 @@ K8S_SERVICE_IP_RANGE ?= "10.3.0.0/24"
 K8S_SERVICE_IP ?= 10.3.0.1
 K8S_DNS_IP ?= 10.3.0.10
 
+VPC_CIDR ?= 10.0.0.0/16
+
 # Alternative:
 # POD_IP_RANGE ?= "172.15.0.0/16"
 # K8S_SERVICE_IP_RANGE ?= "172.16.0.0/24"
@@ -40,8 +42,15 @@ DIR_SSL := .cfssl
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@echo "${GREEN}✓ terraform portion of 'make all' has completed${NC}"
+	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}"
 	$(MAKE) .addons
+	@echo "${GREEN}✓ addon initialization has completed ${NC}"
+	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
+	@echo "View nodes:"
+	@echo "% make nodes"
+	@echo "---"
+	@echo "View uninitialized kube-system pods:"
+	@echo "% make pods"
 
 ## destroy and remove everything
 clean: destroy delete-keypair

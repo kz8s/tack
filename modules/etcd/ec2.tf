@@ -21,7 +21,7 @@ resource "aws_instance" "etcd" {
     Cluster = "${ var.name }"
     depends-id = "${ var.depends-id }"
     KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
-    Name = "etcd${ count.index + 1 }-${ var.name }"
+    Name = "etcd${ count.index + 1 }-k8s-${ var.name }"
     role = "etcd,apiserver"
     version = "${ var.coreos-hyperkube-tag}"
   }
