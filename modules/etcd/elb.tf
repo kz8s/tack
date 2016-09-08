@@ -1,5 +1,5 @@
 resource "aws_elb" "external" {
-  name = "master-ext-k8s-${ var.name }"
+  name = "k8s-master-ext-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
   subnets = [ "${ split(",", var.subnet-ids) }" ]
   cross_zone_load_balancing = false
   security_groups = [ "${ var.external-elb-security-group-id }" ]

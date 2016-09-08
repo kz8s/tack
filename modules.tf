@@ -8,6 +8,7 @@ module "s3" {
   internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
+  service-ip-range = "${ var.cidr["service"] }"  
 }
 
 module "vpc" {
