@@ -31,6 +31,7 @@ variable "instance-type" {
     bastion = "t2.nano"
     etcd = "c4.large"
     worker = "c4.large"
+    master = "c4.large"
   }
 }
 variable "internal-tld" {}
@@ -57,7 +58,7 @@ output "azs" { value = "${ var.aws["azs"] }" }
 output "bastion-ip" { value = "${ module.bastion.ip }" }
 output "dns-service-ip" { value = "${ var.dns-service-ip }" }
 output "etcd1-ip" { value = "${ element( split(",", var.etcd-ips), 0 ) }" }
-output "external-elb" { value = "${ module.etcd.external-elb }" }
+output "external-elb" { value = "${ module.master.external-elb }" }
 output "internal-tld" { value = "${ var.internal-tld }" }
 output "s3-bucket" { value = "${ var.s3-bucket }" }
 output "subnet-ids-private" { value = "${ module.vpc.subnet-ids-private }" }

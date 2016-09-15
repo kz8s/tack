@@ -56,6 +56,36 @@ resource "aws_security_group" "etcd" {
   vpc_id = "${ var.vpc-id }"
 }
 
+resource "aws_security_group" "master" {
+  description = "k8s master security group"
+
+  egress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    /*self = true*/
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+
+  ingress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    self = true
+    cidr_blocks = [ "${ var.cidr-vpc }" ]
+  }
+
+  name = "master-${ var.name }"
+
+  tags {
+    Cluster = "${ var.name }"
+    Name = "master-${ var.name }"
+    builtWith = "terraform"
+  }
+
+  vpc_id = "${ var.vpc-id }"
+}
+
 resource "aws_security_group" "external-elb" {
   description = "k8s-${ var.name } master (apiserver) external elb"
 
@@ -64,7 +94,7 @@ resource "aws_security_group" "external-elb" {
     to_port = 0
     protocol = "-1"
     /*cidr_blocks = [ "${ var.cidr-vpc }" ]*/
-    security_groups = [ "${ aws_security_group.etcd.id }" ]
+    security_groups = [ "${ aws_security_group.master.id }" ]
   }
 
   ingress {

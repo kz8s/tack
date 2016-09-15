@@ -12,7 +12,7 @@ resource "aws_elb" "external" {
     interval = 30
   }
 
-  instances = [ "${ aws_instance.etcd.*.id }" ]
+  instances = [ "${ aws_instance.master.*.id }" ]
 
   listener {
     instance_port = 443

@@ -73,6 +73,32 @@ module "etcd" {
   vpc-id = "${ module.vpc.id }"
 }
 
+module "master" {
+  source = "./modules/master"
+  depends-id = "${ module.etcd.depends-id }"
+
+  ami-id = "${ var.coreos-aws["ami"] }"
+  bucket-prefix = "${ var.s3-bucket }"
+  coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
+  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  dns-service-ip = "${ var.dns-service-ip }"
+  etcd-ips = "${ var.etcd-ips }"
+  master-security-group-id = "${ module.security.master-id }"
+  external-elb-security-group-id = "${ module.security.external-elb-id }"
+  instance-profile-name = "${ module.iam.instance-profile-name-master }"
+  instance-type = "${ var.instance-type["master"] }"
+  internal-tld = "${ var.internal-tld }"
+  key-name = "${ var.aws["key-name"] }"
+  name = "${ var.name }"
+  pod-ip-range = "${ var.cidr["pods"] }"
+  region = "${ var.aws["region"] }"
+  service-ip-range = "${ var.cidr["service"] }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
+  vpc-cidr = "${ var.cidr["vpc"] }"
+  vpc-id = "${ module.vpc.id }"
+  internal-zone-id = "${ module.route53.internal-zone-id }"
+}
+
 module "bastion" {
   source = "./modules/bastion"
   depends-id = "${ module.etcd.depends-id }"
@@ -124,6 +150,6 @@ module "kubeconfig" {
   admin-key-pem = ".cfssl/k8s-admin-key.pem"
   admin-pem = ".cfssl/k8s-admin.pem"
   ca-pem = ".cfssl/ca.pem"
-  master-elb = "${ module.etcd.external-elb }"
+  master-elb = "${ module.master.external-elb }"
   name = "${ var.name }"
 }
