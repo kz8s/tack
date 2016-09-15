@@ -65,7 +65,7 @@ trap cleanup EXIT
 cp $MANIFESTS/* $TMP
 sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
 sed -i.bak 's|${INTERNAL_TLD}|'"$INTERNAL_TLD|g" "$TMP/"*.yml
-sed -i.bak 's|${SERVICE_IP_RANGE}|'"$SERVICE_IP_RANGE|g" "$TMP/"*.yml
+sed -i.bak 's|${SERVICE_CLUSTER_IP_RANGE}|'"$SERVICE_CLUSTER_IP_RANGE|g" "$TMP/"*.yml
 
 # tar and cp etc manifests
 echo "❤ Tar and copy etc manifests to ${BUCKET}"

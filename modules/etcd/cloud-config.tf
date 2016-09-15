@@ -158,7 +158,6 @@ EOF
     log-group = "k8s-${ var.name }"
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
-    service-ip-range = "${ var.service-ip-range }"
     ssl-tar = "ssl/k8s-apiserver.tar"
   }
 }

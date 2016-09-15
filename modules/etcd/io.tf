@@ -14,9 +14,7 @@ variable "key-name" {}
 variable "name" {}
 variable "pod-ip-range" {}
 variable "region" {}
-variable "service-ip-range" {}
 variable "subnet-ids" {}
-variable "vpc-cidr" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

@@ -207,7 +207,7 @@ If you have an existing VPC you'd like to deploy a cluster into, there is an opt
   * Uncomment the blocks with variables and fill in the missing information
 * Edit modules_override.tf - This uses the [overrides feature from Terraform](https://www.terraform.io/docs/configuration/override.html)
   * Uncomment the vpc module, this will override the reference to the regular VPC module and instead use the stub vpc-existing module which just pulls in the variables from vpc-existing.tfvars
-* Edit the Makefile as necessary for POD_IP_RANGE, K8S_SERVICE_IP_RANGE, etc to match what you need (e.g. avoid collisions with existing IP ranges in your VPC or extended infrastructure)
+* Edit the Makefile as necessary for CIDR_PODS, CIDR_SERVICE_CLUSTER, etc to match what you need (e.g. avoid collisions with existing IP ranges in your VPC or extended infrastructure)
 
 #### Testing Existing VPC Support from Scratch
 In order to test existing VPC support, we need to generate a VPC and then try the overrides with it. After that we can clean it all up.  These instructions are meant for someone wanting to ensure that the _tack_ existing VPC code works properly.

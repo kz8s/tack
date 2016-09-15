@@ -18,9 +18,9 @@ AWS_EC2_KEY_NAME="$4"
 INTERNAL_TLD="$5"
 CLUSTER_NAME="$6"
 CIDR_ALLOW_SSH="$7"
-VPC_CIDR="$8"
-POD_IP_RANGE="$9"
-K8S_SERVICE_IP_RANGE="${10}"
+CIDR_VPC="$8"
+CIDR_PODS="$9"
+CIDR_SERVICE_CLUSTER="${10}"
 K8S_SERVICE_IP="${11}"
 K8S_DNS_IP="${12}"
 
@@ -48,9 +48,9 @@ aws = {
 }
 cidr = {
   allow-ssh = "${CIDR_ALLOW_SSH}"
-  pods = "${POD_IP_RANGE}"
-  service = "${K8S_SERVICE_IP_RANGE}"
-  vpc = "${VPC_CIDR}"
+  pods = "${CIDR_PODS}"
+  service-cluster = "${CIDR_SERVICE_CLUSTER}"
+  vpc = "${CIDR_VPC}"
 }
 coreos-aws = {
   ami = "${COREOS_AMI_ID}"
