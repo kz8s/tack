@@ -12,7 +12,7 @@ AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
-CLUSTER_NAME ?= testing
+CLUSTER_NAME ?= testi
 AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 INTERNAL_TLD := ${CLUSTER_NAME}.k8s
@@ -54,12 +54,13 @@ all: prereqs create-keypair ssl init apply
 
 ## destroy and remove everything
 clean: destroy delete-keypair
-	pkill -f "kubectl proxy" ||:
-	rm -rf .addons ||:
-	rm terraform.{tfvars,tfplan} ||:
-	rm -rf .terraform ||:
-	rm -rf tmp ||:
-	rm -rf ${DIR_SSL} ||:
+	@-pkill -f "kubectl proxy" ||:
+	@-rm -rf .addons ||:
+	@-rm terraform.tfvars ||:
+	@-rm terraform.tfplan ||:
+	@-rm -rf .terraform ||:
+	@-rm -rf tmp ||:
+	@-rm -rf ${DIR_SSL} ||:
 
 .cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
