@@ -8,7 +8,7 @@ module "s3" {
   internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
-  service-ip-range = "${ var.cidr["service"] }"  
+  service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
 }
 
 module "vpc" {
@@ -67,9 +67,7 @@ module "etcd" {
   name = "${ var.name }"
   pod-ip-range = "${ var.cidr["pods"] }"
   region = "${ var.aws["region"] }"
-  service-ip-range = "${ var.cidr["service"] }"
   subnet-ids = "${ module.vpc.subnet-ids-public }"
-  vpc-cidr = "${ var.cidr["vpc"] }"
   vpc-id = "${ module.vpc.id }"
 }
 

@@ -17,16 +17,27 @@ AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
 
 INTERNAL_TLD := ${CLUSTER_NAME}.k8s
 
-POD_IP_RANGE ?= "10.2.0.0/16"
-K8S_SERVICE_IP_RANGE ?= "10.3.0.0/24"
+# CIDR_PODS: flannel overlay range
+# - https://coreos.com/flannel/docs/latest/flannel-config.html
+#
+# CIDR_SERVICE_CLUSTER: apiserver parameter --service-cluster-ip-range
+# - http://kubernetes.io/docs/admin/kube-apiserver/
+#
+# CIDR_VPC: vpc subnet
+# - http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html#VPC_Sizing
+# - https://www.terraform.io/docs/providers/aws/r/vpc.html#cidr_block
+#
+CIDR_PODS ?= "10.2.0.0/16"
+CIDR_SERVICE_CLUSTER ?= "10.3.0.0/24"
+CIDR_VPC ?= "10.0.0.0/16"
+
 K8S_SERVICE_IP ?= 10.3.0.1
 K8S_DNS_IP ?= 10.3.0.10
 
-VPC_CIDR ?= 10.0.0.0/16
 
 # Alternative:
-# POD_IP_RANGE ?= "172.15.0.0/16"
-# K8S_SERVICE_IP_RANGE ?= "172.16.0.0/24"
+# CIDR_PODS ?= "172.15.0.0/16"
+# CIDR_SERVICE_CLUSTER ?= "172.16.0.0/24"
 # K8S_SERVICE_IP ?= 172.16.0.1
 # K8S_DNS_IP ?= 172.16.0.10
 

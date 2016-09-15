@@ -5,7 +5,7 @@ variable "depends-id" {}
 variable "internal-tld" {}
 variable "name" {}
 variable "region" {}
-variable "service-ip-range" { default = "10.3.0.0/24" }
+variable "service-cluster-ip-range" {}
 
 output "bucket-prefix" { value = "${ var.bucket-prefix }" }
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
