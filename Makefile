@@ -57,6 +57,7 @@ all: prereqs create-keypair ssl init apply
 	$(MAKE) .addons
 	@echo "${GREEN}✓ addon initialization has completed ${NC}"
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
+	@scripts/instances
 	@echo "View nodes:"
 	@echo "% make nodes"
 	@echo "---"
