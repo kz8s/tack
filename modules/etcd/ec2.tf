@@ -17,12 +17,13 @@ resource "aws_instance" "etcd" {
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
     depends-id = "${ var.depends-id }"
     KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
-    Name = "etcd${ count.index + 1 }-k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-etcd${ count.index + 1 }"
     role = "etcd,apiserver"
-    version = "${ var.coreos-hyperkube-tag}"
+    version = "${ var.coreos-hyperkube-tag }"
+    visibility = "private"
   }
 
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"

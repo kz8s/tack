@@ -24,9 +24,10 @@ resource "aws_elb" "external" {
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
-    Name = "apiserver-public-k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-apiserver"
     role = "apiserver"
     version = "${ var.coreos-hyperkube-tag }"
+    visibility = "public"
   }
 }
