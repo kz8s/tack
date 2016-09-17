@@ -79,7 +79,8 @@ clean: destroy delete-keypair
 dashboard: ; @./scripts/dashboard
 
 ## journalctl on etcd1
-journal: ; @ssh -At core@`terraform output bastion-ip` ssh `terraform output etcd1-ip` journalctl -fl
+journal:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip` journalctl -fl"
 
 prereqs:
 	aws --version
@@ -93,10 +94,12 @@ prereqs:
 	terraform --version
 
 ## ssh into etcd1
-ssh: ; @ssh -A -t core@`terraform output bastion-ip` ssh `terraform output etcd1-ip`
+ssh:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip`"
 
 ## ssh into bastion host
-ssh-bastion: ; @ssh -A core@`terraform output bastion-ip`
+ssh-bastion:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip`
 
 ## create tls artifacts
 ssl: .cfssl
