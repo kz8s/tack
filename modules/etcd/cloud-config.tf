@@ -126,8 +126,17 @@ coreos:
         [Service]
         Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
         Environment="RKT_OPTS=\
-        --volume=resolv,kind=host,source=/etc/resolv.conf \
-        --mount volume=resolv,target=/etc/resolv.conf"
+          --volume dns,kind=host,source=/etc/resolv.conf \
+          --mount volume=dns,target=/etc/resolv.conf \
+          --volume rkt,kind=host,source=/opt/bin/host-rkt \
+          --mount volume=rkt,target=/usr/bin/rkt \
+          --volume var-lib-rkt,kind=host,source=/var/lib/rkt \
+          --mount volume=var-lib-rkt,target=/var/lib/rkt \
+          --volume stage,kind=host,source=/tmp \
+          --mount volume=stage,target=/tmp \
+          --volume var-log,kind=host,source=/var/log \
+          --mount volume=var-log,target=/var/log"
+        ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
@@ -143,6 +152,14 @@ coreos:
 
   update:
     reboot-strategy: etcd-lock
+
+write-files:
+  - path: /opt/bin/host-rkt
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/sh
+      exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
 EOF
 
   vars {
