@@ -79,6 +79,10 @@ clean: destroy delete-keypair
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
+## show instance information
+instances:
+	@scripts/instances
+
 ## journalctl on etcd1
 journal:
 	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip` journalctl -fl"
@@ -111,4 +115,4 @@ test: test-ssl test-route53 test-etcd pods dns
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean journal prereqs ssh ssh-bastion ssl test tt
+.PHONY: all clean instances journal prereqs ssh ssh-bastion ssl test tt
