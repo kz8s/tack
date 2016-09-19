@@ -54,6 +54,7 @@ module "etcd" {
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
+  cluster-domain = "${ var.cluster-domain }"
   coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
   coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
   dns-service-ip = "${ var.dns-service-ip }"
@@ -99,6 +100,7 @@ module "worker" {
     max = 5
     min = 3
   }
+  cluster-domain = "${ var.cluster-domain }"
   coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
   coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
   dns-service-ip = "${ var.dns-service-ip }"

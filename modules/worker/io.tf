@@ -7,6 +7,7 @@ variable "capacity" {
     min = 3
   }
 }
+variable "cluster-domain" {}
 variable "coreos-hyperkube-image" {}
 variable "coreos-hyperkube-tag" {}
 variable "depends-id" {}

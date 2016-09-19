@@ -132,7 +132,7 @@ coreos:
           --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
-          --cluster-domain=cluster.local \
+          --cluster-domain=${ cluster-domain } \
           --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --register-node=true \
@@ -217,6 +217,7 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
+    cluster-domain = "${ var.cluster-domain }"
     coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
     coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
     dns-service-ip = "${ var.dns-service-ip }"

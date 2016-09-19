@@ -142,7 +142,7 @@ coreos:
           --api-servers=http://127.0.0.1:8080 \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
-          --cluster-domain=cluster.local \
+          --cluster-domain=${ cluster-domain } \
           --config=/etc/kubernetes/manifests \
           --register-schedulable=false
         Restart=always
@@ -164,6 +164,7 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
+    cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
     coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
     coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
