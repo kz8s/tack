@@ -21,7 +21,8 @@ resource "aws_subnet" "private" {
     "kubernetes.io/role/internal-elb" = "${ var.name }"
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
-    Name = "k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
     visibility = "private"
   }
 }
@@ -36,8 +37,9 @@ resource "aws_route_table" "private" {
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
-    Name = "k8s-${ var.name }"
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
     visibility = "private"
   }
 }

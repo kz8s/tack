@@ -17,6 +17,7 @@ module "vpc" {
 
   azs = "${ var.aws["azs"] }"
   cidr = "${ var.cidr["vpc"] }"
+  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
 }

@@ -5,9 +5,12 @@ resource "aws_vpc" "main" {
   enable_dns_support = true
 
   tags {
-    Name = "k8s-${ var.name }"
-    Cluster = "${ var.name }"
     builtWith = "terraform"
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
+    version = "${ var.coreos-hyperkube-tag }"
+    visibility = "private,public"
   }
 }
 
