@@ -12,7 +12,7 @@ AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
-CLUSTER_NAME ?= testing
+CLUSTER_NAME ?= test
 AWS_EC2_KEY_NAME ?= kz8s-$(CLUSTER_NAME)
 
 INTERNAL_TLD := ${CLUSTER_NAME}.k8s
@@ -48,21 +48,27 @@ DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl
 
 .addons:
-		@echo "${BLUE}❤ commencing addon initialization ${NC}"
+		@echo "${BLUE}❤ initializing add-ons ${NC}"
 		@./scripts/init-addons
+		@echo "${GREEN}✓ add-ons initialization has completed ${NC}\n"
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}"
-	$(MAKE) .addons
-	@echo "${GREEN}✓ addon initialization has completed ${NC}"
+	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
+	@$(MAKE) wait-for-cluster
+	@$(MAKE) .addons
+	@$(MAKE) create-addons
+	@$(MAKE) create-busybox
+	kubectl get no
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
-	@scripts/instances
+	@$(MAKE) instances
 	@echo "View nodes:"
 	@echo "% make nodes"
 	@echo "---"
 	@echo "View uninitialized kube-system pods:"
 	@echo "% make pods"
+
+.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
 ## destroy and remove everything
 clean: destroy delete-keypair
@@ -74,14 +80,22 @@ clean: destroy delete-keypair
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
 
-.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
+create-addons:
+	@echo "${BLUE}❤ creating add-ons ${NC}"
+	kubectl create -f .addons/
+	@echo "${GREEN}✓ add-ons creation has completed ${NC}\n"
+
+create-busybox:
+	@echo "${BLUE}❤ creating busybox test pod ${NC}"
+	kubectl create -f test/pods/busybox.yml
+	@echo "${GREEN}✓ busybox test pod creation has completed ${NC}\n"
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
 ## show instance information
 instances:
-	@scripts/instances
+	@scripts/instances `terraform output name`
 
 ## journalctl on etcd1
 journal:
@@ -112,7 +126,12 @@ ssl: .cfssl
 ## smoke it
 test: test-ssl test-route53 test-etcd pods dns
 
+wait-for-cluster:
+	@echo "${BLUE}❤ initiate wait-for-cluster ${NC}"
+	@scripts/wait-for-cluster
+	@echo "${GREEN}✓ wait-for-cluster has completed ${NC}\n"
+
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean instances journal prereqs ssh ssh-bastion ssl test tt
+.PHONY: all clean create-addons create-busybox instances journal prereqs ssh ssh-bastion ssl test wait-for-cluster

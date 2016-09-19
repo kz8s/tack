@@ -1,6 +1,9 @@
 #!/bin/bash
 
-kz8s="Name=tag:kz8s,Values=testing"
+name=$1
+[ -z "${name}" ] && echo "need to pass cluster-name" && exit 1
+
+kz8s="Name=tag:kz8s,Values=${name}"
 
 ( \
   printf "instance-id state name role kz8s private-ip public-ip\n" ;\
