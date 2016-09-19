@@ -27,52 +27,78 @@ apiVersion: v1
 kind: ReplicationController
 
 metadata:
-  name: kube-dns-v10
+  name: kube-dns-v19
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    version: v10
+    version: v19
     kubernetes.io/cluster-service: "true"
-    
+
 spec:
   replicas: 1
   selector:
     k8s-app: kube-dns
-    version: v10
+    version: v19
   template:
     metadata:
       labels:
         k8s-app: kube-dns
-        version: v10
+        version: v19
         kubernetes.io/cluster-service: "true"
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
     spec:
       containers:
-      - name: kube2sky
-        image: gcr.io/google_containers/kube2sky:1.12
+      - name: kubedns
+        image: gcr.io/google_containers/kubedns-amd64:1.7
         resources:
+          # TODO: Set memory limits when we've profiled the container for large
+          # clusters, then set request = limit to keep this container in
+          # guaranteed class. Currently, this container falls into the
+          # "burstable" category so the kubelet doesn't backoff from restarting it.
           limits:
             cpu: 100m
-            memory: 50Mi
-        args:
-        # command = "/kube2sky"
-        - -domain=cluster.local
-        - -etcd-server=http://etcd.${INTERNAL_TLD}:2379
-        - -kube_master_url=http://master.${INTERNAL_TLD}:8080
-        - -v=6
-        - -logtostderr
-      - name: skydns
-        image: kz8s/skydns:latest
-        resources:
-          limits:
+            memory: 170Mi
+          requests:
             cpu: 100m
-            memory: 50Mi
+            memory: 70Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 8081
+            scheme: HTTP
+          # we poll on pod startup for the Kubernetes master service and
+          # only setup the /readiness HTTP server once that's available.
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
         args:
-        # command = "/skydns"
-        - -machines=http://etcd.${INTERNAL_TLD}:2379
-        - -addr=0.0.0.0:53
-        - -domain=cluster.local.
-        # - -ns-rotate=false
-        - -verbose=true
+        # command = "/kube-dns"
+        - --domain=cluster.local.
+        - --dns-port=10053
+        ports:
+        - containerPort: 10053
+          name: dns-local
+          protocol: UDP
+        - containerPort: 10053
+          name: dns-tcp-local
+          protocol: TCP
+      - name: dnsmasq
+        image: gcr.io/google_containers/kube-dnsmasq-amd64:1.3
+        args:
+        - --cache-size=1000
+        - --no-resolv
+        - --server=127.0.0.1#10053
+        - --log-facility=-
         ports:
         - containerPort: 53
           name: dns
@@ -80,29 +106,24 @@ spec:
         - containerPort: 53
           name: dns-tcp
           protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 30
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 1
-          timeoutSeconds: 5
       - name: healthz
-        image: gcr.io/google_containers/exechealthz:1.0
+        image: gcr.io/google_containers/exechealthz-amd64:1.1
         resources:
+          # keep request = limit to keep this container in guaranteed class
           limits:
             cpu: 10m
-            memory: 20Mi
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            # Note that this container shouldn't really need 50Mi of memory. The
+            # limits are set higher than expected pending investigation on #29688.
+            # The extra memory was stolen from the kubedns container to keep the
+            # net memory requested by the pod constant.
+            memory: 50Mi
         args:
-        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1 >/dev/null
+        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.cluster.local 127.0.0.1:10053 >/dev/null
         - -port=8080
+        - -quiet
         ports:
         - containerPort: 8080
           protocol: TCP
