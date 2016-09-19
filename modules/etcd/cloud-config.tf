@@ -137,6 +137,9 @@ coreos:
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
+        ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
+        ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
+        ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://127.0.0.1:8080 \
