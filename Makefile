@@ -8,7 +8,7 @@ NC := \033[0m
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION ?= us-east-1
+AWS_REGION ?= us-west-2
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
@@ -48,9 +48,9 @@ DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl
 
 .addons:
-		@echo "${BLUE}❤ initializing add-ons ${NC}"
-		@./scripts/init-addons
-		@echo "${GREEN}✓ add-ons initialization has completed ${NC}\n"
+	@echo "${BLUE}❤ initialize add-ons ${NC}"
+	@./scripts/init-addons
+	@echo "${GREEN}✓ initialize add-ons - success ${NC}\n"
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
@@ -81,14 +81,14 @@ clean: destroy delete-keypair
 	@-rm -rf ${DIR_SSL} ||:
 
 create-addons:
-	@echo "${BLUE}❤ creating add-ons ${NC}"
+	@echo "${BLUE}❤ create add-ons ${NC}"
 	kubectl create -f .addons/
-	@echo "${GREEN}✓ add-ons creation has completed ${NC}\n"
+	@echo "${GREEN}✓ create add-ons - success ${NC}\n"
 
 create-busybox:
-	@echo "${BLUE}❤ creating busybox test pod ${NC}"
+	@echo "${BLUE}❤ create busybox test pod ${NC}"
 	kubectl create -f test/pods/busybox.yml
-	@echo "${GREEN}✓ busybox test pod creation has completed ${NC}\n"
+	@echo "${GREEN}✓ create busybox test pod - success ${NC}\n"
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
@@ -127,9 +127,9 @@ ssl: .cfssl
 test: test-ssl test-route53 test-etcd pods dns
 
 wait-for-cluster:
-	@echo "${BLUE}❤ initiate wait-for-cluster ${NC}"
+	@echo "${BLUE}❤ wait-for-cluster ${NC}"
 	@scripts/wait-for-cluster
-	@echo "${GREEN}✓ wait-for-cluster has completed ${NC}\n"
+	@echo "${GREEN}✓ wait-for-cluster - success ${NC}\n"
 
 include makefiles/*.mk
 
