@@ -95,7 +95,7 @@ dashboard: ; @./scripts/dashboard
 
 ## show instance information
 instances:
-	@scripts/instances `terraform output name`
+	@scripts/instances `terraform output name` `terraform output region`
 
 ## journalctl on etcd1
 journal:
