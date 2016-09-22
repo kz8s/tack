@@ -76,7 +76,7 @@ clean: destroy delete-keypair
 .cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
 ## start proxy and open kubernetes dashboard
-dashboard: ; ./scripts/dashboard
+dashboard: ; @./scripts/dashboard
 
 ## journalctl on etcd1
 journal: ; @ssh -At core@`terraform output bastion-ip` ssh `terraform output etcd1-ip` journalctl -fl

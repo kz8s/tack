@@ -94,7 +94,7 @@ module "worker" {
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
   capacity = {
-    desired = 5
+    desired = 3
     max = 5
     min = 3
   }
@@ -114,7 +114,40 @@ module "worker" {
     root = 52
   }
   vpc-id = "${ module.vpc.id }"
+  worker-name = "general"
 }
+
+/*
+module "worker2" {
+  source = "./modules/worker"
+  depends-id = "${ module.route53.depends-id }"
+
+  ami-id = "${ var.coreos-aws["ami"] }"
+  bucket-prefix = "${ var.s3-bucket }"
+  capacity = {
+    desired = 2
+    max = 2
+    min = 2
+  }
+  coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
+  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  dns-service-ip = "${ var.dns-service-ip }"
+  instance-profile-name = "${ module.iam.instance-profile-name-worker }"
+  instance-type = "${ var.instance-type["worker"] }"
+  internal-tld = "${ var.internal-tld }"
+  key-name = "${ var.aws["key-name"] }"
+  name = "${ var.name }"
+  region = "${ var.aws["region"] }"
+  security-group-id = "${ module.security.worker-id }"
+  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  volume_size = {
+    ebs = 250
+    root = 52
+  }
+  vpc-id = "${ module.vpc.id }"
+  worker-name = "special"
+}
+*/
 
 module "kubeconfig" {
   source = "./modules/kubeconfig"
