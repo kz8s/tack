@@ -62,6 +62,7 @@ output "etcd1-ip" { value = "${ element( split(",", var.etcd-ips), 0 ) }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
 output "internal-tld" { value = "${ var.internal-tld }" }
 output "name" { value = "${ var.name }" }
+output "region" { value = "${ var.aws["region"] }" }
 output "s3-bucket" { value = "${ var.s3-bucket }" }
 output "subnet-ids-private" { value = "${ module.vpc.subnet-ids-private }" }
 output "subnet-ids-public" { value = "${ module.vpc.subnet-ids-public }" }
