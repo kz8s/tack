@@ -150,7 +150,7 @@ write-files:
       #!/bin/sh
       exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
 
-  - path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  - path: /etc/kubernetes/manifests/kube-apiserver.yml
     content: |
       apiVersion: v1
       kind: Pod
@@ -210,6 +210,53 @@ write-files:
         - hostPath:
             path: /usr/share/ca-certificates
           name: ssl-certs-host
+
+  - path: /etc/kubernetes/manifests/kube-controller-manager.yml
+    content: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: kube-controller-manager
+        namespace: kube-system
+      spec:
+        hostNetwork: true
+        containers:
+        - name: kube-controller-manager
+          image: ${ hyperkube }
+          command:
+          - /hyperkube
+          - controller-manager
+          - --cloud-provider=aws
+          - --leader-elect=true
+          - --master=http://127.0.0.1:8080
+          - --root-ca-file=/etc/kubernetes/ssl/ca.pem
+          - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          resources:
+            requests:
+              cpu: 200m
+          livenessProbe:
+            httpGet:
+              host: 127.0.0.1
+              path: /healthz
+              port: 10252
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          volumeMounts:
+          - mountPath: /etc/kubernetes/ssl
+            name: ssl-certs-kubernetes
+            readOnly: true
+          - mountPath: /etc/ssl/certs
+            name: ssl-certs-host
+            readOnly: true
+        volumes:
+        - hostPath:
+            path: /etc/kubernetes/ssl
+          name: ssl-certs-kubernetes
+        - hostPath:
+            path: /usr/share/ca-certificates
+          name: ssl-certs-host
+
+
 EOF
 
   vars {

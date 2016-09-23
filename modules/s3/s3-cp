@@ -70,6 +70,6 @@ sed -i.bak 's|${SERVICE_CLUSTER_IP_RANGE}|'"$SERVICE_CLUSTER_IP_RANGE|g" "$TMP/"
 # tar and cp etc manifests
 echo "❤ Tar and copy etc manifests to ${BUCKET}"
 tar -cf - \
-  -C $TMP kube-controller-manager.yml kube-proxy.yml kube-scheduler.yml \
+  -C $TMP kube-proxy.yml kube-scheduler.yml \
   | aws s3 cp - s3://${BUCKET}/manifests/etc.tar --region ${REGION}
 echo "✓ Tar and copy etc manifests success"
