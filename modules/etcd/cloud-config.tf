@@ -256,6 +256,34 @@ write-files:
             path: /usr/share/ca-certificates
           name: ssl-certs-host
 
+  - path: /etc/kubernetes/manifests/kube-proxy.yml
+    content: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: kube-proxy
+        namespace: kube-system
+      spec:
+        hostNetwork: true
+        containers:
+        - name: kube-proxy
+          image: ${ hyperkube }
+          command:
+          - /hyperkube
+          - proxy
+          - --master=http://127.0.0.1:8080
+          - --proxy-mode=iptables
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - mountPath: /etc/ssl/certs
+            name: ssl-certs-host
+            readOnly: true
+        volumes:
+        - hostPath:
+            path: /usr/share/ca-certificates
+          name: ssl-certs-host
+
 
 EOF
 
