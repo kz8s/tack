@@ -149,12 +149,74 @@ write-files:
     content: |
       #!/bin/sh
       exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
+
+  - path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    content: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: kube-apiserver
+        namespace: kube-system
+      spec:
+        hostNetwork: true
+        containers:
+        - name: kube-apiserver
+          image: ${ hyperkube }
+          command:
+          - /hyperkube
+          - apiserver
+          - --admission-control=LimitRanger
+          - --admission-control=NamespaceExists
+          - --admission-control=NamespaceLifecycle
+          - --admission-control=ResourceQuota
+          - --admission-control=SecurityContextDeny
+          - --admission-control=ServiceAccount
+          - --allow-privileged=true
+          - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+          - --cloud-provider=aws
+          - --etcd-servers=http://etcd.${ internal-tld }:2379
+          - --insecure-bind-address=0.0.0.0
+          - --secure-port=443
+          - --service-account-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --service-cluster-ip-range=${ service-cluster-ip-range }
+          - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
+          - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --v=2
+          livenessProbe:
+            httpGet:
+              host: 127.0.0.1
+              port: 8080
+              path: /healthz
+            initialDelaySeconds: 15
+            timeoutSeconds: 15
+          ports:
+          - containerPort: 443
+            hostPort: 443
+            name: https
+          - containerPort: 8080
+            hostPort: 8080
+            name: local
+          volumeMounts:
+          - mountPath: /etc/kubernetes/ssl
+            name: ssl-certs-kubernetes
+            readOnly: true
+          - mountPath: /etc/ssl/certs
+            name: ssl-certs-host
+            readOnly: true
+        volumes:
+        - hostPath:
+            path: /etc/kubernetes/ssl
+          name: ssl-certs-kubernetes
+        - hostPath:
+            path: /usr/share/ca-certificates
+          name: ssl-certs-host
 EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
+    hyperkube = "${ var.hyperkube-image }:${ var.hyperkube-tag }"
     hyperkube-image = "${ var.hyperkube-image }"
     hyperkube-tag = "${ var.hyperkube-tag }"
     dns-service-ip = "${ var.dns-service-ip }"
@@ -165,6 +227,7 @@ EOF
     log-group = "k8s-${ var.name }"
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
+    service-cluster-ip-range = "${ var.service-cluster-ip-range }"
     ssl-tar = "ssl/k8s-apiserver.tar"
   }
 }

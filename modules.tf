@@ -69,6 +69,7 @@ module "etcd" {
   name = "${ var.name }"
   pod-ip-range = "${ var.cidr["pods"] }"
   region = "${ var.aws["region"] }"
+  service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
   subnet-ids-private = "${ module.vpc.subnet-ids-private }"
   subnet-ids-public = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"

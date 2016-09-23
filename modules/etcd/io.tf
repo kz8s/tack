@@ -15,6 +15,7 @@ variable "key-name" {}
 variable "name" {}
 variable "pod-ip-range" {}
 variable "region" {}
+variable "service-cluster-ip-range" {}
 variable "subnet-ids-private" {}
 variable "subnet-ids-public" {}
 variable "vpc-id" {}
