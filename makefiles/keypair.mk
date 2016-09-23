@@ -8,10 +8,10 @@ $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem: | $(DIR_KEY_PAIR)/
 	> $@
 	@chmod 400 $@
 
-## create ec2 key-pair and add to authentication agent
+## create ec2 key-pair
 create-keypair: $(DIR_KEY_PAIR)/$(AWS_EC2_KEY_NAME).pem
 
-## delete ec2 key-pair and remove from authentication agent
+## delete ec2 key-pair
 delete-keypair:
 	@aws --region ${AWS_REGION} ec2 delete-key-pair --key-name ${AWS_EC2_KEY_NAME} || true
 	@-rm -rf $(DIR_KEY_PAIR)/
