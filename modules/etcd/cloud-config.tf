@@ -124,7 +124,7 @@ coreos:
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
+        Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
           --volume dns,kind=host,source=/etc/resolv.conf \
           --mount volume=dns,target=/etc/resolv.conf \
