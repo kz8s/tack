@@ -7,13 +7,13 @@ resource "aws_s3_bucket" "ssl" {
     builtWith = "terraform"
     Cluster = "${ var.name }"
     Name = "k8s-${ var.name }"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
   }
 
   provisioner "local-exec" {
     command = <<EOF
 
-HYPERKUBE=${ var.coreos-hyperkube-image }:${ var.coreos-hyperkube-tag } \
+HYPERKUBE=${ var.hyperkube-image }:${ var.hyperkube-tag } \
 INTERNAL_TLD=${ var.internal-tld } \
 REGION=${ var.region } \
 SERVICE_CLUSTER_IP_RANGE=${ var.service-cluster-ip-range } \

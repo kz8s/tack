@@ -27,7 +27,7 @@ resource "aws_elb" "external" {
     kz8s = "${ var.name }"
     Name = "kz8s-apiserver"
     role = "apiserver"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
     visibility = "public"
   }
 }

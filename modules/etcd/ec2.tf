@@ -23,7 +23,7 @@ resource "aws_instance" "etcd" {
     kz8s = "${ var.name }"
     Name = "kz8s-etcd${ count.index + 1 }"
     role = "etcd,apiserver"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
     visibility = "private"
   }
 

@@ -114,7 +114,7 @@ coreos:
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         Requires=docker.socket
         [Service]
-        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
+        Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
           --volume dns,kind=host,source=/etc/resolv.conf \
           --mount volume=dns,target=/etc/resolv.conf \
@@ -188,7 +188,7 @@ write-files:
         hostNetwork: true
         containers:
         - name: kube-proxy
-          image: ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
+          image: ${ hyperkube-image }:${ hyperkube-tag }
           command:
           - /hyperkube
           - proxy
@@ -221,8 +221,8 @@ EOF
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
-    coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
-    coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
+    hyperkube-image = "${ var.hyperkube-image }"
+    hyperkube-tag = "${ var.hyperkube-tag }"
     dns-service-ip = "${ var.dns-service-ip }"
     internal-tld = "${ var.internal-tld }"
     region = "${ var.region }"

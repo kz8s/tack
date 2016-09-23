@@ -1,8 +1,8 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
 variable "cluster-domain" {}
-variable "coreos-hyperkube-image" {}
-variable "coreos-hyperkube-tag" {}
+variable "hyperkube-image" {}
+variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}

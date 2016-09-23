@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
     Name = "kz8s-${ var.name }"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
     visibility = "private,public"
   }
 }

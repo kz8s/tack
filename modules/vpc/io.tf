@@ -1,6 +1,6 @@
 variable "azs" {}
 variable "cidr" {}
-variable "coreos-hyperkube-tag" {}
+variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "name" {}
 variable "region" {}

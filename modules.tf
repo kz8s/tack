@@ -3,8 +3,8 @@ module "s3" {
   depends-id = "${ module.vpc.depends-id }"
 
   bucket-prefix = "${ var.s3-bucket }"
-  coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
-  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  hyperkube-image = "${ var.k8s["hyperkube-image"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
   internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
@@ -17,7 +17,7 @@ module "vpc" {
 
   azs = "${ var.aws["azs"] }"
   cidr = "${ var.cidr["vpc"] }"
-  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
   name = "${ var.name }"
   region = "${ var.aws["region"] }"
 }
@@ -56,8 +56,8 @@ module "etcd" {
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
   cluster-domain = "${ var.cluster-domain }"
-  coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
-  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  hyperkube-image = "${ var.k8s["hyperkube-image"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
   dns-service-ip = "${ var.dns-service-ip }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
@@ -102,8 +102,8 @@ module "worker" {
     min = 3
   }
   cluster-domain = "${ var.cluster-domain }"
-  coreos-hyperkube-image = "${ var.k8s["coreos-hyperkube-image"] }"
-  coreos-hyperkube-tag = "${ var.k8s["coreos-hyperkube-tag"] }"
+  hyperkube-image = "${ var.k8s["hyperkube-image"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
   dns-service-ip = "${ var.dns-service-ip }"
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   instance-type = "${ var.instance-type["worker"] }"

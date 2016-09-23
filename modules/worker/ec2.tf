@@ -78,7 +78,7 @@ resource "aws_autoscaling_group" "worker" {
 
   tag {
     key = "version"
-    value = "${ var.coreos-hyperkube-tag }"
+    value = "${ var.hyperkube-tag }"
     propagate_at_launch = true
   }
 
