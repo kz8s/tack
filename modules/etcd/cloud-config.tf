@@ -25,18 +25,6 @@ coreos:
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   units:
-    - name: prefetch-hyperkube-container.service
-      command: start
-      content: |
-        [Unit]
-        Description=Accelerate spin up by prefetching hyperkube
-        After=network-online.target
-        [Service]
-        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
-          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: etcd2.service
       command: start
       drop-ins:
