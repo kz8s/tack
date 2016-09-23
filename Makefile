@@ -126,6 +126,7 @@ status: instances
 	kubectl cluster-info
 	kubectl get po --namespace=kube-system
 	kubectl get po
+	kubectl exec busybox -- nslookup kubernetes
 
 ## create tls artifacts
 ssl: .cfssl
