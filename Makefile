@@ -120,6 +120,13 @@ ssh:
 ssh-bastion:
 	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip`
 
+## status
+status: instances
+	kubectl get no
+	kubectl cluster-info
+	kubectl get po --namespace=kube-system
+	kubectl get po
+
 ## create tls artifacts
 ssl: .cfssl
 
@@ -134,4 +141,4 @@ wait-for-cluster:
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean create-addons create-busybox instances journal prereqs ssh ssh-bastion ssl test wait-for-cluster
+.PHONY: all clean create-addons create-busybox instances journal prereqs ssh ssh-bastion ssl status test wait-for-cluster
