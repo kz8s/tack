@@ -98,9 +98,7 @@ coreos:
       command: start
       content: |
         [Unit]
-        After=docker.socket
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
-        Requires=docker.socket
         [Service]
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
