@@ -67,6 +67,12 @@ all: prereqs create-keypair ssl init apply
 	@echo "---"
 	@echo "View uninitialized kube-system pods:"
 	@echo "% make pods"
+	@echo "---"
+	@echo "View ec2 instance info:"
+	@echo "% make instances"
+	@echo "---"
+	@echo "Status summaries:"
+	@echo "% make status"
 
 .cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
