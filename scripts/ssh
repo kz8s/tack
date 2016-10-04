@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+function usage { cat <<EOF
+USAGE: $0 key_file bastion_ip [command]
+  example: $0 .keypair/k8s-testing.pem 55.11.22.33 "ssh 10.0.0.10"
+EOF
+  exit 1
+}
+
+KEY_FILE=$1
+[ -z "${KEY_FILE}" ] && usage
+
+BASTION_IP=$2
+[ -z "${BASTION_IP}" ] && usage
+
+COMMAND=$3
+
+function finish {
+  [ -z ${SSH_AGENT_PID} ] || kill ${SSH_AGENT_PID}
+}
+
+eval `ssh-agent -s`
+trap finish EXIT
+
+ssh-add ${KEY_FILE}
+
+ssh -tA core@${BASTION_IP} ${COMMAND}

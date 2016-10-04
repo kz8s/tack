@@ -2,9 +2,11 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
-    Name = "k8s-${ var.name }"
-    Cluster = "${ var.name }"
     builtWith = "terraform"
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
+    version = "${ var.hyperkube-tag }"
   }
 }
 
@@ -19,7 +21,9 @@ resource "aws_subnet" "public" {
     "kubernetes.io/role/elb" = "${ var.name }"
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
-    Name = "k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
+    version = "${ var.hyperkube-tag }"
     visibility = "public"
   }
 }

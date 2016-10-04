@@ -1,6 +1,7 @@
 resource "aws_elb" "external" {
-  name = "k8s-master-ext-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
-  subnets = [ "${ split(",", var.subnet-ids) }" ]
+  name = "kz8s-apiserver-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
+
+  subnets = [ "${ split(",", var.subnet-ids-public) }" ]
   cross_zone_load_balancing = false
   security_groups = [ "${ var.external-elb-security-group-id }" ]
 
@@ -23,9 +24,10 @@ resource "aws_elb" "external" {
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
-    Name = "apiserver-public-k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-apiserver"
     role = "apiserver"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
+    visibility = "public"
   }
 }
