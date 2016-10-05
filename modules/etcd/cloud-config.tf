@@ -90,27 +90,13 @@ coreos:
         RemainAfterExit=yes
         Type=oneshot
 
-    - name: get-manifests.service
-      command: start
-      content: |
-        [Unit]
-        After=s3-get-presigned-url.service
-        Description=Get kubernetes manifest from s3 bucket using IAM role
-        Requires=s3-get-presigned-url.service
-        [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-          ${ region } ${ bucket } ${ etc-tar }) | tar xv -C /etc/kubernetes/manifests/"
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: kubelet.service
       command: start
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         [Service]
-        Environment=KUBELET_ACI=${ hyperkube-image }
+        Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
           --volume dns,kind=host,source=/etc/resolv.conf \
