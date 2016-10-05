@@ -100,7 +100,7 @@ coreos:
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         [Service]
-        Environment=KUBELET_ACI=${ hyperkube-image }
+        Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
           --volume dns,kind=host,source=/etc/resolv.conf \
