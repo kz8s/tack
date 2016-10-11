@@ -63,7 +63,11 @@ function csr {
 EOF
 }
 
-DEFAULT_HOSTS="kubernetes,kubernetes.default,127.0.0.1"
+DNS1="kubernetes"
+DNS2="kubernetes.default"
+DNS3="kubernetes.default.svc"
+DNS4="kubernetes.default.svc.cluster.local"
+DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
 
 function _chmod {
   CN=$1
