@@ -46,12 +46,6 @@ resource "aws_autoscaling_group" "worker" {
   }
 
   tag {
-    key = "Cluster"
-    value = "${ var.name }"
-    propagate_at_launch = true
-  }
-
-  tag {
     key = "depends-id"
     value = "${ var.depends-id }"
     propagate_at_launch = false
@@ -65,14 +59,32 @@ resource "aws_autoscaling_group" "worker" {
   }
 
   tag {
+    key = "kz8s"
+    value = "${ var.name }"
+    propagate_at_launch = true
+  }
+
+  tag {
     key = "Name"
-    value = "worker-k8s-${ var.name }"
+    value = "kz8s-worker"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "role"
+    value = "worker"
     propagate_at_launch = true
   }
 
   tag {
     key = "version"
-    value = "${ var.coreos-hyperkube-tag }"
+    value = "${ var.hyperkube-tag }"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "visibility"
+    value = "private"
     propagate_at_launch = true
   }
 }

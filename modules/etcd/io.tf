@@ -1,7 +1,8 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
-variable "coreos-hyperkube-image" {}
-variable "coreos-hyperkube-tag" {}
+variable "cluster-domain" {}
+variable "hyperkube-image" {}
+variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}
@@ -14,7 +15,9 @@ variable "key-name" {}
 variable "name" {}
 variable "pod-ip-range" {}
 variable "region" {}
-variable "subnet-ids" {}
+variable "service-cluster-ip-range" {}
+variable "subnet-ids-private" {}
+variable "subnet-ids-public" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

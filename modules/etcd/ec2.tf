@@ -2,7 +2,7 @@ resource "aws_instance" "etcd" {
   count = "${ length( split(",", var.etcd-ips) ) }"
 
   ami = "${ var.ami-id }"
-  associate_public_ip_address = true
+  associate_public_ip_address = false
   iam_instance_profile = "${ var.instance-profile-name }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
@@ -14,16 +14,17 @@ resource "aws_instance" "etcd" {
   }
 
   source_dest_check = false
-  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
+  subnet_id = "${ element( split(",", var.subnet-ids-private), 0 ) }"
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
     depends-id = "${ var.depends-id }"
     KubernetesCluster = "${ var.name }" # used by kubelet's aws provider to determine cluster
-    Name = "etcd${ count.index + 1 }-k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-etcd${ count.index + 1 }"
     role = "etcd,apiserver"
-    version = "${ var.coreos-hyperkube-tag}"
+    version = "${ var.hyperkube-tag }"
+    visibility = "private"
   }
 
   user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"

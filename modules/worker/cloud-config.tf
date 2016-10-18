@@ -15,18 +15,6 @@ coreos:
     proxy: on
 
   units:
-    - name: prefetch-hyperkube-container.service
-      command: start
-      content: |
-        [Unit]
-        Description=Accelerate spin up by prefetching hyperkube
-        After=network-online.target
-        [Service]
-        ExecStart=/usr/bin/rkt fetch --trust-keys-from-https \
-          ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: format-ephemeral.service
       command: start
       content: |
@@ -110,23 +98,31 @@ coreos:
       command: start
       content: |
         [Unit]
-        After=docker.socket
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
-        Requires=docker.socket
         [Service]
-        Environment="KUBELET_VERSION=${ coreos-hyperkube-tag }"
+        Environment="KUBELET_ACI=${ hyperkube-image }"
+        Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
-        --volume=resolv,kind=host,source=/etc/resolv.conf \
-        --mount volume=resolv,target=/etc/resolv.conf \
-        --volume var-log,kind=host,source=/var/log \
-        --mount volume=var-log,target=/var/log"
+          --volume dns,kind=host,source=/etc/resolv.conf \
+          --mount volume=dns,target=/etc/resolv.conf \
+          --volume rkt,kind=host,source=/opt/bin/host-rkt \
+          --mount volume=rkt,target=/usr/bin/rkt \
+          --volume var-lib-rkt,kind=host,source=/var/lib/rkt \
+          --mount volume=var-lib-rkt,target=/var/lib/rkt \
+          --volume stage,kind=host,source=/tmp \
+          --mount volume=stage,target=/tmp \
+          --volume var-log,kind=host,source=/var/log \
+          --mount volume=var-log,target=/var/log"
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
+        ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
+        ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
+        ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
-          --cluster-domain=cluster.local \
+          --cluster-domain=${ cluster-domain } \
           --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --register-node=true \
@@ -141,6 +137,13 @@ coreos:
     reboot-strategy: etcd-lock
 
 write-files:
+  - path: /opt/bin/host-rkt
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/sh
+      exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
+
   - path: /etc/kubernetes/kubeconfig.yml
     content: |
       apiVersion: v1
@@ -172,7 +175,7 @@ write-files:
         hostNetwork: true
         containers:
         - name: kube-proxy
-          image: ${ coreos-hyperkube-image }:${ coreos-hyperkube-tag }
+          image: ${ hyperkube-image }:${ hyperkube-tag }
           command:
           - /hyperkube
           - proxy
@@ -204,8 +207,9 @@ EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
-    coreos-hyperkube-image = "${ var.coreos-hyperkube-image }"
-    coreos-hyperkube-tag = "${ var.coreos-hyperkube-tag }"
+    cluster-domain = "${ var.cluster-domain }"
+    hyperkube-image = "${ var.hyperkube-image }"
+    hyperkube-tag = "${ var.hyperkube-tag }"
     dns-service-ip = "${ var.dns-service-ip }"
     internal-tld = "${ var.internal-tld }"
     region = "${ var.region }"

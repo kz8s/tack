@@ -1,8 +1,7 @@
 resource "aws_elb" "external" {
-  name = "k8s-master-ext-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
-  subnets = [ "${ split(",", var.subnet-ids) }" ]
+  name = "kz8s-apiserver-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
+
   cross_zone_load_balancing = false
-  security_groups = [ "${ var.external-elb-security-group-id }" ]
 
   health_check {
     healthy_threshold = 2
@@ -13,6 +12,7 @@ resource "aws_elb" "external" {
   }
 
   instances = [ "${ aws_instance.etcd.*.id }" ]
+  idle_timeout = 3600
 
   listener {
     instance_port = 443
@@ -21,11 +21,15 @@ resource "aws_elb" "external" {
     lb_protocol = "tcp"
   }
 
+  security_groups = [ "${ var.external-elb-security-group-id }" ]
+  subnets = [ "${ split(",", var.subnet-ids-public) }" ]
+
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
-    Name = "apiserver-public-k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-apiserver"
     role = "apiserver"
-    version = "${ var.coreos-hyperkube-tag }"
+    version = "${ var.hyperkube-tag }"
+    visibility = "public"
   }
 }

@@ -8,14 +8,14 @@ NC := \033[0m
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION ?= us-east-1
+AWS_REGION ?= us-west-2
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
-CLUSTER_NAME ?= testing
-AWS_EC2_KEY_NAME ?= k8s-$(CLUSTER_NAME)
+CLUSTER_NAME ?= test
+AWS_EC2_KEY_NAME ?= kz8s-$(CLUSTER_NAME)
 
-INTERNAL_TLD := ${CLUSTER_NAME}.k8s
+INTERNAL_TLD := ${CLUSTER_NAME}.kz8s
 
 # CIDR_PODS: flannel overlay range
 # - https://coreos.com/flannel/docs/latest/flannel-config.html
@@ -29,11 +29,11 @@ INTERNAL_TLD := ${CLUSTER_NAME}.k8s
 #
 CIDR_PODS ?= "10.2.0.0/16"
 CIDR_SERVICE_CLUSTER ?= "10.3.0.0/24"
-CIDR_VPC ?= "10.0.0.0/16"
-
 K8S_SERVICE_IP ?= 10.3.0.1
 K8S_DNS_IP ?= 10.3.0.10
 
+CIDR_VPC ?= "10.0.0.0/16"
+ETCD_IPS ?= 10.0.10.10,10.0.10.11,10.0.10.12
 
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
@@ -48,20 +48,33 @@ DIR_KEY_PAIR := .keypair
 DIR_SSL := .cfssl
 
 .addons:
-	@[[ -d $@ ]] || \
-		echo "${BLUE}❤ commence initializing addons ${NC}" && ./scripts/init-addons
+	@echo "${BLUE}❤ initialize add-ons ${NC}"
+	@./scripts/init-addons
+	@echo "${GREEN}✓ initialize add-ons - success ${NC}\n"
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
-	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}"
-	$(MAKE) .addons
-	@echo "${GREEN}✓ addon initialization has completed ${NC}"
+	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
+	@$(MAKE) wait-for-cluster
+	@$(MAKE) .addons
+	@$(MAKE) create-addons
+	@$(MAKE) create-busybox
+	kubectl get no
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
+	@$(MAKE) instances
 	@echo "View nodes:"
 	@echo "% make nodes"
 	@echo "---"
 	@echo "View uninitialized kube-system pods:"
 	@echo "% make pods"
+	@echo "---"
+	@echo "View ec2 instance info:"
+	@echo "% make instances"
+	@echo "---"
+	@echo "Status summaries:"
+	@echo "% make status"
+
+.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
 ## destroy and remove everything
 clean: destroy delete-keypair
@@ -73,13 +86,26 @@ clean: destroy delete-keypair
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
 
-.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
+create-addons:
+	@echo "${BLUE}❤ create add-ons ${NC}"
+	kubectl create -f .addons/
+	@echo "${GREEN}✓ create add-ons - success ${NC}\n"
+
+create-busybox:
+	@echo "${BLUE}❤ create busybox test pod ${NC}"
+	kubectl create -f test/pods/busybox.yml
+	@echo "${GREEN}✓ create busybox test pod - success ${NC}\n"
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
+## show instance information
+instances:
+	@scripts/instances `terraform output name` `terraform output region`
+
 ## journalctl on etcd1
-journal: ; @ssh -At core@`terraform output bastion-ip` ssh `terraform output etcd1-ip` journalctl -fl
+journal:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip` journalctl -fl"
 
 prereqs:
 	aws --version
@@ -93,10 +119,20 @@ prereqs:
 	terraform --version
 
 ## ssh into etcd1
-ssh: ; @ssh -A -t core@`terraform output bastion-ip` ssh `terraform output etcd1-ip`
+ssh:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip`"
 
 ## ssh into bastion host
-ssh-bastion: ; @ssh -A core@`terraform output bastion-ip`
+ssh-bastion:
+	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip`
+
+## status
+status: instances
+	kubectl get no
+	kubectl cluster-info
+	kubectl get po --namespace=kube-system
+	kubectl get po
+	kubectl exec busybox -- nslookup kubernetes
 
 ## create tls artifacts
 ssl: .cfssl
@@ -104,7 +140,12 @@ ssl: .cfssl
 ## smoke it
 test: test-ssl test-route53 test-etcd pods dns
 
+wait-for-cluster:
+	@echo "${BLUE}❤ wait-for-cluster ${NC}"
+	@scripts/wait-for-cluster
+	@echo "${GREEN}✓ wait-for-cluster - success ${NC}\n"
+
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean journal prereqs ssh ssh-bastion ssl test tt
+.PHONY: all clean create-addons create-busybox instances journal prereqs ssh ssh-bastion ssl status test wait-for-cluster

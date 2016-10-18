@@ -11,8 +11,8 @@ EOF
 OUTDIR=$1
 [ -z "$OUTDIR" ] && usage
 
-REGION=$2
-[ -z "$REGION" ] && usage
+AWS_REGION=$2
+[ -z "$AWS_REGION" ] && usage
 
 INTERNAL_TLD=$3
 [ -z "$INTERNAL_TLD" ] && usage
@@ -63,7 +63,11 @@ function csr {
 EOF
 }
 
-DEFAULT_HOSTS="kubernetes,kubernetes.default,127.0.0.1"
+DNS1="kubernetes"
+DNS2="kubernetes.default"
+DNS3="kubernetes.default.svc"
+DNS4="kubernetes.default.svc.cluster.local"
+DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
 
 function _chmod {
   CN=$1
@@ -76,7 +80,8 @@ function generate {
   HOSTS=$3
 
   echo "$(csr $CN)" \
-    | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=$PROFILE \
+    | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json \
+      -profile=$PROFILE \
       -hostname="$HOSTS" - \
     | cfssljson -bare $CN
 
@@ -94,10 +99,10 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
 _chmod ca
 
 # generate keys and certs
-generate k8s-admin client-server "$DEFAULT_HOSTS,10.0.0.15,*.*.compute.internal,*.ec2.internal"
-generate k8s-apiserver client-server "$DEFAULT_HOSTS,10.0.0.15,${K8S_SERVICE_IP},master.${INTERNAL_TLD},*.${REGION}.elb.amazonaws.com"
+generate k8s-admin client-server "${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
+generate k8s-apiserver client-server "${DEFAULT_HOSTS},${K8S_SERVICE_IP},master.${INTERNAL_TLD},*.${AWS_REGION}.elb.amazonaws.com"
 generate k8s-etcd client-server "etcd.${INTERNAL_TLD},etcd1.${INTERNAL_TLD},etcd2.${INTERNAL_TLD},etcd3.${INTERNAL_TLD}"
-generate k8s-worker client "$DEFAULT_HOSTS,*.*.compute.internal,*.ec2.internal"
+generate k8s-worker client "${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
 
 # TODO: fix cert provisioning hacks
 tar -rf k8s-apiserver.tar k8s-etcd.pem k8s-etcd-key.pem

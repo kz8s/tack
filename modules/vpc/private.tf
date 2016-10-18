@@ -14,14 +14,15 @@ resource "aws_subnet" "private" {
   count = "${ length( split(",", var.azs) ) }"
 
   availability_zone = "${ element( split(",", var.azs), count.index ) }"
-  cidr_block = "10.0.${ count.index + 10 }.0/24"
+  cidr_block = "${ cidrsubnet(var.cidr, 8, count.index + 10) }"
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
     "kubernetes.io/role/internal-elb" = "${ var.name }"
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
-    Name = "k8s-${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
     visibility = "private"
   }
 }
@@ -36,8 +37,9 @@ resource "aws_route_table" "private" {
 
   tags {
     builtWith = "terraform"
-    Cluster = "${ var.name }"
-    Name = "k8s-${ var.name }"
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-${ var.name }"
     visibility = "private"
   }
 }

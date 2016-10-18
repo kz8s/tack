@@ -1,5 +1,6 @@
 variable "azs" {}
 variable "cidr" {}
+variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "name" {}
 variable "region" {}

@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 function usage {
-  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <vpc-cidr> <pod-ip-range> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip>"
-  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.0.0.0/16 10.2.0.0/16 10.3.0.0/24 10.3.0.1 10.3.0.10"
+  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <vpc-cidr> <pod-ip-range> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip> <k8s-etcd-ips>"
+  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.0.0.0/16 10.2.0.0/16 10.3.0.0/24 10.3.0.1 10.3.0.10 10.0.10.10,10.0.10.11,10.0.10.12"
 
   exit 1
 }
 
-if [[ $# -ne 12 ]]; then
+if [[ $# -ne 13 ]]; then
   usage
 fi
 
@@ -23,6 +23,7 @@ CIDR_PODS="$9"
 CIDR_SERVICE_CLUSTER="${10}"
 K8S_SERVICE_IP="${11}"
 K8S_DNS_IP="${12}"
+ETCD_IPS="${13}"
 
 COREOS_AMI_ID=`curl -s \
   $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
@@ -62,6 +63,7 @@ internal-tld = "${INTERNAL_TLD}"
 k8s-service-ip = "${K8S_SERVICE_IP}"
 name = "${CLUSTER_NAME}"
 s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
+etcd-ips = "$ETCD_IPS"
 EOF
 if [ -f ./vpc-existing.tfvars ]; then cat ./vpc-existing.tfvars >>terraform.tfvars ; fi
 cat terraform.tfvars
