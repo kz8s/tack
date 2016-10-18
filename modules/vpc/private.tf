@@ -14,7 +14,7 @@ resource "aws_subnet" "private" {
   count = "${ length( split(",", var.azs) ) }"
 
   availability_zone = "${ element( split(",", var.azs), count.index ) }"
-  cidr_block = "${cidrsubnet(var.cidr, 8, count.index + 10)}"
+  cidr_block = "${ cidrsubnet(var.cidr, 8, count.index + 10) }"
   vpc_id = "${ aws_vpc.main.id }"
 
   tags {
