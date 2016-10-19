@@ -205,7 +205,7 @@ Starting to serve on localhost:8001
 If you have an existing VPC you'd like to deploy a cluster into, there is an option for this with _tack_.
 
 #### Constraints
-* You will need to allocate 3 static IPs for the etcd servers - Just choose 3 IPs in a subnet that's not being used
+* You will need to allocate 3 static IPs for the etcd servers - Choose 3 unused IPs that fall within the IP range of the first subnet specified in `subnet-ids-private` under `vpc-existing.tfvars`
 * Your VPC has to have private and public subnets (for now)
 * You will need to know the following information:
   * VPC CIDR Range (e.g. 192.168.0.0/16)
