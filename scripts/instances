@@ -1,0 +1,17 @@
+#!/bin/bash
+
+name=$1
+[ -z "${name}" ] && echo "need to pass cluster-name" && exit 1
+region=$2
+[ -z "${region}" ] && echo "need to pass regsion" && exit 1
+
+kz8s="Name=tag:kz8s,Values=${name}"
+
+( \
+  printf "instance-id state name role kz8s private-ip public-ip\n" ;\
+  aws ec2 describe-instances \
+    --output text \
+    --filters "Name=instance-state-name,Values=running" ${kz8s} \
+    --query 'Reservations[*].Instances[*].[InstanceId,State.Name,Tags[?Key==`Name`].Value|[0],Tags[?Key==`role`].Value|[0],Tags[?Key==`kz8s`].Value|[0],PrivateIpAddress,PublicIpAddress]' \
+    --region ${region} \
+) | column -t

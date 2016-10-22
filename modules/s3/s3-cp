@@ -47,28 +47,12 @@ set -o pipefail
 
 # directories
 CFSSL=.cfssl
-MANIFESTS=manifests/system
 
 # verify directories exist
 [ -d "$CFSSL" ] || (echo "✗ $CFSSL doesn't exist" && exit 1)
-[ -d "$MANIFESTS" ] || (echo "✗ $MANIFESTS doesn't exist" && exit 1)
 
 # cp tls assets
 echo "❤ Copy tls assets to s3 ${BUCKET}"
 aws s3 cp .cfssl s3://${BUCKET}/ssl --recursive --exclude "*" --include "*.tar" \
   --region ${REGION}
 echo "✓ tls copy success"
-
-# mk tmp dir for manifests and do substituions
-TMP=$(mktemp -d)
-trap cleanup EXIT
-cp $MANIFESTS/* $TMP
-sed -i.bak 's|${HYPERKUBE}|'"$HYPERKUBE|g" "$TMP/"*.yml
-sed -i.bak 's|${INTERNAL_TLD}|'"$INTERNAL_TLD|g" "$TMP/"*.yml
-
-# tar and cp etc manifests
-echo "❤ Tar and copy etc manifests to ${BUCKET}"
-tar -cf - \
-  -C $TMP kube-apiserver.yml kube-controller-manager.yml kube-proxy.yml kube-scheduler.yml \
-  | aws s3 cp - s3://${BUCKET}/manifests/etc.tar --region ${REGION}
-echo "✓ Tar and copy etc manifests success"

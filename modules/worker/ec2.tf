@@ -1,7 +1,7 @@
 resource "aws_launch_configuration" "worker" {
   ebs_block_device {
     device_name = "/dev/xvdf"
-    volume_size = 250
+    volume_size = "${ var.volume_size["ebs"] }"
     volume_type = "gp2"
   }
 
@@ -12,7 +12,7 @@ resource "aws_launch_configuration" "worker" {
 
   # Storage
   root_block_device {
-    volume_size = 52
+    volume_size = "${ var.volume_size["root"] }"
     volume_type = "gp2"
   }
 
@@ -28,26 +28,20 @@ resource "aws_launch_configuration" "worker" {
 }
 
 resource "aws_autoscaling_group" "worker" {
-  name = "worker-${ var.name }"
+  name = "worker-${ var.worker-name }-${ var.name }"
 
-  desired_capacity = "5"
+  desired_capacity = "${ var.capacity["desired"] }"
   health_check_grace_period = 60
   health_check_type = "EC2"
   force_delete = true
   launch_configuration = "${ aws_launch_configuration.worker.name }"
-  max_size = "5"
-  min_size = "3"
+  max_size = "${ var.capacity["max"] }"
+  min_size = "${ var.capacity["min"] }"
   vpc_zone_identifier = [ "${ split(",", var.subnet-ids) }" ]
 
   tag {
     key = "builtWith"
     value = "terraform"
-    propagate_at_launch = true
-  }
-
-  tag {
-    key = "Cluster"
-    value = "${ var.name }"
     propagate_at_launch = true
   }
 
@@ -65,21 +59,39 @@ resource "aws_autoscaling_group" "worker" {
   }
 
   tag {
+    key = "kz8s"
+    value = "${ var.name }"
+    propagate_at_launch = true
+  }
+
+  tag {
     key = "Name"
-    value = "worker-${ var.name }"
+    value = "kz8s-worker"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "role"
+    value = "worker"
     propagate_at_launch = true
   }
 
   tag {
     key = "version"
-    value = "${ var.coreos-hyperkube-tag }"
+    value = "${ var.hyperkube-tag }"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "visibility"
+    value = "private"
     propagate_at_launch = true
   }
 }
 
 resource "null_resource" "dummy_dependency" {
   depends_on = [
-    "aws_launch_configuration.worker",
     "aws_autoscaling_group.worker",
+    "aws_launch_configuration.worker",
   ]
 }

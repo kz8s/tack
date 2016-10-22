@@ -50,16 +50,16 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1068.9.0, 1122.1.0, 1122.0.0)
+### CoreOS (1122.2.0, 1185.1.0, 1192.1.0)
 * etcd DNS Discovery Bootstrap
 * kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.3.5)
+### Kubernetes (v1.4.3)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.6.16)
+### Terraform (v0.7.6)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -80,21 +80,21 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.10.51 Python/2.7.10 Darwin/15.6.0 botocore/1.4.41
+aws-cli/1.11.6 Python/2.7.10 Darwin/16.0.0 botocore/1.4.63
 
 $ cfssl version
 Version: 1.2.0
 Revision: dev
-Runtime: go1.6.2
+Runtime: go1.7.1
 
 $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"3", GitVersion:"v1.3.0+2831379", GitCommit:"283137936a498aed572ee22af6774b6fb6e9fd94", GitTreeState:"not a git tree", BuildDate:"2016-07-05T15:40:13Z", GoVersion:"go1.6.2", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.1+33cf7b9", GitCommit:"33cf7b9acbb2cb7c9c72a10d6636321fb180b159", GitTreeState:"not a git tree", BuildDate:"2016-10-13T15:13:44Z", GoVersion:"go1.7.1", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.6.16
+Terraform v0.7.6
 ```
 
 ## Launch Cluster
@@ -118,6 +118,18 @@ To open dashboard:
 
 ```bash
 $ make dashboard
+```
+
+To display instance information:
+
+```bash
+$ make instances
+```
+
+To display status:
+
+```bash
+$ make status
 ```
 
 To destroy, remove and generally undo everything:
@@ -182,12 +194,55 @@ Starting to serve on localhost:8001
 * [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging ](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging)
 * [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging)
 
+## FAQs
+
+* [Create an etcd cluster with more than 3 instances](https://github.com/kz8s/tack/wiki/How-to:-change-etcd-cluster-size)
+
+## Advanced Features and Configuration
+
+### Using an Existing VPC
+
+If you have an existing VPC you'd like to deploy a cluster into, there is an option for this with _tack_.
+
+#### Constraints
+* You will need to allocate 3 static IPs for the etcd servers - Choose 3 unused IPs that fall within the IP range of the first subnet specified in `subnet-ids-private` under `vpc-existing.tfvars`
+* Your VPC has to have private and public subnets (for now)
+* You will need to know the following information:
+  * VPC CIDR Range (e.g. 192.168.0.0/16)
+  * VPC Id (e.g. vpc-abc123)
+  * VPC Internet Gateway Id (e.g. igw-123bbd)
+  * VPC Public Subnet Ids (e.g. subnet-xyz123,subnet-zyx123)
+  * VPC Private Subnet Ids (e.g. subnet-lmn123,subnet-opq123)
+
+#### Enabling Existing VPC Support
+* Edit vpc-existing.tfvars
+  * Uncomment the blocks with variables and fill in the missing information
+* Edit modules_override.tf - This uses the [overrides feature from Terraform](https://www.terraform.io/docs/configuration/override.html)
+  * Uncomment the vpc module, this will override the reference to the regular VPC module and instead use the stub vpc-existing module which just pulls in the variables from vpc-existing.tfvars
+* Edit the Makefile as necessary for CIDR_PODS, CIDR_SERVICE_CLUSTER, etc to match what you need (e.g. avoid collisions with existing IP ranges in your VPC or extended infrastructure)
+
+#### Testing Existing VPC Support from Scratch
+In order to test existing VPC support, we need to generate a VPC and then try the overrides with it. After that we can clean it all up.  These instructions are meant for someone wanting to ensure that the _tack_ existing VPC code works properly.
+* Run `make all` to generate a VPC with Terraform
+* Edit terraform.tfstate
+  * Search for the VPC block and cut it out and save it somewhere.  Look for "path": ["root","vpc"]
+* Run `make clean` to remove everything but the VPC and associated networking (we preserved it in the previous step)
+* Edit as per instructions above
+* Run `make all` to test out using an existing VPC
+* Cleaning up:
+  * Re-insert the VPC block into terraform.tfstate
+  * Run `make clean` to clean up everything
+
+#### Additional Configuration
+* You probably want to [tag your subnets](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go#66) for internal/external load balancers
+
 ## Inspiration
 * [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
 * [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
+
 
 ## Other Terraform Projects
 * [bakins/kubernetes-coreos-terraform](https://github.com/bakins/kubernetes-coreos-terraform)
