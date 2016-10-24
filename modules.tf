@@ -125,8 +125,6 @@ module "worker" {
 module "snapshot" {
   source = "./modules/snapshot"
   
-  bucket-prefix = "${ var.s3-bucket }"
-  name = "${ var.name }"
   iam-role-snapshot-arn = "${ module.iam.iam-role-snapshot-arn }"
   name = "${ var.name }"
   security-groups = "${ module.security.etcd-id },${ module.security.worker-id }"
