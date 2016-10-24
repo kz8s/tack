@@ -299,7 +299,18 @@ write-files:
             initialDelaySeconds: 15
             timeoutSeconds: 1
 
-
+  - path: /etc/logrotate.d/docker-containers
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        size=1M
+        missingok
+        delaycompress
+        copytruncate
+      }
+      
 EOF
 
   vars {

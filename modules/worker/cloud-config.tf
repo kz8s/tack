@@ -203,6 +203,19 @@ write-files:
           - name: "etc-kube-ssl"
             hostPath:
               path: "/etc/kubernetes/ssl"
+
+  - path: /etc/logrotate.d/docker-containers
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        size=1M
+        missingok
+        delaycompress
+        copytruncate
+      }
+
 EOF
 
   vars {
