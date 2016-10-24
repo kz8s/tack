@@ -244,7 +244,7 @@ write-files:
     content: |
       #!/bin/bash -
       if [ ! -x /home/core/go-aws-mon ]; then
-        wget -O /home/core/go-aws-mon https://github.com/a3linux/go-aws-mon/raw/aggregate/bin/go-aws-mon 
+        wget -O /home/core/go-aws-mon https://github.com/a3linux/go-aws-mon/blob/master/bin/go-aws-mon
         chmod +x /home/core/go-aws-mon
       fi
       /home/core/go-aws-mon --aggregated --auto-scaling --mem-used --mem-avail --disk-space-used --disk-space-avail --disk-inode-util --swap-util
