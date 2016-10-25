@@ -11,6 +11,7 @@ coreos:
     advertise-client-urls: http://${ fqdn }:2379
     # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     # debug: true
+    data-dir: /media/etcd2
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
@@ -25,6 +26,43 @@ coreos:
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   units:
+    - name: format-ebs-volume.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the ebs volume
+        After=dev-xvdf.device
+        Requires=dev-xvdf.device
+        [Service]
+        ExecStart=/bin/bash -c "(/usr/sbin/blkid -t TYPE=ext4 | grep /dev/xvdf) || (/usr/sbin/wipefs -fa /dev/xvdf && /usr/sbin/mkfs.ext4 /dev/xvdf)"
+        RemainAfterExit=yes
+        Type=oneshot
+
+    - name: media-etcd2.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount ebs to /media/etcd2
+        Requires=format-ebs-volume.service
+        After=format-ebs-volume.service
+        [Mount]
+        What=/dev/xvdf
+        Where=/media/etcd2
+        Type=ext4
+
+    - name: prepare-etcd-data-dir.service
+      command: start
+      content: |
+        [Unit]
+        Description=Prepares the etcd data directory
+        Requires=media-etcd2.mount
+        After=media-etcd2.mount
+        Before=etcd2.service
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/chown -R etcd:etcd /media/etcd2
+
     - name: etcd2.service
       command: start
       drop-ins:
