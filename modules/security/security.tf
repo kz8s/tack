@@ -114,7 +114,7 @@ resource "aws_security_group" "worker" {
   name = "worker-k8s-${ var.name }"
 
   tags {
-    Cluster = "${ var.name }"
+    KubernetesCluster = "${ var.name }"
     Name = "worker-k8s-${ var.name }"
     builtWith = "terraform"
   }
