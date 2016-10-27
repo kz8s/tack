@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
-    Name = "kz8s-${ var.name }"
+    Name = "kz8s-${ var.name }-public"
     version = "${ var.hyperkube-tag }"
     visibility = "public"
   }
