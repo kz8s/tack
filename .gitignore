@@ -11,5 +11,5 @@ terraform.tfstate*
 terraform.tfvars
 
 tmp/
-
+templates
 *.bak

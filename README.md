@@ -50,16 +50,16 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1122.2.0, 1185.1.0, 1192.1.0)
+### CoreOS (1122.3.0, 1185.2.0, 1192.2.0)
 * etcd DNS Discovery Bootstrap
 * kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.4.3)
+### Kubernetes (v1.4.4)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.7.6)
+### Terraform (v0.7.7)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -80,7 +80,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.6 Python/2.7.10 Darwin/16.0.0 botocore/1.4.63
+aws-cli/1.11.8 Python/2.7.10 Darwin/16.0.0 botocore/1.4.65
 
 $ cfssl version
 Version: 1.2.0
@@ -91,10 +91,10 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.1+33cf7b9", GitCommit:"33cf7b9acbb2cb7c9c72a10d6636321fb180b159", GitTreeState:"not a git tree", BuildDate:"2016-10-13T15:13:44Z", GoVersion:"go1.7.1", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.4+3b417cc", GitCommit:"3b417cc4ccd1b8f38ff9ec96bb50a81ca0ea9d56", GitTreeState:"not a git tree", BuildDate:"2016-10-21T22:34:07Z", GoVersion:"go1.7.3", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.7.6
+Terraform v0.7.7
 ```
 
 ## Launch Cluster
@@ -205,7 +205,7 @@ Starting to serve on localhost:8001
 If you have an existing VPC you'd like to deploy a cluster into, there is an option for this with _tack_.
 
 #### Constraints
-* You will need to allocate 3 static IPs for the etcd servers - Just choose 3 IPs in a subnet that's not being used
+* You will need to allocate 3 static IPs for the etcd servers - Choose 3 unused IPs that fall within the IP range of the first subnet specified in `subnet-ids-private` under `vpc-existing.tfvars`
 * Your VPC has to have private and public subnets (for now)
 * You will need to know the following information:
   * VPC CIDR Range (e.g. 192.168.0.0/16)

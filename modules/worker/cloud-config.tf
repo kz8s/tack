@@ -203,14 +203,27 @@ write-files:
           - name: "etc-kube-ssl"
             hostPath:
               path: "/etc/kubernetes/ssl"
+
+  - path: /etc/logrotate.d/docker-containers
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        size=1M
+        missingok
+        delaycompress
+        copytruncate
+      }
+
 EOF
 
   vars {
     bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
+    dns-service-ip = "${ var.dns-service-ip }"
     hyperkube-image = "${ var.hyperkube-image }"
     hyperkube-tag = "${ var.hyperkube-tag }"
-    dns-service-ip = "${ var.dns-service-ip }"
     internal-tld = "${ var.internal-tld }"
     region = "${ var.region }"
     ssl-tar = "/ssl/k8s-worker.tar"

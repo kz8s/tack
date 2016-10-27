@@ -299,6 +299,17 @@ write-files:
             initialDelaySeconds: 15
             timeoutSeconds: 1
 
+  - path: /etc/logrotate.d/docker-containers
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        size=1M
+        missingok
+        delaycompress
+        copytruncate
+      }
 
 EOF
 
@@ -306,15 +317,14 @@ EOF
     bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
-    hyperkube = "${ var.hyperkube-image }:${ var.hyperkube-tag }"
-    hyperkube-image = "${ var.hyperkube-image }"
-    hyperkube-tag = "${ var.hyperkube-tag }"
     dns-service-ip = "${ var.dns-service-ip }"
     etc-tar = "/manifests/etc.tar"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
+    hyperkube = "${ var.hyperkube-image }:${ var.hyperkube-tag }"
+    hyperkube-image = "${ var.hyperkube-image }"
+    hyperkube-tag = "${ var.hyperkube-tag }"
     internal-tld = "${ var.internal-tld }"
-    log-group = "k8s-${ var.name }"
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
     service-cluster-ip-range = "${ var.service-cluster-ip-range }"
