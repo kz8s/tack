@@ -31,5 +31,6 @@ resource "aws_elb" "external" {
     role = "apiserver"
     version = "${ var.hyperkube-tag }"
     visibility = "public"
+    KubernetesCluster = "${ var.name }"
   }
 }
