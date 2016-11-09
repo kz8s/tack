@@ -18,7 +18,7 @@ resource "aws_security_group" "bastion" {
   name = "bastion-k8s-${ var.name }"
 
   tags {
-    Cluster = "${ var.name }"
+    KubernetesCluster = "${ var.name }"
     Name = "bastion-k8s-${ var.name }"
     builtWith = "terraform"
   }
@@ -48,7 +48,7 @@ resource "aws_security_group" "etcd" {
   name = "etcd-k8s-${ var.name }"
 
   tags {
-    Cluster = "${ var.name }"
+    KubernetesCluster = "${ var.name }"
     Name = "etcd-k8s-${ var.name }"
     builtWith = "terraform"
   }
@@ -84,7 +84,7 @@ resource "aws_security_group" "external-elb" {
   name = "master-external-elb-k8s-${ var.name }"
 
   tags {
-    Cluster = "${ var.name }"
+    KubernetesCluster = "${ var.name }"
     Name = "master-external-elb-k8s-${ var.name }"
     builtWith = "terraform"
   }
