@@ -26,7 +26,7 @@ resource "aws_instance" "bastion" {
 }
 
 data "template_file" "user-data" {
-  template = "user-data.yml"
+  template = "${ file( "${ path.module }/user-data.yml" )}"
 
   vars {
     internal-tld = "${ var.internal-tld }"
