@@ -27,7 +27,7 @@ resource "aws_instance" "etcd" {
     visibility = "private"
   }
 
-  user_data = "${ element(template_file.cloud-config.*.rendered, count.index) }"
+  user_data = "${ element(data.template_file.cloud-config.*.rendered, count.index) }"
   vpc_security_group_ids = [ "${ var.etcd-security-group-id }" ]
 }
 
