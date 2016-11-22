@@ -20,7 +20,7 @@ resource "aws_launch_configuration" "worker" {
     "${ var.security-group-id }",
   ]
 
-  user_data = "${ template_file.cloud-config.rendered }"
+  user_data = "${ data.template_file.cloud-config.rendered }"
 
   /*lifecycle {
     create_before_destroy = true
