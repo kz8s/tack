@@ -35,6 +35,9 @@ K8S_DNS_IP ?= 10.3.0.10
 CIDR_VPC ?= "10.0.0.0/16"
 ETCD_IPS ?= 10.0.10.10,10.0.10.11,10.0.10.12
 
+HYPERKUBE_IMAGE ?= "quay.io/coreos/hyperkube"
+HYPERKUBE_TAG ?= "v1.4.6_coreos.0"
+
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
 # CIDR_SERVICE_CLUSTER ?= "172.16.0.0/24"
