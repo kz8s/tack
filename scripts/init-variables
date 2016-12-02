@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 function usage {
-  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <vpc-cidr> <pod-ip-range> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip> <k8s-etcd-ips>"
-  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.0.0.0/16 10.2.0.0/16 10.3.0.0/24 10.3.0.1 10.3.0.10 10.0.10.10,10.0.10.11,10.0.10.12"
+  echo "USAGE: $0 <aws-region> <core-os-channel> <coreos-vm-type> <aws-key-name> <internal-tld> <cluster-name> <cidr-allow-ssh> <vpc-cidr> <pod-ip-range> <k8s-service-ip-range> <k8s-service-ip> <k8s-dns-ip> <k8s-etcd-ips> <hyperkube-image> <hyperkube-tag>"
+  echo "  example: $0 us-west-1 stable hvm k8s-testing testing.k8s testing 0.0.0.0/0 10.0.0.0/16 10.2.0.0/16 10.3.0.0/24 10.3.0.1 10.3.0.10 10.0.10.10,10.0.10.11,10.0.10.12 quay.io/coreos/hyperkube v1.4.6_coreos.0"
 
   exit 1
 }
 
-if [[ $# -ne 13 ]]; then
+if [[ $# -ne 15 ]]; then
   usage
 fi
 
@@ -24,6 +24,8 @@ CIDR_SERVICE_CLUSTER="${10}"
 K8S_SERVICE_IP="${11}"
 K8S_DNS_IP="${12}"
 ETCD_IPS="${13}"
+HYPERKUBE_IMAGE="${14}"
+HYPERKUBE_TAG="${15}"
 
 COREOS_AMI_ID=`curl -s \
   $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
@@ -57,6 +59,10 @@ coreos-aws = {
   ami = "${COREOS_AMI_ID}"
   channel = "${COREOS_CHANNEL}"
   type = "${COREOS_VM_TYPE}"
+}
+k8s = {
+    hyperkube-image = "${HYPERKUBE_IMAGE}"
+    hyperkube-tag = "${HYPERKUBE_TAG}"
 }
 dns-service-ip = "${K8S_DNS_IP}"
 internal-tld = "${INTERNAL_TLD}"
