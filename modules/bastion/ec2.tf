@@ -18,42 +18,15 @@ resource "aws_instance" "bastion" {
     role = "bastion"
   }
 
-  user_data = "${ template_file.user-data.rendered }"
+  user_data = "${ data.template_file.user-data.rendered }"
 
   vpc_security_group_ids = [
     "${ var.security-group-id }",
   ]
 }
 
-resource "template_file" "user-data" {
-  template = <<EOF
-#cloud-config
-
----
-coreos:
-  update:
-    reboot-strategy: etcd-lock
-
-  etcd2:
-    discovery-srv: ${ internal-tld }
-    proxy: on
-
-  units:
-    - name: etcd2.service
-      command: start
-    - name: s3-iam-get.service
-      command: start
-      content: |
-        [Unit]
-        Description=s3-iam-get
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStartPre=/usr/bin/curl -L -o /opt/bin/s3-iam-get \
-          https://raw.githubusercontent.com/kz8s/s3-iam-get/master/s3-iam-get
-        ExecStart=/usr/bin/chmod +x /opt/bin/s3-iam-get
-EOF
+data "template_file" "user-data" {
+  template = "${ file( "${ path.module }/user-data.yml" )}"
 
   vars {
     internal-tld = "${ var.internal-tld }"
