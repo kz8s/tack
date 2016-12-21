@@ -49,6 +49,8 @@ creation
 * Bastion Host
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
+* Cluster state persisted using EBS
+* Automatic snapshotting of all EBS volumes, including dynamically generated persistent volumes
 
 ### CoreOS (1122.3.0, 1185.2.0, 1192.2.0)
 * etcd DNS Discovery Bootstrap
@@ -107,6 +109,7 @@ Terraform v0.7.7
 - Route 53 internal zone for VPC
 - Etcd cluster bootstrapped from Route 53
 - High Availability Kubernetes configuration (masters running on etcd nodes)
+- EBS volumes for etcd cluster with automatic snapshots
 - Autoscaling worker node group across subnets in selected region
 - kube-system namespace and addons: DNS, UI, Dashboard
 

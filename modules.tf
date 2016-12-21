@@ -122,6 +122,15 @@ module "worker" {
   worker-name = "general"
 }
 
+module "snapshot" {
+  source = "./modules/snapshot"
+  
+  iam-role-snapshot-arn = "${ module.iam.iam-role-snapshot-arn }"
+  name = "${ var.name }"
+  security-groups = "${ module.security.etcd-id },${ module.security.worker-id }"
+  subnet-ids = "${ module.vpc.subnet-ids-private },${ module.vpc.subnet-ids-public }"
+}
+
 /*
 module "worker2" {
   source = "./modules/worker"
