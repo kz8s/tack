@@ -8,7 +8,7 @@ NC := \033[0m
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION ?= us-west-2
+AWS_REGION ?= us-east-1
 COREOS_CHANNEL ?= stable
 COREOS_VM_TYPE ?= hvm
 
@@ -27,16 +27,16 @@ INTERNAL_TLD := ${CLUSTER_NAME}.kz8s
 # - http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html#VPC_Sizing
 # - https://www.terraform.io/docs/providers/aws/r/vpc.html#cidr_block
 #
-CIDR_PODS ?= "10.2.0.0/16"
-CIDR_SERVICE_CLUSTER ?= "10.3.0.0/24"
+CIDR_PODS ?= 10.2.0.0/16
+CIDR_SERVICE_CLUSTER ?= 10.3.0.0/24
 K8S_SERVICE_IP ?= 10.3.0.1
 K8S_DNS_IP ?= 10.3.0.10
 
-CIDR_VPC ?= "10.0.0.0/16"
+CIDR_VPC ?= 10.0.0.0/16
 ETCD_IPS ?= 10.0.10.10,10.0.10.11,10.0.10.12
 
-HYPERKUBE_IMAGE ?= "quay.io/coreos/hyperkube"
-HYPERKUBE_TAG ?= "v1.4.6_coreos.0"
+HYPERKUBE_IMAGE ?= quay.io/coreos/hyperkube
+HYPERKUBE_TAG ?= v1.5.1_coreos.0
 
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
