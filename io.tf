@@ -37,8 +37,8 @@ variable "instance-type" {
 variable "internal-tld" {}
 variable "k8s" {
   default = {
-    hyperkube-image = "quay.io/coreos/hyperkube"
-    hyperkube-tag = "v1.5.1_coreos.0"
+    hyperkube-image = ""
+    hyperkube-tag = ""
   }
 }
 variable "k8s-service-ip" { default = "10.3.0.1" }
