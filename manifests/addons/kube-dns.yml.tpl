@@ -23,50 +23,51 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: ReplicationController
-
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: kube-dns-v19
+  name: kube-dns
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    version: v19
     kubernetes.io/cluster-service: "true"
-
 spec:
-  replicas: 1
+  # replicas: not specified here:
+  # 1. In order to make Addon Manager do not reconcile this replicas parameter.
+  # 2. Default is 1.
+  # 3. Will be tuned in real time if DNS horizontal auto-scaling is turned on.
+  strategy:
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 0
   selector:
-    k8s-app: kube-dns
-    version: v19
+    matchLabels:
+      k8s-app: kube-dns
   template:
     metadata:
       labels:
         k8s-app: kube-dns
-        version: v19
-        kubernetes.io/cluster-service: "true"
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
         scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
     spec:
       containers:
       - name: kubedns
-        image: gcr.io/google_containers/kubedns-amd64:1.7
+        image: gcr.io/google_containers/kubedns-amd64:1.9
         resources:
           # TODO: Set memory limits when we've profiled the container for large
           # clusters, then set request = limit to keep this container in
           # guaranteed class. Currently, this container falls into the
           # "burstable" category so the kubelet doesn't backoff from restarting it.
           limits:
-            cpu: 100m
             memory: 170Mi
           requests:
             cpu: 100m
             memory: 70Mi
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: 8080
+            path: /healthcheck/kubedns
+            port: 10054
             scheme: HTTP
           initialDelaySeconds: 60
           timeoutSeconds: 5
@@ -79,12 +80,16 @@ spec:
             scheme: HTTP
           # we poll on pod startup for the Kubernetes master service and
           # only setup the /readiness HTTP server once that's available.
-          initialDelaySeconds: 30
+          initialDelaySeconds: 3
           timeoutSeconds: 5
         args:
-        # command = "/kube-dns"
         - --domain=${CLUSTER_DOMAIN}.
         - --dns-port=10053
+        - --config-map=kube-dns
+        - --v=2
+        env:
+        - name: PROMETHEUS_PORT
+          value: "10055"
         ports:
         - containerPort: 10053
           name: dns-local
@@ -92,8 +97,20 @@ spec:
         - containerPort: 10053
           name: dns-tcp-local
           protocol: TCP
+        - containerPort: 10055
+          name: metrics
+          protocol: TCP
       - name: dnsmasq
-        image: gcr.io/google_containers/kube-dnsmasq-amd64:1.3
+        image: gcr.io/google_containers/kube-dnsmasq-amd64:1.4
+        livenessProbe:
+          httpGet:
+            path: /healthcheck/dnsmasq
+            port: 10054
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
         args:
         - --cache-size=1000
         - --no-resolv
@@ -106,25 +123,33 @@ spec:
         - containerPort: 53
           name: dns-tcp
           protocol: TCP
-      - name: healthz
-        image: gcr.io/google_containers/exechealthz-amd64:1.1
+        # see: https://github.com/kubernetes/kubernetes/issues/29055 for details
         resources:
-          # keep request = limit to keep this container in guaranteed class
-          limits:
-            cpu: 10m
-            memory: 50Mi
           requests:
-            cpu: 10m
-            # Note that this container shouldn't really need 50Mi of memory. The
-            # limits are set higher than expected pending investigation on #29688.
-            # The extra memory was stolen from the kubedns container to keep the
-            # net memory requested by the pod constant.
-            memory: 50Mi
+            cpu: 150m
+            memory: 10Mi
+      - name: sidecar
+        image: gcr.io/google_containers/k8s-dns-sidecar-amd64:1.10.0
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 10054
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
         args:
-        - -cmd=nslookup kubernetes.default.svc.${CLUSTER_DOMAIN} 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.${CLUSTER_DOMAIN} 127.0.0.1:10053 >/dev/null
-        - -port=8080
-        - -quiet
+        - --v=2
+        - --logtostderr
+        - --probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.${CLUSTER_DOMAIN}
+        - --probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.${CLUSTER_DOMAIN}
         ports:
-        - containerPort: 8080
+        - containerPort: 10054
+          name: metrics
           protocol: TCP
-      dnsPolicy: Default
+        resources:
+          requests:
+            memory: 20Mi
+            cpu: 10m
+      dnsPolicy: Default  # Don't use cluster DNS.
