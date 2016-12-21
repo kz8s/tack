@@ -89,6 +89,22 @@ resource "aws_autoscaling_group" "worker" {
   }
 }
 
+resource "aws_autoscaling_policy" "worker-scale-up" {
+  name = "${ var.name }-worker-scale-up"
+  scaling_adjustment = 1
+  adjustment_type = "ChangeInCapacity"
+  cooldown = 300
+  autoscaling_group_name = "${ aws_autoscaling_group.worker.name }"
+}
+
+resource "aws_autoscaling_policy" "worker-scale-down" {
+  name = "${ var.name }-worker-scale-down"
+  scaling_adjustment = -1
+  adjustment_type = "ChangeInCapacity"
+  cooldown = 300
+  autoscaling_group_name = "${ aws_autoscaling_group.worker.name }"
+}
+
 resource "null_resource" "dummy_dependency" {
   depends_on = [
     "aws_autoscaling_group.worker",

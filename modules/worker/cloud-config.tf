@@ -133,6 +133,28 @@ coreos:
         [Install]
         WantedBy=multi-user.target
 
+    - name: go-aws-mon.service
+      command: start
+      content: |
+        [Unit]
+        Description=go-aws-mon
+        [Service]
+        ExecStart=/home/core/go-aws-mon.sh
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: go-aws-mon.timer
+      command: start
+      content: |
+        [Unit]
+        Description=Push Instance Metric with go-aws-mon every minute
+        [Timer]
+        OnBootSec=0min
+        OnCalendar=minutely
+        Unit=go-aws-mon.service
+        [Install]
+        WantedBy=multi-user.target
+
   update:
     reboot-strategy: etcd-lock
 
@@ -215,6 +237,17 @@ write-files:
         delaycompress
         copytruncate
       }
+
+  - path: /home/core/go-aws-mon.sh
+    permissions: '0755'
+    owner: core
+    content: |
+      #!/bin/bash -
+      if [ ! -x /home/core/go-aws-mon ]; then
+        wget -O /home/core/go-aws-mon https://github.com/a3linux/go-aws-mon/raw/master/bin/go-aws-mon
+        chmod +x /home/core/go-aws-mon
+      fi
+      /home/core/go-aws-mon --aggregated --auto-scaling --mem-used --mem-avail --disk-space-used --disk-space-avail --disk-inode-util --swap-util
 
 EOF
 
