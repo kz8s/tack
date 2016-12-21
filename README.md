@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1122.3.0, 1185.2.0, 1192.2.0)
+### CoreOS (1185.5.0, 1235.2.0, 1262.0.0)
 * etcd DNS Discovery Bootstrap
 * kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
@@ -59,7 +59,7 @@ creation
 * Service accounts enabled
 * SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.7.13)
+### Terraform (v0.8.2)
 * CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -80,7 +80,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.8 Python/2.7.10 Darwin/16.0.0 botocore/1.4.65
+aws-cli/1.11.15 Python/2.7.10 Darwin/16.1.0 botocore/1.4.72
 
 $ cfssl version
 Version: 1.2.0
@@ -91,10 +91,10 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.4+3b417cc", GitCommit:"3b417cc4ccd1b8f38ff9ec96bb50a81ca0ea9d56", GitTreeState:"not a git tree", BuildDate:"2016-10-21T22:34:07Z", GoVersion:"go1.7.3", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.5+5a0a696", GitCommit:"5a0a696437ad35c133c0c8493f7e9d22b0f9b81b", GitTreeState:"not a git tree", BuildDate:"2016-10-29T08:29:44Z", GoVersion:"go1.7.3", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.7.13
+Terraform v0.8.2
 ```
 
 ## Launch Cluster
