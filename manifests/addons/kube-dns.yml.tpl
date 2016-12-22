@@ -25,12 +25,14 @@ spec:
 
 apiVersion: extensions/v1beta1
 kind: Deployment
+
 metadata:
   name: kube-dns
   namespace: kube-system
   labels:
     k8s-app: kube-dns
     kubernetes.io/cluster-service: "true"
+
 spec:
   # replicas: not specified here:
   # 1. In order to make Addon Manager do not reconcile this replicas parameter.
@@ -66,8 +68,8 @@ spec:
             memory: 70Mi
         livenessProbe:
           httpGet:
-            path: /healthcheck/kubedns
-            port: 10054
+            path: /healthz-kubedns
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 60
           timeoutSeconds: 5
@@ -104,8 +106,8 @@ spec:
         image: gcr.io/google_containers/kube-dnsmasq-amd64:1.4
         livenessProbe:
           httpGet:
-            path: /healthcheck/dnsmasq
-            port: 10054
+            path: /healthz-dnsmasq
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 60
           timeoutSeconds: 5
@@ -128,8 +130,9 @@ spec:
           requests:
             cpu: 150m
             memory: 10Mi
-      - name: sidecar
-        image: gcr.io/google_containers/k8s-dns-sidecar-amd64:1.10.0
+
+      - name: dnsmasq-metrics
+        image: gcr.io/google_containers/dnsmasq-metrics-amd64:1.0
         livenessProbe:
           httpGet:
             path: /metrics
@@ -142,14 +145,30 @@ spec:
         args:
         - --v=2
         - --logtostderr
-        - --probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.${CLUSTER_DOMAIN}
-        - --probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.${CLUSTER_DOMAIN}
         ports:
         - containerPort: 10054
           name: metrics
           protocol: TCP
         resources:
           requests:
-            memory: 20Mi
+            memory: 10Mi
+      - name: healthz
+        image: gcr.io/google_containers/exechealthz-amd64:1.2
+        resources:
+          limits:
+            memory: 50Mi
+          requests:
             cpu: 10m
+            memory: 50Mi
+        args:
+        - --cmd=nslookup kubernetes.default.svc.cluster.${CLUSTER_DOMAIN} 127.0.0.1 >/dev/null
+        - --url=/healthz-dnsmasq
+        - --cmd=nslookup kubernetes.default.svc.cluster.${CLUSTER_DOMAIN} 127.0.0.1:10053 >/dev/null
+        - --url=/healthz-kubedns
+        - --port=8080
+        - --quiet
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+
       dnsPolicy: Default  # Don't use cluster DNS.
