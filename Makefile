@@ -21,10 +21,13 @@ NC		:= \033[0m
 AWS_REGION						?= us-east-1
 COREOS_CHANNEL				?= stable
 COREOS_VM_TYPE				?= hvm
-
 CLUSTER_NAME 					?= test
+
 AWS_EC2_KEY_NAME			?= kz8s-$(CLUSTER_NAME)
 INTERNAL_TLD 					:= ${CLUSTER_NAME}.kz8s
+
+HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
+HYPERKUBE_TAG					?= v1.5.1_coreos.0
 
 CIDR_VPC							?= 10.0.0.0/16
 CIDR_PODS							?= 10.2.0.0/16
@@ -35,8 +38,7 @@ K8S_DNS_IP						?= 10.3.0.10
 
 ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 
-HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
-HYPERKUBE_TAG					?= v1.5.1_coreos.0
+
 
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
