@@ -161,9 +161,9 @@ spec:
             cpu: 10m
             memory: 50Mi
         args:
-        - --cmd=nslookup kubernetes.default.svc.cluster.${CLUSTER_DOMAIN} 127.0.0.1 >/dev/null
+        - --cmd=nslookup kubernetes.default.svc.${CLUSTER_DOMAIN} 127.0.0.1 >/dev/null
         - --url=/healthz-dnsmasq
-        - --cmd=nslookup kubernetes.default.svc.cluster.${CLUSTER_DOMAIN} 127.0.0.1:10053 >/dev/null
+        - --cmd=nslookup kubernetes.default.svc.${CLUSTER_DOMAIN} 127.0.0.1:10053 >/dev/null
         - --url=/healthz-kubedns
         - --port=8080
         - --quiet
