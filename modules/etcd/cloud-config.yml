@@ -5,13 +5,10 @@ coreos:
 
   etcd2:
     advertise-client-urls: http://${ fqdn }:2379
-    # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    # debug: true
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
-    # key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
     listen-client-urls: http://0.0.0.0:2379
     listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
@@ -88,6 +85,7 @@ coreos:
 
     - name: kubelet.service
       command: start
+      runtime: true
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
@@ -105,6 +103,7 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
+        ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
