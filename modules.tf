@@ -81,7 +81,7 @@ module "bastion" {
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
-  cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"
+  /*cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"*/
   instance-type = "${ var.instance-type["bastion"] }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
@@ -162,4 +162,21 @@ module "kubeconfig" {
   ca-pem = ".cfssl/ca.pem"
   master-elb = "${ module.etcd.external-elb }"
   name = "${ var.name }"
+}
+
+module "pki" {
+  source = "./modules/pki"
+  depends-id = "${ module.vpc.depends-id }"
+
+  ami-id = "${ var.coreos-aws["ami"] }"
+  cidr-vpc = "${ var.cidr["vpc"] }"
+  instance-type = "${ var.instance-type["pki"] }"
+  internal-tld = "${ var.internal-tld }"
+  internal-zone-id = "${ module.route53.internal-zone-id }"
+  key-name = "${ var.aws["key-name"] }"
+  name = "${ var.name }"
+  region = "${ var.aws["region"] }"
+  s3-bucket = "${ join( "", list("kz8s-", var.name, "-pki-", var.aws["account-id"]) ) }"
+  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  vpc-id = "${ module.vpc.id }"
 }

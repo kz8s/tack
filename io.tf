@@ -30,6 +30,7 @@ variable "etcd-ips" { default = "10.0.10.10,10.0.10.11,10.0.10.12" }
 variable "instance-type" {
   default = {
     bastion = "t2.nano"
+    pki = "t2.nano"
     etcd = "m3.medium"
     worker = "m3.medium"
   }
@@ -62,8 +63,20 @@ output "etcd1-ip" { value = "${ element( split(",", var.etcd-ips), 0 ) }" }
 output "external-elb" { value = "${ module.etcd.external-elb }" }
 output "internal-tld" { value = "${ var.internal-tld }" }
 output "name" { value = "${ var.name }" }
+output "pki-ip" { value = "${ module.pki.ip }" }
 output "region" { value = "${ var.aws["region"] }" }
 output "s3-bucket" { value = "${ var.s3-bucket }" }
 output "subnet-ids-private" { value = "${ module.vpc.subnet-ids-private }" }
 output "subnet-ids-public" { value = "${ module.vpc.subnet-ids-public }" }
 output "worker-autoscaling-group-name" { value = "${ module.worker.autoscaling-group-name }" }
+
+output "ips" {
+  value = "${
+    map(
+      "bastion", "${ module.bastion.ip }",
+      "dns-service", "${ var.dns-service-ip }",
+      "etcd", "${ var.etcd-ips }",
+      "pki", "${ module.pki.ip }",
+    )
+  }"
+}
