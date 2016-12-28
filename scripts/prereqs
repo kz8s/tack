@@ -1,0 +1,13 @@
+#!/bin/bash -eu
+
+trap 'echo -e "\n# $BASH_COMMAND"' DEBUG
+
+aws --version
+
+cfssl version
+
+jq --version
+
+kubectl version --client
+
+terraform --version

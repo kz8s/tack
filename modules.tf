@@ -174,16 +174,6 @@ module "worker2" {
 }
 */
 
-module "pki-admin-certificate" {
-  source = "./modules/pki-admin-certificate"
-
-  aws-key-path = "${ path.cwd }/.keypair/${ var.aws["key-name"] }.pem"
-  bastion-ip = "${ module.bastion.ip }"
-  name = "${ var.name }"
-  output-directory = "${ path.cwd }/test-cfssl-auto"
-  pki-s3-bucket = "${ module.pki.s3-bucket }"
-}
-
 module "kubeconfig" {
   source = "./modules/kubeconfig"
 

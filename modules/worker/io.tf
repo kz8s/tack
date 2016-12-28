@@ -8,10 +8,10 @@ variable "capacity" {
   }
 }
 variable "cluster-domain" {}
-variable "hyperkube-image" {}
-variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "dns-service-ip" {}
+variable "hyperkube-image" {}
+variable "hyperkube-tag" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}

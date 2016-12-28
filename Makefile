@@ -5,6 +5,9 @@ GREEN	:= \033[0;32m
 RED		:= \033[0;31m
 NC		:= \033[0m
 
+DIR_KEY_PAIR	:= .keypair
+DIR_SSL				:= .cfssl
+
 # CIDR_PODS: flannel overlay range
 # - https://coreos.com/flannel/docs/latest/flannel-config.html
 #
@@ -24,6 +27,7 @@ COREOS_VM_TYPE				?= hvm
 CLUSTER_NAME 					?= test
 
 AWS_EC2_KEY_NAME			?= kz8s-$(CLUSTER_NAME)
+AWS_EC2_KEY_PATH			:= ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
 INTERNAL_TLD 					:= ${CLUSTER_NAME}.kz8s
 
 HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
@@ -38,8 +42,6 @@ K8S_DNS_IP						?= 10.3.0.10
 
 ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 
-
-
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
 # CIDR_SERVICE_CLUSTER ?= "172.16.0.0/24"
@@ -49,17 +51,15 @@ ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-DIR_KEY_PAIR	:= .keypair
-DIR_SSL				:= .cfssl
-
-.addons:
-	@echo "${BLUE}❤ initialize add-ons ${NC}"
-	@./scripts/init-addons
-	@echo "${GREEN}✓ initialize add-ons - success ${NC}\n"
+.addons: ; @scripts/do-task "initialize add-ons" \
+	./scripts/init-addons
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
+	# mkdir --parents .admin-cfssl
+	# @$(MAKE) get-ca
+	# @$(MAKE) create-admin-certificate
 	@$(MAKE) wait-for-cluster
 	@$(MAKE) .addons
 	@$(MAKE) create-addons
@@ -96,40 +96,51 @@ create-addons:
 	kubectl create -f .addons/
 	@echo "${GREEN}✓ create add-ons - success ${NC}\n"
 
-create-busybox:
-	@echo "${BLUE}❤ create busybox test pod ${NC}"
+create-admin-certificate: ; @scripts/do-task "create admin certificate" \
+	scripts/create-admin-certificate \
+		.admin-cfssl \
+		`terraform output name` \
+		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
+		`terraform output bastion-ip`
+
+create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
-	@echo "${GREEN}✓ create busybox test pod - success ${NC}\n"
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
+get-ca: ; @scripts/do-task "get root ca certificate" \
+	mkdir -p .admin-cfssl && \
+	aws s3 cp \
+		s3://`terraform output pki-s3-bucket`/ca.pem \
+		.admin-cfssl/
+
 ## show instance information
-instances:
-	@scripts/instances `terraform output name` `terraform output region`
+instances: ; @scripts/instances \
+	`terraform output name` \
+	`terraform output region`
 
 ## journalctl on etcd1
-journal:
-	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip` journalctl -fl"
+journal: ; @scripts/ssh \
+	${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
+	`terraform output bastion-ip` \
+	"ssh `terraform output etcd1-ip` journalctl -fl"
 
-prereqs:
-	aws --version
-	@echo
-	cfssl version
-	@echo
-	jq --version
-	@echo
-	kubectl version --client
-	@echo
-	terraform --version
+prereqs: ; @scripts/do-task "checking prerequisities" \
+	scripts/prereqs
 
 ## ssh into etcd1
 ssh:
-	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip` "ssh `terraform output etcd1-ip`"
+	@scripts/ssh \
+		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
+		`terraform output bastion-ip` \
+		"ssh `terraform output etcd1-ip`"
 
 ## ssh into bastion host
 ssh-bastion:
-	@scripts/ssh ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem `terraform output bastion-ip`
+	@scripts/ssh \
+		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
+		`terraform output bastion-ip`
 
 ## status
 status: instances
@@ -145,12 +156,11 @@ ssl: .cfssl
 ## smoke it
 test: test-ssl test-route53 test-etcd pods dns
 
-wait-for-cluster:
-	@echo "${BLUE}❤ wait-for-cluster ${NC}"
-	@scripts/wait-for-cluster
-	@echo "${GREEN}✓ wait-for-cluster - success ${NC}\n"
+wait-for-cluster: ; @scripts/do-task "wait-for-cluster" scripts/wait-for-cluster
 
 include makefiles/*.mk
 
 .DEFAULT_GOAL := help
-.PHONY: all clean create-addons create-busybox instances journal prereqs ssh ssh-bastion ssl status test wait-for-cluster
+.PHONY: all clean create-addons create-admin-certificate create-busybox
+.PHONY: get-ca instances journal prereqs ssh ssh-bastion ssl status test
+.PHONY: wait-for-cluster
