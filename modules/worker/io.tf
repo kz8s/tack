@@ -17,6 +17,7 @@ variable "instance-type" {}
 variable "internal-tld" {}
 variable "key-name" {}
 variable "name" {}
+variable "pki-s3-bucket" {}
 variable "region" {}
 variable "security-group-id" {}
 variable "subnet-ids" {}

@@ -91,6 +91,27 @@ coreos:
         RemainAfterExit=yes
         Type=oneshot
 
+    - name: setup-cfssl.service
+      command: start
+      content: |
+        [Unit]
+        Before=etcd2.service
+        Description=setup cfssl
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        WorkingDirectory=/etc/cfssl
+        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStartPre=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+        ExecStart=/usr/bin/rkt run \
+          --net=host \
+          --trust-keys-from-https \
+          --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+          --volume=ssl,kind=host,source=/etc/cfssl,readOnly=false --mount=volume=ssl,target=/etc/cfssl \
+          quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/cfssl
+
     - name: kubelet.service
       command: start
       content: |

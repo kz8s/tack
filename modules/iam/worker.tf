@@ -39,6 +39,13 @@ resource "aws_iam_role_policy" "worker" {
       "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }/*" ]
     },
     {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [ "${ var.pki-s3-bucket-arn }/ca.pem" ]
+    },
+    {
       "Effect": "Allow",
       "Action": [
         "ec2:Describe*",

@@ -1,3 +1,20 @@
+module "pki" {
+  source = "./modules/pki"
+  depends-id = "${ module.vpc.depends-id }"
+
+  ami-id = "${ var.coreos-aws["ami"] }"
+  cidr-vpc = "${ var.cidr["vpc"] }"
+  instance-type = "${ var.instance-type["pki"] }"
+  internal-tld = "${ var.internal-tld }"
+  internal-zone-id = "${ module.route53.internal-zone-id }"
+  key-name = "${ var.aws["key-name"] }"
+  name = "${ var.name }"
+  region = "${ var.aws["region"] }"
+  s3-bucket = "kz8s-pki-${ var.name }-${ var.aws["account-id"] }"
+  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  vpc-id = "${ module.vpc.id }"
+}
+
 module "s3" {
   source = "./modules/s3"
   depends-id = "${ module.vpc.depends-id }"
@@ -37,6 +54,7 @@ module "iam" {
 
   bucket-prefix = "${ var.s3-bucket }"
   name = "${ var.name }"
+  pki-s3-bucket-arn = "${ module.pki.s3-bucket-arn }"
 }
 
 module "route53" {
@@ -67,6 +85,7 @@ module "etcd" {
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
+  pki-s3-bucket = "${ module.pki.s3-bucket }"
   pod-ip-range = "${ var.cidr["pods"] }"
   region = "${ var.aws["region"] }"
   service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
@@ -111,6 +130,7 @@ module "worker" {
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
+  pki-s3-bucket = "${ module.pki.s3-bucket }"
   region = "${ var.aws["region"] }"
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
@@ -154,6 +174,16 @@ module "worker2" {
 }
 */
 
+module "pki-admin-certificate" {
+  source = "./modules/pki-admin-certificate"
+
+  aws-key-path = "${ path.cwd }/.keypair/${ var.aws["key-name"] }.pem"
+  bastion-ip = "${ module.bastion.ip }"
+  name = "${ var.name }"
+  output-directory = "${ path.cwd }/test-cfssl-auto"
+  pki-s3-bucket = "${ module.pki.s3-bucket }"
+}
+
 module "kubeconfig" {
   source = "./modules/kubeconfig"
 
@@ -162,21 +192,4 @@ module "kubeconfig" {
   ca-pem = ".cfssl/ca.pem"
   master-elb = "${ module.etcd.external-elb }"
   name = "${ var.name }"
-}
-
-module "pki" {
-  source = "./modules/pki"
-  depends-id = "${ module.vpc.depends-id }"
-
-  ami-id = "${ var.coreos-aws["ami"] }"
-  cidr-vpc = "${ var.cidr["vpc"] }"
-  instance-type = "${ var.instance-type["pki"] }"
-  internal-tld = "${ var.internal-tld }"
-  internal-zone-id = "${ module.route53.internal-zone-id }"
-  key-name = "${ var.aws["key-name"] }"
-  name = "${ var.name }"
-  region = "${ var.aws["region"] }"
-  s3-bucket = "${ join( "", list("kz8s-", var.name, "-pki-", var.aws["account-id"]) ) }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
-  vpc-id = "${ module.vpc.id }"
 }

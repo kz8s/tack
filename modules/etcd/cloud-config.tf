@@ -14,6 +14,7 @@ data "template_file" "cloud-config" {
     hyperkube-image = "${ var.hyperkube-image }"
     hyperkube-tag = "${ var.hyperkube-tag }"
     internal-tld = "${ var.internal-tld }"
+    pki-s3-bucket = "${ var.pki-s3-bucket }"
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.region }"
     service-cluster-ip-range = "${ var.service-cluster-ip-range }"

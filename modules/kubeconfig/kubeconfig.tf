@@ -24,14 +24,17 @@ EOF
 resource "null_resource" "kubeconfig" {
 
   provisioner "local-exec" {
+
     command = <<LOCAL_EXEC
 mkdir -p ./tmp && cat <<'__USERDATA__' > ./tmp/kubeconfig
 ${data.template_file.kubeconfig.rendered}
 __USERDATA__
 LOCAL_EXEC
+
   }
 
   provisioner "local-exec" {
+
     command = <<LOCAL_EXEC
 kubectl config set-cluster cluster-${ var.name } \
   --server=https://${ var.master-elb } \
@@ -45,6 +48,7 @@ kubectl config set-context ${ var.name } \
   --user=admin-${ var.name } &&\
 kubectl config use-context ${ var.name }
 LOCAL_EXEC
+
   }
 
 }

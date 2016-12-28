@@ -40,6 +40,13 @@ resource "aws_iam_role_policy" "master" {
     },
     {
       "Action": [
+        "s3:Get*"
+      ],
+      "Effect": "Allow",
+      "Resource": [ "${ var.pki-s3-bucket-arn }/*" ]
+    },
+    {
+      "Action": [
         "ec2:*",
         "elasticloadbalancing:*"
         ],

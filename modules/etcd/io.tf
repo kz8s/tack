@@ -13,6 +13,7 @@ variable "instance-type" {}
 variable "internal-tld" {}
 variable "key-name" {}
 variable "name" {}
+variable "pki-s3-bucket" {}
 variable "pod-ip-range" {}
 variable "region" {}
 variable "service-cluster-ip-range" {}
