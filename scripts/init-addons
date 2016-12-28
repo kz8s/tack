@@ -6,9 +6,6 @@ INTERNAL_TLD=$(terraform output internal-tld)
 
 OUTDIR=.addons
 
-
-echo "❤ Patching addon scripts "
-
 [ -d ${OUTDIR} ] || mkdir ${OUTDIR}
 cp manifests/addons/* ${OUTDIR}
 
@@ -21,7 +18,5 @@ for file in ${OUTDIR}/*.tpl
 done
 
 rm -f .addons/*.bak
-
-echo "✓ Patching add-on scripts success"
 
 # ✗

@@ -57,9 +57,8 @@ ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair ssl init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
-	# mkdir --parents .admin-cfssl
-	# @$(MAKE) get-ca
-	# @$(MAKE) create-admin-certificate
+	@$(MAKE) get-ca
+	@$(MAKE) create-admin-certificate
 	@$(MAKE) wait-for-cluster
 	@$(MAKE) .addons
 	@$(MAKE) create-addons
@@ -90,11 +89,9 @@ clean: destroy delete-keypair
 	@-rm -rf .terraform ||:
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
+	@-rm -rf .admin-cfssl ||:
 
-create-addons:
-	@echo "${BLUE}❤ create add-ons ${NC}"
-	kubectl create -f .addons/
-	@echo "${GREEN}✓ create add-ons - success ${NC}\n"
+create-addons: ; @scripts/do-task "create add-ons" kubectl create -f .addons/
 
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 	scripts/create-admin-certificate \
@@ -109,11 +106,10 @@ create-busybox: ; @scripts/do-task "create busybox test pod" \
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
-get-ca: ; @scripts/do-task "get root ca certificate" \
-	mkdir -p .admin-cfssl && \
-	aws s3 cp \
-		s3://`terraform output pki-s3-bucket`/ca.pem \
-		.admin-cfssl/
+get-ca:
+	@OUTDIR=.admin-cfssl \
+	PKI_S3_BUCKET=`terraform output pki-s3-bucket` \
+	scripts/do-task "get root ca certificate" scripts/get-ca
 
 ## show instance information
 instances: ; @scripts/instances \
@@ -126,8 +122,7 @@ journal: ; @scripts/ssh \
 	`terraform output bastion-ip` \
 	"ssh `terraform output etcd1-ip` journalctl -fl"
 
-prereqs: ; @scripts/do-task "checking prerequisities" \
-	scripts/prereqs
+prereqs: ; @scripts/do-task "checking prerequisities" scripts/prereqs
 
 ## ssh into etcd1
 ssh:
@@ -143,12 +138,7 @@ ssh-bastion:
 		`terraform output bastion-ip`
 
 ## status
-status: instances
-	kubectl get no
-	kubectl cluster-info
-	kubectl get po --namespace=kube-system
-	kubectl get po
-	kubectl exec busybox -- nslookup kubernetes
+status: instances ; scripts/status
 
 ## create tls artifacts
 ssl: .cfssl
@@ -159,6 +149,9 @@ test: test-ssl test-route53 test-etcd pods dns
 wait-for-cluster: ; @scripts/do-task "wait-for-cluster" scripts/wait-for-cluster
 
 include makefiles/*.mk
+
+.PHONY: env
+env: ; @HI=ho env
 
 .DEFAULT_GOAL := help
 .PHONY: all clean create-addons create-admin-certificate create-busybox

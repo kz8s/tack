@@ -117,7 +117,7 @@ module "worker" {
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
   capacity = {
-    desired = 3
+    desired = 4
     max = 5
     min = 3
   }
