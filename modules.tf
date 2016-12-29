@@ -180,7 +180,7 @@ module "worker2" {
 }
 */
 
-module "kubeconfig" {
+/*module "kubeconfig" {
   source = "./modules/kubeconfig"
 
   admin-key-pem = ".cfssl/k8s-admin-key.pem"
@@ -188,4 +188,4 @@ module "kubeconfig" {
   ca-pem = ".cfssl/ca.pem"
   master-elb = "${ module.etcd.external-elb }"
   name = "${ var.name }"
-}
+}*/

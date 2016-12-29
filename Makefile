@@ -59,6 +59,7 @@ all: prereqs create-keypair ssl init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
 	@$(MAKE) get-ca
 	@$(MAKE) create-admin-certificate
+	@$(MAKE) create-kubeconfig
 	@$(MAKE) wait-for-cluster
 	@$(MAKE) .addons
 	@$(MAKE) create-addons
@@ -102,6 +103,16 @@ create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 
 create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
+
+create-kubeconfig:
+	@OUTDIR=tmp \
+	NAME=`terraform output name` \
+	CA_PATH=.admin-cfssl/ca.pem \
+	MASTER_ELB_URL=`terraform output external-elb` \
+	ADMIN_CERT_PATH=.admin-cfssl/k8s-admin.pem \
+	ADMIN_KEY_PATH=.admin-cfssl/k8s-admin-key.pem \
+	scripts/create-kubeconfig
+	# @eval $(cat tmp/kubeconfig)
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard

@@ -24,8 +24,10 @@ coreos:
         - name: wait-for-certs.conf
           content: |
             [Unit]
-            After=get-ssl.service get-rootca-certificate.service
-            Requires=get-ssl.service get-rootca-certificate.service
+            After=get-ssl.service
+            After=get-rootca-certificate.service
+            Requires=get-ssl.service
+            Requires=get-rootca-certificate.service
 
     - name: flanneld.service
       command: start
