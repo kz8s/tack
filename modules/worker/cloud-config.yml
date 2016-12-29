@@ -142,6 +142,7 @@ coreos:
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
+        ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=http://master.${ internal-tld }:8080 \
@@ -257,6 +258,19 @@ write-files:
         sleep 5.2
       done
       echo "✓"
+
+  - path: /opt/bin/wait-for-apiserver
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until curl http://master.${ internal-tld }:8080/ &>/dev/null
+      do
+        echo "waiting for apiserver..."
+        sleep 5.2
+      done
+      echo "✓"
+
 
   - path: /opt/bin/create-certificates
     permissions: 0755

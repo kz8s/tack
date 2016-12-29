@@ -1,3 +1,14 @@
+module "vpc" {
+  source = "./modules/vpc"
+  depends-id = ""
+
+  azs = "${ var.aws["azs"] }"
+  cidr = "${ var.cidr["vpc"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
+  name = "${ var.name }"
+  region = "${ var.aws["region"] }"
+}
+
 module "pki" {
   source = "./modules/pki"
   depends-id = "${ module.vpc.depends-id }"
@@ -15,15 +26,12 @@ module "pki" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "vpc" {
-  source = "./modules/vpc"
+module "iam" {
+  source = "./modules/iam"
   depends-id = ""
 
-  azs = "${ var.aws["azs"] }"
-  cidr = "${ var.cidr["vpc"] }"
-  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
   name = "${ var.name }"
-  region = "${ var.aws["region"] }"
+  pki-s3-bucket-arn = "${ module.pki.s3-bucket-arn }"
 }
 
 module "security" {
@@ -35,12 +43,19 @@ module "security" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "iam" {
-  source = "./modules/iam"
-  depends-id = ""
+module "bastion" {
+  source = "./modules/bastion"
+  depends-id = "${ module.vpc.depends-id }"
 
+  ami-id = "${ var.coreos-aws["ami"] }"
+  /*cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"*/
+  instance-type = "${ var.instance-type["bastion"] }"
+  internal-tld = "${ var.internal-tld }"
+  key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
-  pki-s3-bucket-arn = "${ module.pki.s3-bucket-arn }"
+  security-group-id = "${ module.security.bastion-id }"
+  subnet-ids = "${ module.vpc.subnet-ids-public }"
+  vpc-id = "${ module.vpc.id }"
 }
 
 module "route53" {
@@ -60,8 +75,6 @@ module "etcd" {
 
   ami-id = "${ var.coreos-aws["ami"] }"
   cluster-domain = "${ var.cluster-domain }"
-  /*hyperkube-image = "${ var.k8s["hyperkube-image"] }"
-  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"*/
   dns-service-ip = "${ var.dns-service-ip }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
@@ -86,24 +99,9 @@ module "etcd" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "bastion" {
-  source = "./modules/bastion"
-  depends-id = "${ module.etcd.depends-id }"
-
-  ami-id = "${ var.coreos-aws["ami"] }"
-  /*cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"*/
-  instance-type = "${ var.instance-type["bastion"] }"
-  internal-tld = "${ var.internal-tld }"
-  key-name = "${ var.aws["key-name"] }"
-  name = "${ var.name }"
-  security-group-id = "${ module.security.bastion-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-public }"
-  vpc-id = "${ module.vpc.id }"
-}
-
 module "worker" {
   source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
+  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id },${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
   capacity = {
