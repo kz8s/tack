@@ -25,14 +25,6 @@ resource "aws_instance" "bastion" {
   ]
 }
 
-data "template_file" "user-data" {
-  template = "${ file( "${ path.module }/user-data.yml" )}"
-
-  vars {
-    internal-tld = "${ var.internal-tld }"
-  }
-}
-
 resource "null_resource" "dummy_dependency" {
   depends_on = [ "aws_instance.bastion" ]
 }

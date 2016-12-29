@@ -1,4 +1,5 @@
 variable "ami-id" {}
+variable "region" {}
 variable "bucket-prefix" {}
 variable "cidr-allow-ssh" {}
 variable "depends-id" {}

@@ -34,7 +34,7 @@ resource "aws_iam_role_policy" "bastion" {
         "s3:List*",
         "s3:Get*"
       ],
-      "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }-ssl/*" ]
+      "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }/*" ]
     }
   ]
 }

@@ -86,6 +86,7 @@ module "bastion" {
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
+  region = "${ var.aws["region"] }"
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"
