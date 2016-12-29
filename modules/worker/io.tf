@@ -1,5 +1,4 @@
 variable "ami-id" {}
-variable "bucket-prefix" {}
 variable "capacity" {
   default = {
     desired = 5

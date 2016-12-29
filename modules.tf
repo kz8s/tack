@@ -15,19 +15,6 @@ module "pki" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "s3" {
-  source = "./modules/s3"
-  depends-id = "${ module.vpc.depends-id }"
-
-  bucket-prefix = "${ var.s3-bucket }"
-  hyperkube-image = "${ var.k8s["hyperkube-image"] }"
-  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
-  internal-tld = "${ var.internal-tld }"
-  name = "${ var.name }"
-  region = "${ var.aws["region"] }"
-  service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
-}
-
 module "vpc" {
   source = "./modules/vpc"
   depends-id = ""
@@ -50,15 +37,15 @@ module "security" {
 
 module "iam" {
   source = "./modules/iam"
-  depends-id = "${ module.s3.depends-id }"
+  depends-id = ""
 
-  bucket-prefix = "${ var.s3-bucket }"
   name = "${ var.name }"
   pki-s3-bucket-arn = "${ module.pki.s3-bucket-arn }"
 }
 
 module "route53" {
   source = "./modules/route53"
+  # FIXME: depends on module.vpc
   depends-id = "${ module.iam.depends-id }"
 
   etcd-ips = "${ var.etcd-ips }"
@@ -72,7 +59,6 @@ module "etcd" {
   depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
-  bucket-prefix = "${ var.s3-bucket }"
   cluster-domain = "${ var.cluster-domain }"
   /*hyperkube-image = "${ var.k8s["hyperkube-image"] }"
   hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"*/
@@ -105,7 +91,6 @@ module "bastion" {
   depends-id = "${ module.etcd.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
-  bucket-prefix = "${ var.s3-bucket }"
   /*cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"*/
   instance-type = "${ var.instance-type["bastion"] }"
   internal-tld = "${ var.internal-tld }"
@@ -121,9 +106,8 @@ module "worker" {
   depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
-  bucket-prefix = "${ var.s3-bucket }"
   capacity = {
-    desired = 4
+    desired = 3
     max = 5
     min = 3
   }

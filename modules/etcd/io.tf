@@ -1,5 +1,4 @@
 variable "ami-id" {}
-variable "bucket-prefix" {}
 variable "cluster-domain" {}
 /*variable "hyperkube-image" {}
 variable "hyperkube-tag" {}*/

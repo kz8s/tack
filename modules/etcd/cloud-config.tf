@@ -3,7 +3,6 @@ data "template_file" "cloud-config" {
   template = "${ file( "${ path.module }/cloud-config.yml" )}"
 
   vars {
-    bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
     dns-service-ip = "${ var.dns-service-ip }"

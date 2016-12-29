@@ -1,4 +1,3 @@
-variable "bucket-prefix" {}
 variable "depends-id" {}
 variable "name" {}
 variable "pki-s3-bucket-arn" {}

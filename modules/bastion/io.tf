@@ -1,5 +1,4 @@
 variable "ami-id" {}
-variable "bucket-prefix" {}
 variable "depends-id" {}
 variable "instance-type" {}
 variable "internal-tld" {}

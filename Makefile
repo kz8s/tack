@@ -55,7 +55,7 @@ ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 	./scripts/init-addons
 
 ## generate key-pair, variables and then `terraform apply`
-all: prereqs create-keypair ssl init apply
+all: prereqs create-keypair init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
 	@$(MAKE) get-ca
 	@$(MAKE) create-admin-certificate

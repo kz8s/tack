@@ -2,7 +2,6 @@ data "template_file" "cloud-config" {
   template = "${ file( "${ path.module }/cloud-config.yml" )}"
 
   vars {
-    bucket = "${ var.bucket-prefix }"
     cluster-domain = "${ var.cluster-domain }"
     dns-service-ip = "${ var.dns-service-ip }"
     hyperkube-image = "${ var.hyperkube-image }"

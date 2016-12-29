@@ -16,6 +16,8 @@ coreos:
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    # heartbeat-interval: 250
+    # election-timeout: 1250
 
   units:
     - name: etcd2.service
@@ -28,6 +30,9 @@ coreos:
             After=get-rootca-certificate.service
             Requires=get-ssl.service
             Requires=get-rootca-certificate.service
+            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
 
     - name: flanneld.service
       command: start
@@ -51,41 +56,23 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
+        # fixme: still need overlay ?
         - name: overlay.conf
           content: |
             [Service]
             Environment="DOCKER_OPTS=--storage-driver=overlay"
 
-    - name: s3-get-presigned-url.service
-      command: start
-      content: |
-        [Unit]
-        After=network-online.target
-        Description=Install s3-get-presigned-url
-        Requires=network-online.target
-        [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/s3-get-presigned-url \
-          https://github.com/kz8s/s3-get-presigned-url/releases/download/v0.1/s3-get-presigned-url_linux_amd64
-        ExecStart=/usr/bin/chmod +x /opt/bin/s3-get-presigned-url
-        RemainAfterExit=yes
-        Type=oneshot
-
     - name: get-ssl.service
       command: start
       content: |
         [Unit]
-        # After=s3-get-presigned-url.service
         After=cfssl.service
         Requires=cfssl.service
 
         Description=Get ssl artifacts from s3 bucket using IAM role
-        # Requires=s3-get-presigned-url.service
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStart=/opt/bin/create-certificates
-        # ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-        #   ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
         RemainAfterExit=yes
         Type=oneshot
 
@@ -115,12 +102,7 @@ coreos:
         Type=oneshot
         RemainAfterExit=yes
         ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
-        ExecStart=/usr/bin/rkt run \
-          --net=host \
-          --trust-keys-from-https \
-          --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
-          --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
-          quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/kubernetes/ssl
+        ExecStart=/opt/bin/fetch-rootca-certificate
 
     - name: kubelet.service
       command: start
@@ -128,6 +110,8 @@ coreos:
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
+        After=flanneld.service
+        Requires=flanneld.service
         [Service]
         Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
@@ -344,6 +328,23 @@ write-files:
         delaycompress
         copytruncate
       }
+
+  - path: /opt/bin/fetch-rootca-certificate
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until /usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
 
   - path: /opt/bin/create-certificates
     permissions: 0755

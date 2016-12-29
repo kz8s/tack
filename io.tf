@@ -31,8 +31,8 @@ variable "instance-type" {
   default = {
     bastion = "t2.nano"
     pki = "t2.nano"
-    etcd = "m3.medium"
-    worker = "m3.medium"
+    etcd = "m3.large"
+    worker = "m3.large"
   }
 }
 variable "internal-tld" {}
@@ -66,7 +66,7 @@ output "name" { value = "${ var.name }" }
 output "pki-ip" { value = "${ module.pki.ip }" }
 output "pki-s3-bucket" { value = "${ module.pki.s3-bucket }" }
 output "region" { value = "${ var.aws["region"] }" }
-output "s3-bucket" { value = "${ var.s3-bucket }" }
+# output "s3-bucket" { value = "${ var.s3-bucket }" }
 output "subnet-ids-private" { value = "${ module.vpc.subnet-ids-private }" }
 output "subnet-ids-public" { value = "${ module.vpc.subnet-ids-public }" }
 output "worker-autoscaling-group-name" { value = "${ module.worker.autoscaling-group-name }" }
