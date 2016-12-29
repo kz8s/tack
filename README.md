@@ -165,7 +165,7 @@ unwieldy quickly and impossible to debug. Breaking the work into local modules m
 flow much easier to follow and provides the basis for composing variable solutions down the track - for example converting the worker Auto Scaling Group to use spot instances.
 
 #### Post-Terraform
-Once the infrastructure has been configured and instantiated it will take some type for it
+Once the infrastructure has been configured and instantiated it will take some time for it
 to settle. Waiting for the 'master' ELB to become healthy is an example of this.  
 
 ### Components
