@@ -40,6 +40,12 @@ coreos:
 
     - name: etcd2.service
       command: start
+      drop-ins:
+        - name: wait-for-certs.conf
+          content: |
+            [Unit]
+            After=get-ssl.service get-rootca-certificate.service
+            Requires=get-ssl.service get-rootca-certificate.service
 
     - name: flanneld.service
       command: start
@@ -81,36 +87,52 @@ coreos:
       command: start
       content: |
         [Unit]
-        After=s3-get-presigned-url.service
+        # After=s3-get-presigned-url.service
+        After=cfssl.service
+        Requires=cfssl.service
         Description=Get ssl artifacts from s3 bucket using IAM role
-        Requires=s3-get-presigned-url.service
+        # Requires=s3-get-presigned-url.service
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
+        ExecStart=/opt/bin/create-certificates
+        # ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
+        #   ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
         RemainAfterExit=yes
         Type=oneshot
 
-    - name: setup-cfssl.service
+    - name: cfssl.service
       command: start
       content: |
         [Unit]
+        After=network-online.target
+        Requires=network-online.target
         Before=etcd2.service
         Description=setup cfssl
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStartPre=-/usr/bin/mkdir --parents /etc/cfssl
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
         ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
         ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
         ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-        ExecStartPre=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+
+    - name: get-rootca-certificate.service
+      command: start
+      content: |
+        [Unit]
+        Before=etcd2.service
+        Description=get rootca certificate from s3
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
         ExecStart=/usr/bin/rkt run \
           --net=host \
           --trust-keys-from-https \
           --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
-          --volume=ssl,kind=host,source=/etc/cfssl,readOnly=false --mount=volume=ssl,target=/etc/cfssl \
-          quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/cfssl
+          --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
+          quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/kubernetes/ssl
 
     - name: kubelet.service
       command: start
@@ -233,3 +255,54 @@ write-files:
         delaycompress
         copytruncate
       }
+
+  - path: /opt/bin/create-certificates
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -ex
+
+      OUTDIR=/etc/kubernetes/ssl
+
+      function error {
+        echo "✗ Error on line $1"'!'
+        exit 1
+      }
+      trap 'error $${LINENO}' ERR
+
+      until printf "." && curl -d '{"label":"primary"}' http://pki.${ internal-tld }:8888/api/v1/cfssl/info &>/dev/null
+      do sleep 5.2; done; echo "✓"
+
+
+      DNS1="kubernetes"
+      DNS2="kubernetes.default"
+      DNS3="kubernetes.default.svc"
+      DNS4="kubernetes.default.svc.cluster.local"
+      DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
+
+      function csr {
+        cat <<EOF
+      {"CN":"$1","hosts":[""],"key":{"algo":"rsa","size":2048}}
+      EOF
+      }
+
+      function generate {
+
+        CN=$1
+        PROFILE=$2
+        HOSTS=$3
+
+        echo "$(csr $CN)" \
+          | /opt/bin/cfssl gencert \
+            -remote=pki.${ internal-tld }:8888 \
+            -profile=$PROFILE \
+            -hostname="$HOSTS" - \
+          | /opt/bin/cfssljson -bare $CN
+
+        chmod 0644 $${CN}.pem $${CN}-key.pem
+
+      }
+
+      mkdir -p $OUTDIR && cd $OUTDIR
+
+      generate k8s-worker client "$${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"

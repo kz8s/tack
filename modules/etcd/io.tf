@@ -1,8 +1,8 @@
 variable "ami-id" {}
 variable "bucket-prefix" {}
 variable "cluster-domain" {}
-variable "hyperkube-image" {}
-variable "hyperkube-tag" {}
+/*variable "hyperkube-image" {}
+variable "hyperkube-tag" {}*/
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}
@@ -11,6 +11,13 @@ variable "external-elb-security-group-id" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
+
+variable "ip-k8s-service" {}
+
+variable "k8s" {
+  type = "map"
+}
+
 variable "key-name" {}
 variable "name" {}
 variable "pki-s3-bucket" {}

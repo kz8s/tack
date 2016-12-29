@@ -69,13 +69,13 @@ module "route53" {
 
 module "etcd" {
   source = "./modules/etcd"
-  depends-id = "${ module.route53.depends-id }"
+  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
   cluster-domain = "${ var.cluster-domain }"
-  hyperkube-image = "${ var.k8s["hyperkube-image"] }"
-  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
+  /*hyperkube-image = "${ var.k8s["hyperkube-image"] }"
+  hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"*/
   dns-service-ip = "${ var.dns-service-ip }"
   etcd-ips = "${ var.etcd-ips }"
   etcd-security-group-id = "${ module.security.etcd-id }"
@@ -83,10 +83,16 @@ module "etcd" {
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   instance-type = "${ var.instance-type["etcd"] }"
   internal-tld = "${ var.internal-tld }"
+
+  ip-k8s-service = "${ var.k8s-service-ip }"
+
+  k8s = "${ var.k8s }"
+
   key-name = "${ var.aws["key-name"] }"
   name = "${ var.name }"
   pki-s3-bucket = "${ module.pki.s3-bucket }"
   pod-ip-range = "${ var.cidr["pods"] }"
+  // FIXME: rename to aws-region
   region = "${ var.aws["region"] }"
   service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
   subnet-ids-private = "${ module.vpc.subnet-ids-private }"
@@ -112,7 +118,7 @@ module "bastion" {
 
 module "worker" {
   source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id }"
+  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
 
   ami-id = "${ var.coreos-aws["ami"] }"
   bucket-prefix = "${ var.s3-bucket }"
