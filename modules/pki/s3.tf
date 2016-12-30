@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "pki" {
   bucket = "${ var.s3-bucket }"
   force_destroy = true
 
-  region = "${ var.region }"
+  region = "${ var.aws["region"] }"
 
   tags {
     builtWith = "terraform"

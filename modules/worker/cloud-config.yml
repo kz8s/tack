@@ -138,14 +138,17 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
+        # ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          --api-servers=http://master.${ internal-tld }:8080 \
+          --api-servers=https://master.${ internal-tld } \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
@@ -207,7 +210,6 @@ write-files:
           - proxy
           - --kubeconfig=/etc/kubernetes/kubeconfig.yml
           - --master=https://master.${ internal-tld }
-          - --proxy-mode=iptables
           securityContext:
             privileged: true
           volumeMounts:
@@ -219,6 +221,9 @@ write-files:
             - mountPath: /etc/kubernetes/ssl
               name: "etc-kube-ssl"
               readOnly: true
+            - mountPath: /var/run/dbus
+              name: dbus
+              readOnly: false
         volumes:
           - name: "ssl-certs"
             hostPath:
@@ -229,6 +234,10 @@ write-files:
           - name: "etc-kube-ssl"
             hostPath:
               path: "/etc/kubernetes/ssl"
+          - name: dbus
+            hostPath:
+              path: "/var/run/dbus"
+
 
   - path: /etc/logrotate.d/docker-containers
     content: |

@@ -1,7 +1,8 @@
 variable "ami-id" {}
+variable "aws" {
+  type = "map"
+}
 variable "cluster-domain" {}
-/*variable "hyperkube-image" {}
-variable "hyperkube-tag" {}*/
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}
@@ -17,11 +18,9 @@ variable "k8s" {
   type = "map"
 }
 
-variable "key-name" {}
 variable "name" {}
 variable "pki-s3-bucket" {}
 variable "pod-ip-range" {}
-variable "region" {}
 variable "service-cluster-ip-range" {}
 variable "subnet-ids-private" {}
 variable "subnet-ids-public" {}

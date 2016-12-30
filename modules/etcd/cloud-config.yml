@@ -126,6 +126,9 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+        ExecStartPre=/usr/bin/docker pull ${ hyperkube }
         ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
@@ -170,12 +173,7 @@ write-files:
           command:
           - /hyperkube
           - apiserver
-          - --admission-control=LimitRanger
-          - --admission-control=NamespaceExists
-          - --admission-control=NamespaceLifecycle
-          - --admission-control=ResourceQuota
-          - --admission-control=SecurityContextDeny
-          - --admission-control=ServiceAccount
+          - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
           - --allow-privileged=true
           - --client-ca-file=/etc/kubernetes/ssl/ca.pem
           - --cloud-provider=aws
@@ -277,17 +275,22 @@ write-files:
           - /hyperkube
           - proxy
           - --master=http://127.0.0.1:8080
-          - --proxy-mode=iptables
           securityContext:
             privileged: true
           volumeMounts:
           - mountPath: /etc/ssl/certs
             name: ssl-certs-host
             readOnly: true
+          - mountPath: /var/run/dbus
+            name: dbus
+            readOnly: false
         volumes:
         - hostPath:
             path: /usr/share/ca-certificates
           name: ssl-certs-host
+        - hostPath:
+            path: /var/run/dbus
+          name: dbus
 
   - path: /etc/kubernetes/manifests/kube-scheduler.yml
     content: |

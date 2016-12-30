@@ -14,4 +14,10 @@ _retry "❤ Waiting for DNS to resolve for ${ELB}" ping -c1 "${ELB}"
 _retry "❤ Curling apiserver external elb" curl --insecure --silent "https://${ELB}"
 _retry "❤ Trying to connect to cluster with kubectl" kubectl cluster-info
 
+set -x
+# kubectl create namespace kube-system
+# kubectl get namespaces
+# kubectl get secrets
+# kubectl --namespace=kube-system get secrets
+# kubectl get serviceaccounts
 kubectl cluster-info

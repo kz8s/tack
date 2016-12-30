@@ -9,7 +9,7 @@ resource "aws_instance" "pki" {
 
   iam_instance_profile = "${ aws_iam_instance_profile.pki.name }"
   instance_type = "${ var.instance-type }"
-  key_name = "${ var.key-name }"
+  key_name = "${ var.aws["key-name"] }"
 
   source_dest_check = true
   subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"

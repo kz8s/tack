@@ -57,6 +57,10 @@ ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
+	@$(MAKE) post-terraform
+
+.PHONY: post-terraform
+post-terraform:
 	@$(MAKE) get-ca
 	@$(MAKE) create-admin-certificate
 	@$(MAKE) create-kubeconfig
@@ -67,6 +71,7 @@ all: prereqs create-keypair init apply
 	kubectl get no
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
 	@$(MAKE) instances
+	kubectl --namespace=kube-system get cs
 	@echo "View nodes:"
 	@echo "% make nodes"
 	@echo "---"

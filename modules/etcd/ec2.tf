@@ -5,7 +5,7 @@ resource "aws_instance" "etcd" {
   associate_public_ip_address = false
   iam_instance_profile = "${ var.instance-profile-name }"
   instance_type = "${ var.instance-type }"
-  key_name = "${ var.key-name }"
+  key_name = "${ var.aws["key-name"] }"
   private_ip = "${ element(split(",", var.etcd-ips), count.index) }"
 
   root_block_device {

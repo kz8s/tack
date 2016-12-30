@@ -1,12 +1,16 @@
 variable "ami-id" {}
+variable "aws" {
+  type = "map"
+}
 variable "cidr-vpc" {}
 variable "depends-id" {}
 variable "instance-type" {}
 variable "internal-tld" {}
 variable "internal-zone-id" {}
-variable "key-name" {}
+variable "k8s" {
+  type = "map"
+}
 variable "name" {}
-variable "region" {}
 variable "s3-bucket" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
