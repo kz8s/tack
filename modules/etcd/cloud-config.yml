@@ -434,5 +434,5 @@ write-files:
 
       mkdir -p $OUTDIR && cd $OUTDIR
 
-      generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com,$(hostname),10.0.10.10,10.0.10.11,10.0.10.12"
+      generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
