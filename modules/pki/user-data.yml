@@ -6,6 +6,14 @@ coreos:
     reboot-strategy: etcd-lock
 
   units:
+    - name: rpc-mountd.service
+      command: start
+      enable: true
+
+    - name: nfsd.service
+      command: start
+      enable: true
+
     - name: setup-cfssl.service
       command: start
       content: |
@@ -75,5 +83,9 @@ write-files:
         }
       }
 
-  - path: /etc/cfssl/s3-bucket
+  - path: /var/share/ssl/s3-bucket
     content: ${ s3-bucket }
+
+  - path: /etc/exports
+    permissions: '0644'
+    content: /var/share/ssl/ pki.${ internal-tld }(rw,async,no_subtree_check,no_root_squash,fsid=0)
