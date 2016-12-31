@@ -50,7 +50,6 @@ ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
 
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 .addons: ; @scripts/do-task "initialize add-ons" \
 	./scripts/init-addons
 
@@ -84,7 +83,6 @@ post-terraform:
 	@echo "Status summaries:"
 	@echo "% make status"
 
-.cfssl: ; ./scripts/init-cfssl ${DIR_SSL} ${AWS_REGION} ${INTERNAL_TLD} ${K8S_SERVICE_IP}
 
 ## destroy and remove everything
 clean: destroy delete-keypair
@@ -95,13 +93,12 @@ clean: destroy delete-keypair
 	@-rm -rf .terraform ||:
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
-	@-rm -rf .admin-cfssl ||:
 
 create-addons: ; @scripts/do-task "create add-ons" kubectl create -f .addons/
 
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 	scripts/create-admin-certificate \
-		.admin-cfssl \
+		${DIR_SSL} \
 		`terraform output name` \
 		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
 		`terraform output bastion-ip`
@@ -112,10 +109,10 @@ create-busybox: ; @scripts/do-task "create busybox test pod" \
 create-kubeconfig:
 	@OUTDIR=tmp \
 	NAME=`terraform output name` \
-	CA_PATH=.admin-cfssl/ca.pem \
+	CA_PATH=${DIR_SSL}/ca.pem \
 	MASTER_ELB_URL=`terraform output external-elb` \
-	ADMIN_CERT_PATH=.admin-cfssl/k8s-admin.pem \
-	ADMIN_KEY_PATH=.admin-cfssl/k8s-admin-key.pem \
+	ADMIN_CERT_PATH=${DIR_SSL}/k8s-admin.pem \
+	ADMIN_KEY_PATH=${DIR_SSL}/k8s-admin-key.pem \
 	scripts/create-kubeconfig
 	# @eval $(cat tmp/kubeconfig)
 
@@ -123,7 +120,7 @@ create-kubeconfig:
 dashboard: ; @./scripts/dashboard
 
 get-ca:
-	@OUTDIR=.admin-cfssl \
+	@OUTDIR=${DIR_SSL} \
 	PKI_S3_BUCKET=`terraform output pki-s3-bucket` \
 	scripts/do-task "get root ca certificate" scripts/get-ca
 
@@ -156,9 +153,6 @@ ssh-bastion:
 ## status
 status: instances ; scripts/status
 
-## create tls artifacts
-ssl: .cfssl
-
 ## smoke it
 test: test-ssl test-route53 test-etcd pods dns
 
@@ -167,7 +161,11 @@ wait-for-cluster: ; @scripts/do-task "wait-for-cluster" scripts/wait-for-cluster
 include makefiles/*.mk
 
 .PHONY: env
-env: ; @HI=ho env
+env:
+	@HI=ho env
+	env
+	echo ${AWS_REGION}
+	echo ${INTERNAL_TLD}
 
 .DEFAULT_GOAL := help
 .PHONY: all clean create-addons create-admin-certificate create-busybox

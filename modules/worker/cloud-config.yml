@@ -273,7 +273,7 @@ write-files:
     owner: root:root
     content: |
       #!/bin/bash -e
-      until curl http://master.${ internal-tld }:8080/ &>/dev/null
+      until curl --insecure https://master.${ internal-tld }/ &>/dev/null
       do
         echo "waiting for apiserver..."
         sleep 5.2

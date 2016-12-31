@@ -173,18 +173,23 @@ write-files:
           command:
           - /hyperkube
           - apiserver
-          - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
+          - --admission-control=NamespaceLifecycle,LimitRanger,DefaultStorageClass,ResourceQuota,ServiceAccount
+          - --advertise-address=$private_ipv4
+          - --apiserver-count=3
           - --allow-privileged=true
+          - --anonymous-auth=false
           - --client-ca-file=/etc/kubernetes/ssl/ca.pem
           - --cloud-provider=aws
+          - --enable-swagger-ui
           - --etcd-servers=http://etcd.${ internal-tld }:2379
-          - --insecure-bind-address=0.0.0.0
+          - --runtime-config=extensions/v1beta1/networkpolicies=true,batch/v2alpha1
           - --secure-port=443
-          - --service-account-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --service-account-key-file=/etc/kubernetes/ssl/service-account-key.pem
+          - --service-account-lookup
           - --service-cluster-ip-range=${ service-cluster-ip-range }
           - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
           - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
-          - --v=2
+          - --v=9
           livenessProbe:
             httpGet:
               host: 127.0.0.1
@@ -233,7 +238,7 @@ write-files:
           - --leader-elect=true
           - --master=http://127.0.0.1:8080
           - --root-ca-file=/etc/kubernetes/ssl/ca.pem
-          - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --service-account-private-key-file=/etc/kubernetes/ssl/service-account-key.pem
           resources:
             requests:
               cpu: 200m
@@ -349,6 +354,38 @@ write-files:
       done
       echo "✓"
 
+  - path: /etc/kubernetes/ssl/service-account-key.pem
+    permissions: 0755
+    owner: root:root
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEA6wD36kBQG4+C4Zyw+pEagFRQsMBwUFh/DWPEFNWDbPKLOkiu
+      l09VelU4lGcMAb+i7DZtkiA+VAIuLzg0gPpIltYwq1L904khulWf3D0LtyWReH0/
+      VgnyMS1hgpWIvMF//IKALjsB4WEu60Twc3j50PjaG04KvuSZcP27jvYMMhCqGWiP
+      si3I8yOali9Zbu0ximO0qaQtKYceFhHW95e38L1Jgb60Qh2UtXHyp5cfUseQaPXx
+      5oyXpxyNTU/RBJUo/Oj/hk5gZDPwriXWWMqqt4VXrWDxQSBI1pA5CVYYBp9jsvI4
+      9KwSsML1nV1X7VAT6YReK/hCmqHT8aeH9uey7wIDAQABAoIBAQDCEW2qVGwTJoOW
+      HxkEA1pYScjM/k6B+2MIwq/F6MD88ptJiYYszEYxnTj5TNPcic5YtWXs+5WdOKO9
+      OPQa4xWZAs70XLfivedNgrJeZUdMesjUMNJiEhqgw/I3rZdbEYzJEVgbVX1rCx99
+      CNRs96WODkPHsr4rAIs6hT8jg0t09zrxsBUKM3G+VFhqC52E1vwddperlCXp+/G8
+      X7F2UVCMEOeOKmK1G3ae/6TjtvVD85XLHRiUMRa+z6rtVMECGIY8itqbjcWqX2CF
+      gJbTBqUpuVG9LhLM+p1cAl4wjJ5SBmg0e0d3wco3/jTbtNcOJld/i+Q+LYJgeXfk
+      ihaedanRAoGBAPdQ/5C03P2TTWqNjfXfwhIHIUlbBF1BQXqwD7zpaelFBVdp0XWV
+      IxpLaY6FVxkLUWrr3eS4vyY/6r5+QzE1RINcX87qqoO5L5qbkXl8ayk9fvb0zIW8
+      Tc52AvFazo2+fb5eVEUzqc/Hzg6jCJ8W5CLTOXWQYUXAa9cg3eSNhpbnAoGBAPNB
+      TFoCon0tPh6YuEjr8qLOHrv+OhaOW4CXs3f7VJOBHeMCOtfpObZFnm++nXf0T6FO
+      ZzsUL4XUDVXAEgnl7WSRgzXT/3g30tcsQ4EP+z6qmLFvDPQcY12LQvkoNWII4GR2
+      PvsJxq9y54y9yVvmWdO0N0xnauGY7lHHQao4b2q5AoGBAM6VSxS97walf3osydMC
+      2GIksIpMy8V119M6s7qyInTm4YJV8s/MBqlVKtQQz2MtEBJG+W+vXoP9ygDbCRdW
+      jmdHxwPZAxvKmVgE8KxQ4FZvdtmkPB7N3xRBgU3H81d1MiXNN4kikYrtNFMHnhD9
+      lwz78TghpQ8Vnz7wxki+axkrAoGBAOjicA2Qji3XXax/O5ccxUvWmBgVGVm06qdf
+      FQPeS6d4KrvFy74f3A/D8R48WJeZ/46H+E7YUXMHg8i/vMVbKn5ozTyAfQmEMEeu
+      aeYq/beOLedZUQZ4Ey1ggTr2orz7kJC9oChIwL4B/OqCXD+udfs3guWT8QCQoEEM
+      ybIEm66JAoGAGdt7Dp4/MG1EGAd6ORqZXwEsxkCbR2b1ylmc7PKxwjkC+4M2IUSt
+      JWpuQWK+iaNT64Dx+/PoY18TrS5IJix+s9na94vj27xoKUbpLH9gDxs00D3RWcvr
+      vIxhlwuf6j0dU335Rw+5Zko6d72psVljsFoit4bVR2ZrlxYEei6usJw=
+      -----END RSA PRIVATE KEY-----
+
   - path: /opt/bin/create-certificates
     permissions: 0755
     owner: root:root
@@ -397,5 +434,5 @@ write-files:
 
       mkdir -p $OUTDIR && cd $OUTDIR
 
-      generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
+      generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com,$(hostname),10.0.10.10,10.0.10.11,10.0.10.12"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"

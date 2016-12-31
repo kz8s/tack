@@ -5,10 +5,10 @@ resource "aws_elb" "external" {
 
   health_check {
     healthy_threshold = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 6
     timeout = 3
-    target = "HTTP:8080/"
-    interval = 30
+    target = "TCP:443"
+    interval = 10
   }
 
   instances = [ "${ aws_instance.etcd.*.id }" ]

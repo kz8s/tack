@@ -87,7 +87,7 @@ module "bastion" {
 
 module "etcd" {
   source = "./modules/etcd"
-  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
+  depends-id = "${ module.route53.depends-id }"
 
   # variables
   ami-id = "${ var.coreos-aws["ami"] }"
@@ -115,7 +115,7 @@ module "etcd" {
 
 module "worker" {
   source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id },${ module.pki.depends-id }"
+  depends-id = "${ module.route53.depends-id }"
 
   # variables
   ami-id = "${ var.coreos-aws["ami"] }"
