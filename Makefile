@@ -22,7 +22,7 @@ DIR_SSL				:= .cfssl
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
 AWS_REGION						?= us-east-1
-COREOS_CHANNEL				?= beta
+COREOS_CHANNEL				?= stable
 COREOS_VM_TYPE				?= hvm
 CLUSTER_NAME 					?= test
 
@@ -114,7 +114,6 @@ create-kubeconfig:
 	ADMIN_CERT_PATH=${DIR_SSL}/k8s-admin.pem \
 	ADMIN_KEY_PATH=${DIR_SSL}/k8s-admin-key.pem \
 	scripts/create-kubeconfig
-	# @eval $(cat tmp/kubeconfig)
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
