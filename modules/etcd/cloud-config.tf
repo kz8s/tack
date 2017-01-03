@@ -3,10 +3,10 @@ data "template_file" "cloud-config" {
   template = "${ file( "${ path.module }/cloud-config.yml" )}"
 
   vars {
+    apiserver-count = "${ length( split(",", var.etcd-ips) ) }"
     cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
     dns-service-ip = "${ var.dns-service-ip }"
-    etc-tar = "/manifests/etc.tar"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     hyperkube = "${ var.k8s["hyperkube-image"] }:${ var.k8s["hyperkube-tag"] }"

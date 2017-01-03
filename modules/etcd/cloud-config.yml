@@ -53,10 +53,10 @@ coreos:
             Restart=always
             RestartSec=10
         # fixme: still need overlay ?
-        - name: overlay.conf
-          content: |
-            [Service]
-            Environment="DOCKER_OPTS=--storage-driver=overlay"
+        # - name: overlay.conf
+        #   content: |
+        #     [Service]
+        #     Environment="DOCKER_OPTS=--storage-driver=overlay"
 
     - name: download-cfssl.service
       command: start
@@ -65,7 +65,7 @@ coreos:
         After=network-online.target
         Requires=network-online.target
         Before=etcd2.service
-        Description=setup cfssl
+        Description=Download cfssl
         [Service]
         Type=oneshot
         RemainAfterExit=yes
@@ -85,23 +85,35 @@ coreos:
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
         ExecStartPre=/opt/bin/fetch-from-s3 service-account-key.pem
-        ExecStartPre=/opt/bin/fetch-rootca-certificate
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
         ExecStart=/opt/bin/create-certificates
         RemainAfterExit=yes
         Type=oneshot
 
-    # - name: fetch-from-s3.service
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Before=etcd2.service
-    #     Description=get rootca certificate from s3
-    #     [Service]
-    #     Type=oneshot
-    #     RemainAfterExit=yes
-    #     ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
-    #     ExecStartPre=/opt/bin/fetch-from-s3 service-account-key.pem
-    #     ExecStart=/opt/bin/fetch-rootca-certificate
+    - name: prefetch-rkt-hyperkube.service
+      command: start
+      content: |
+        [Unit]
+        After=network-online.target
+        Requires=network-online.target
+        Description=Prefetch rkt Hyperkube
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStart=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+
+    - name: prefetch-docker-hyperkube.service
+      command: start
+      content: |
+        [Unit]
+        After=docker.service
+        Requires=docker.service
+        Description=Prefetch docker Hyperkube
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/docker pull ${ hyperkube }
 
     - name: kubelet.service
       command: start
@@ -111,6 +123,8 @@ coreos:
         ConditionPathExists=/etc/kubernetes/ssl/service-account-key.pem
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         After=flanneld.service
+        After=prefetch-rkt-hyperkube.service
+        After=prefetch-docker-hyperkube.service
         Requires=flanneld.service
         [Service]
         Environment="KUBELET_ACI=${ hyperkube-image }"
@@ -126,10 +140,10 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
-        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
-        ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
-        ExecStartPre=/usr/bin/docker pull ${ hyperkube }
-        ExecStartPre=/usr/bin/systemctl is-active flanneld.service
+        # ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        # ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+        # ExecStart=/usr/bin/docker pull ${ hyperkube }
+        # ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
@@ -175,7 +189,7 @@ write-files:
           - apiserver
           - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
           - --advertise-address=$private_ipv4
-          - --apiserver-count=3
+          - --apiserver-count=${ apiserver-count }
           - --allow-privileged=true
           - --anonymous-auth=false
           - --client-ca-file=/etc/kubernetes/ssl/ca.pem
@@ -189,7 +203,7 @@ write-files:
           - --service-cluster-ip-range=${ service-cluster-ip-range }
           - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
           - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
-          - --v=9
+          - --v=2
           livenessProbe:
             httpGet:
               host: 127.0.0.1
@@ -337,23 +351,6 @@ write-files:
         copytruncate
       }
 
-  - path: /opt/bin/fetch-rootca-certificate
-    permissions: 0755
-    owner: root:root
-    content: |
-      #!/bin/bash -e
-      until /usr/bin/rkt run \
-        --net=host \
-        --trust-keys-from-https \
-        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
-        --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
-        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/kubernetes/ssl
-      do
-        echo "retrying"
-        sleep 5.2
-      done
-      echo "✓"
-
   - path: /opt/bin/fetch-from-s3
     permissions: 0755
     owner: root:root
@@ -370,38 +367,6 @@ write-files:
         sleep 5.2
       done
       echo "✓"
-
-  # - path: /etc/kubernetes/ssl/service-account-key.pem
-  #   permissions: 0755
-  #   owner: root:root
-  #   content: |
-  #     -----BEGIN RSA PRIVATE KEY-----
-  #     MIIEpQIBAAKCAQEA6wD36kBQG4+C4Zyw+pEagFRQsMBwUFh/DWPEFNWDbPKLOkiu
-  #     l09VelU4lGcMAb+i7DZtkiA+VAIuLzg0gPpIltYwq1L904khulWf3D0LtyWReH0/
-  #     VgnyMS1hgpWIvMF//IKALjsB4WEu60Twc3j50PjaG04KvuSZcP27jvYMMhCqGWiP
-  #     si3I8yOali9Zbu0ximO0qaQtKYceFhHW95e38L1Jgb60Qh2UtXHyp5cfUseQaPXx
-  #     5oyXpxyNTU/RBJUo/Oj/hk5gZDPwriXWWMqqt4VXrWDxQSBI1pA5CVYYBp9jsvI4
-  #     9KwSsML1nV1X7VAT6YReK/hCmqHT8aeH9uey7wIDAQABAoIBAQDCEW2qVGwTJoOW
-  #     HxkEA1pYScjM/k6B+2MIwq/F6MD88ptJiYYszEYxnTj5TNPcic5YtWXs+5WdOKO9
-  #     OPQa4xWZAs70XLfivedNgrJeZUdMesjUMNJiEhqgw/I3rZdbEYzJEVgbVX1rCx99
-  #     CNRs96WODkPHsr4rAIs6hT8jg0t09zrxsBUKM3G+VFhqC52E1vwddperlCXp+/G8
-  #     X7F2UVCMEOeOKmK1G3ae/6TjtvVD85XLHRiUMRa+z6rtVMECGIY8itqbjcWqX2CF
-  #     gJbTBqUpuVG9LhLM+p1cAl4wjJ5SBmg0e0d3wco3/jTbtNcOJld/i+Q+LYJgeXfk
-  #     ihaedanRAoGBAPdQ/5C03P2TTWqNjfXfwhIHIUlbBF1BQXqwD7zpaelFBVdp0XWV
-  #     IxpLaY6FVxkLUWrr3eS4vyY/6r5+QzE1RINcX87qqoO5L5qbkXl8ayk9fvb0zIW8
-  #     Tc52AvFazo2+fb5eVEUzqc/Hzg6jCJ8W5CLTOXWQYUXAa9cg3eSNhpbnAoGBAPNB
-  #     TFoCon0tPh6YuEjr8qLOHrv+OhaOW4CXs3f7VJOBHeMCOtfpObZFnm++nXf0T6FO
-  #     ZzsUL4XUDVXAEgnl7WSRgzXT/3g30tcsQ4EP+z6qmLFvDPQcY12LQvkoNWII4GR2
-  #     PvsJxq9y54y9yVvmWdO0N0xnauGY7lHHQao4b2q5AoGBAM6VSxS97walf3osydMC
-  #     2GIksIpMy8V119M6s7qyInTm4YJV8s/MBqlVKtQQz2MtEBJG+W+vXoP9ygDbCRdW
-  #     jmdHxwPZAxvKmVgE8KxQ4FZvdtmkPB7N3xRBgU3H81d1MiXNN4kikYrtNFMHnhD9
-  #     lwz78TghpQ8Vnz7wxki+axkrAoGBAOjicA2Qji3XXax/O5ccxUvWmBgVGVm06qdf
-  #     FQPeS6d4KrvFy74f3A/D8R48WJeZ/46H+E7YUXMHg8i/vMVbKn5ozTyAfQmEMEeu
-  #     aeYq/beOLedZUQZ4Ey1ggTr2orz7kJC9oChIwL4B/OqCXD+udfs3guWT8QCQoEEM
-  #     ybIEm66JAoGAGdt7Dp4/MG1EGAd6ORqZXwEsxkCbR2b1ylmc7PKxwjkC+4M2IUSt
-  #     JWpuQWK+iaNT64Dx+/PoY18TrS5IJix+s9na94vj27xoKUbpLH9gDxs00D3RWcvr
-  #     vIxhlwuf6j0dU335Rw+5Zko6d72psVljsFoit4bVR2ZrlxYEei6usJw=
-  #     -----END RSA PRIVATE KEY-----
 
   - path: /opt/bin/create-certificates
     permissions: 0755

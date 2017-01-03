@@ -38,16 +38,45 @@ coreos:
         Where=/var/lib/docker
         Type=ext4
 
+    - name: download-cfssl.service
+      command: start
+      content: |
+        [Unit]
+        After=network-online.target
+        Requires=network-online.target
+        Before=etcd2.service
+        Description=Download cfssl
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+
+    - name: create-certificates.service
+      command: start
+      content: |
+        [Unit]
+        After=download-cfssl.service
+        Requires=download-cfssl.service
+        Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=/opt/bin/fetch-rootca-certificate
+        ExecStart=/opt/bin/create-certificates
+
     - name: etcd2.service
       command: start
       drop-ins:
         - name: wait-for-certs.conf
           content: |
             [Unit]
-            After=get-ssl.service
-            After=get-rootca-certificate.service
-            Requires=get-ssl.service
-            Requires=get-rootca-certificate.service
+            After=create-certificates.service
+            Requires=create-certificates.service
             ConditionPathExists=/etc/kubernetes/ssl/ca.pem
             ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
             ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
@@ -73,47 +102,31 @@ coreos:
             Restart=always
             RestartSec=10
 
-    - name: get-ssl.service
-      command: start
-      content: |
-        [Unit]
-        After=cfssl.service
-        Requires=cfssl.service
-        Description=Get ssl artifacts from s3 bucket using IAM role
-        [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStart=/opt/bin/create-certificates
-        RemainAfterExit=yes
-        Type=oneshot
-
-    - name: cfssl.service
+    - name: prefetch-rkt-hyperkube.service
       command: start
       content: |
         [Unit]
         After=network-online.target
         Requires=network-online.target
-        Before=etcd2.service
-        Description=setup cfssl
+        Description=Prefetch rkt Hyperkube
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
-        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
-        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
-        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStart=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
 
-    - name: get-rootca-certificate.service
+    - name: prefetch-docker-hyperkube.service
       command: start
       content: |
         [Unit]
-        Before=etcd2.service
-        Description=get rootca certificate from s3
+        After=docker.service
+        Requires=docker.service
+        Description=Prefetch docker Hyperkube
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
-        ExecStart=/opt/bin/fetch-rootca-certificate
+        ExecStartPre=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
+        ExecStart=/usr/bin/docker pull gcr.io/google_containers/pause-amd64:3.0
 
     - name: kubelet.service
       command: start
@@ -123,6 +136,8 @@ coreos:
         ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
         ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
         After=flanneld.service
+        After=prefetch-rkt-hyperkube.service
+        After=prefetch-docker-hyperkube.service
         Requires=flanneld.service
         [Service]
         Environment="KUBELET_ACI=${ hyperkube-image }"
@@ -138,13 +153,14 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
-        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
-        ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+        # ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        # ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+        # ExecStartPre=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
-        # ExecStartPre=/usr/bin/systemctl is-active flanneld.service
+        ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \

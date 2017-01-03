@@ -66,7 +66,6 @@ output "name" { value = "${ var.name }" }
 output "pki-ip" { value = "${ module.pki.ip }" }
 output "pki-s3-bucket" { value = "${ module.pki.s3-bucket }" }
 output "region" { value = "${ var.aws["region"] }" }
-# output "s3-bucket" { value = "${ var.s3-bucket }" }
 output "subnet-ids-private" { value = "${ module.vpc.subnet-ids-private }" }
 output "subnet-ids-public" { value = "${ module.vpc.subnet-ids-public }" }
 output "worker-autoscaling-group-name" { value = "${ module.worker.autoscaling-group-name }" }

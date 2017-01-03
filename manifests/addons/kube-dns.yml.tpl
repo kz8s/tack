@@ -88,7 +88,7 @@ spec:
         - --domain=${CLUSTER_DOMAIN}.
         - --dns-port=10053
         - --config-map=kube-dns
-        - --v=9
+        - --v=2
         env:
         - name: PROMETHEUS_PORT
           value: "10055"
