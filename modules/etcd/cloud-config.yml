@@ -16,22 +16,8 @@ coreos:
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
-    # heartbeat-interval: 250
-    # election-timeout: 1250
 
   units:
-    # - name: rpc-statd.service
-    #   command: start
-    #   enable: true
-    #
-    # - name: mount-ssl.mount
-    #   command: start
-    #   content: |
-    #     [Mount]
-    #     What=pki.${ internal-tld }:/var/share/ssl
-    #     Where=/mnt/ssl
-    #     Type=nfs
-
     - name: etcd2.service
       command: start
       drop-ins:
@@ -185,7 +171,7 @@ write-files:
           command:
           - /hyperkube
           - apiserver
-          - --admission-control=NamespaceLifecycle,LimitRanger,DefaultStorageClass,ResourceQuota,ServiceAccount
+          - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
           - --advertise-address=$private_ipv4
           - --apiserver-count=3
           - --allow-privileged=true
@@ -448,8 +434,3 @@ write-files:
 
       generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
-
-  # - path: /etc/conf.d/nfs
-  #   permissions: '0644'
-  #   content: |
-  #     OPTS_RPC_MOUNTD=""
