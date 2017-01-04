@@ -66,7 +66,7 @@ coreos:
         Type=oneshot
         RemainAfterExit=yes
         ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
-        ExecStartPre=/opt/bin/fetch-rootca-certificate
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
         ExecStart=/opt/bin/create-certificates
 
     - name: etcd2.service
@@ -125,8 +125,7 @@ coreos:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStartPre=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
-        ExecStart=/usr/bin/docker pull gcr.io/google_containers/pause-amd64:3.0
+        ExecStart=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
 
     - name: kubelet.service
       command: start
@@ -153,9 +152,6 @@ coreos:
           --mount volume=stage,target=/tmp \
           --volume var-log,kind=host,source=/var/log \
           --mount volume=var-log,target=/var/log"
-        # ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
-        # ExecStartPre=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
-        # ExecStartPre=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
         ExecStartPre=/usr/bin/mkdir -p /var/log/containers
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
@@ -164,12 +160,12 @@ coreos:
         ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          --api-servers=https://master.${ internal-tld } \
+          # --api-servers=https://master.${ internal-tld } \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
-          --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --pod-manifest-path=/etc/kubernetes/manifests \
           --register-node=true \
           --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
           --tls-private-key-file=/etc/kubernetes/ssl/k8s-worker-key.pem
@@ -197,6 +193,7 @@ write-files:
         - name: local
           cluster:
             certificate-authority: /etc/kubernetes/ssl/ca.pem
+            server: https://master.${ internal-tld }
       users:
         - name: kubelet
           user:
@@ -267,7 +264,7 @@ write-files:
         copytruncate
       }
 
-  - path: /opt/bin/fetch-rootca-certificate
+  - path: /opt/bin/fetch-from-s3
     permissions: 0755
     owner: root:root
     content: |
@@ -277,7 +274,7 @@ write-files:
         --trust-keys-from-https \
         --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
         --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
-        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/ca.pem /etc/kubernetes/ssl
+        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/$1 /etc/kubernetes/ssl
       do
         echo "retrying"
         sleep 5.2
