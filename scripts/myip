@@ -2,7 +2,7 @@
 
 # http://ifconfig.co
 
-IP=$(curl --silent ifconfig.co)
+IP=$(dig +short myip.opendns.com)
 
 if [[ $IP =~ .*:.* ]]
 then
