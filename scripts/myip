@@ -2,7 +2,7 @@
 
 # http://ifconfig.co
 
-IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+IP=$(curl --silent http://whatismyip.akamai.com/)
 
 if [[ $IP =~ .*:.* ]]
 then
