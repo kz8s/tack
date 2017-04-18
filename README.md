@@ -4,8 +4,8 @@
 [![Circle CI](https://circleci.com/gh/kz8s/tack.svg?style=svg)](https://circleci.com/gh/kz8s/tack)
 
 Opinionated [Terraform](https://terraform.io) module for creating a Highly Available [Kubernetes](http://kubernetes.io) cluster running on
-[CoreOS](https://coreos.com) (any channel) in an [AWS](https://aws.amazon.com)
-Virtual Private Cloud ([VPC](https://aws.amazon.com/vpc/)). With prerequisites
+[Container Linux by CoreOS](https://coreos.com) (any channel) in an [AWS
+Virtual Private Cloud VPC](https://aws.amazon.com/vpc/). With prerequisites
 installed `make all` will simply spin up a default cluster; and, since it is
 based on Terraform, customization is much easier than
 [CloudFormation](https://aws.amazon.com/cloudformation/).
@@ -39,28 +39,27 @@ $ make clean
 ```
 
 ## Features
-* TLS certificate generation
+* Cluster-internal Certificate Authority infrastructure for TLS certificate generation
 
 ### AWS
 * [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
 creation
 * AWS VPC Public and Private subnets
-* IAM protected S3 bucket for asset (TLS and manifests) distribution
+* IAM protected S3 bucket for asset distribution
 * Bastion Host
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
 ### Container Linux by CoreOS (1298.7.0, 1325.2.0, 1262.0.0)
 * etcd DNS Discovery Bootstrap
-* kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
+* kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.5.1)
+### Kubernetes (v1.5.5)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
-* SkyDNS utilizing cluster's etcd
 
 ### Terraform (v0.9.3)
-* CoreOS AMI sourcing
+* Container Linux by CoreOS AMI sourcing
 * Terraform Pattern Modules
 
 ## Prerequisites
@@ -155,7 +154,7 @@ Tack works in three phases:
 
 The purpose of this phase is to prep the environment for Terraform execution. Some tasks are
 hard or messy to do in Terraform - a little prep work can go a long way here. Determining
-the CoreOS AMI for a given region, channel and VM Type for instance is easy enough to do
+the Container Linux by CoreOS AMI for a given region, channel and VM Type for instance is easy enough to do
 with a simple shell script.
 
 #### Terraform
@@ -241,13 +240,13 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 
 #### Additional Configuration
 
-* You probably want to [tag your subnets](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go#66) for internal/external load balancers
+* You should to [tag your subnets](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go#66) for internal/external load balancers
 
 ## Inspiration
 
-* [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
+* [Code examples to create Container Linux by CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
-* [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
+* [Kubernetes on Container Linux by CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
@@ -268,8 +267,8 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 ## References
 
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
-* [CoreOS - Mounting Storage](https://coreos.com/os/docs/latest/mounting-storage.html)
-* [Deploying CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
+* [Container Linux by CoreOS - Mounting Storage](https://coreos.com/os/docs/latest/mounting-storage.html)
+* [Deploying Container Linux by CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
