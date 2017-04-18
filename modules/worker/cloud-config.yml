@@ -160,7 +160,7 @@ coreos:
         ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          # --api-servers=https://master.${ internal-tld } \
+          --api-servers=https://master.${ internal-tld } \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
