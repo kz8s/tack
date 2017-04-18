@@ -9,6 +9,7 @@ resource "aws_s3_bucket" "pki" {
   tags {
     builtWith = "terraform"
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "${ var.name }"
   }
 
