@@ -164,6 +164,23 @@ write-files:
       #!/bin/sh
       exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
 
+  - path: /etc/kubernetes/kubeconfig.yml
+    content: |
+      apiVersion: v1
+      kind: Config
+      clusters:
+        - name: local
+          cluster:
+            server: http://127.0.0.1:8080
+      users:
+        - name: kubelet
+      contexts:
+        - name: kubelet-context
+          context:
+            cluster: local
+            user: kubelet
+      current-context: kubelet-context
+
   - path: /etc/kubernetes/manifests/kube-apiserver.yml
     content: |
       apiVersion: v1
@@ -410,20 +427,3 @@ write-files:
 
       generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
-
-  - path: /etc/kubernetes/kubeconfig.yml
-    content: |
-      apiVersion: v1
-      kind: Config
-      clusters:
-        - name: local
-          cluster:
-            server: http://127.0.0.1:8080
-      users:
-        - name: kubelet
-      contexts:
-        - name: kubelet-context
-          context:
-            cluster: local
-            user: kubelet
-      current-context: kubelet-context
