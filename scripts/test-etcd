@@ -1,11 +1,30 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 BASTION_IP=$(terraform output bastion-ip)
+
 INTERNAL_TLD=$(terraform output internal-tld)
-ETCD_URL="http://etcd.${INTERNAL_TLD}:2379"
 
-SSH_CMD="ssh -A core@${BASTION_IP}"
+ETCD_URL="https://etcd.${INTERNAL_TLD}:2379"
 
-${SSH_CMD} -- curl -s ${ETCD_URL}/version | grep '{"etcdserver":"2.3.2","etcdcluster":"2.3.0"}'
-${SSH_CMD} -- curl -s ${ETCD_URL}/health | grep true
-${SSH_CMD} -- curl -s ${ETCD_URL}/v2/members | grep -o 'name' | wc -l | grep 4
+CERTS="--cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem"
+
+KEY_FILE=$(find .keypair/ -name '*.pem' -print -quit)
+
+SSH_CMD="ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} -p 8822 core@localhost"
+
+# setup port forwarding
+#
+ssh-keyscan ${BASTION_IP}
+ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} -nNT -L 8822:etcd1.${INTERNAL_TLD}:22 core@${BASTION_IP} &
+SSH_PID=$!
+
+function finish {
+  [ -z ${SSH_PID} ] || kill ${SSH_PID}
+}
+trap finish EXIT
+
+sleep 1
+
+${SSH_CMD} -- curl ${CERTS} -s ${ETCD_URL}/version | jq
+${SSH_CMD} -- curl ${CERTS} -s ${ETCD_URL}/health | jq
+${SSH_CMD} -- curl ${CERTS} -s ${ETCD_URL}/v2/members | jq
