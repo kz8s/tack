@@ -3,24 +3,6 @@
 ---
 coreos:
 
-  etcd2:
-    advertise-client-urls: https://${ fqdn }:2379
-    discovery-srv: ${ internal-tld }
-    initial-advertise-peer-urls: https://${ fqdn }:2380
-    initial-cluster-state: new
-    initial-cluster-token: ${ cluster-token }
-    listen-client-urls: https://0.0.0.0:2379
-    listen-peer-urls: https://0.0.0.0:2380
-    name: ${ hostname }
-    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
-    peer-client-cert-auth: true
-    peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
-    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
-    client-cert-auth: true
-    cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
-
   flannel:
     interface: $private_ipv4
     etcd_cafile: /etc/kubernetes/ssl/ca.pem
@@ -28,11 +10,17 @@ coreos:
     etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
     etcd_endpoints: https://etcd.${ internal-tld }:2379
 
+  locksmith:
+    endpoint: https://etcd.${ internal-tld }:2379
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
+
   units:
-    - name: etcd2.service
+    - name: etcd-member.service
       command: start
       drop-ins:
-        - name: wait-for-certs.conf
+        - name: 01-wait-for-certs.conf
           content: |
             [Unit]
             After=create-certificates.service
@@ -41,15 +29,29 @@ coreos:
             ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
             ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
 
+        - name: 10-environment.conf
+          content: |
+            [Service]
+            Environment="ETCD_ADVERTISE_CLIENT_URLS=https://${ fqdn }:2379"
+            Environment="ETCD_CERT_FILE=/etc/ssl/certs/k8s-etcd.pem"
+            Environment="ETCD_CLIENT_CERT_AUTH=true"
+            Environment="ETCD_DISCOVERY_SRV=${ internal-tld }"
+            Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://${ fqdn }:2380"
+            Environment="ETCD_INITIAL_CLUSTER_STATE=new"
+            Environment="ETCD_INITIAL_CLUSTER_TOKEN=${ cluster-token }"
+            Environment="ETCD_KEY_FILE=/etc/ssl/certs/k8s-etcd-key.pem"
+            Environment="ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379"
+            Environment="ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380"
+            Environment="ETCD_NAME=${ hostname }"
+            Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/k8s-etcd.pem"
+            Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/k8s-etcd-key.pem"
+            Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+
     - name: flanneld.service
       command: start
       drop-ins:
-        # - name: 10-etcd.conf
-        #   content: |
-        #     [Service]
-        #     EnvironmentFile=/etc/environment
-        #     Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
-        #     TimeoutStartSec=120
         - name: 50-network-config.conf
           content: |
             [Unit]
@@ -57,10 +59,7 @@ coreos:
             After=create-certificates.service
             [Service]
             EnvironmentFile=/etc/environment
-            # Environment="FLANNEL_OPTS=--ip-masq=true -v=6"
             Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
-            # ExecStartPre=/usr/bin/env
-            # ExecStartPre=/opt/bin/wait-for-certs
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
               '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always

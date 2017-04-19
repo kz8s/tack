@@ -39,6 +39,7 @@ $ make clean
 
 ## Features
 * Cluster-internal Certificate Authority infrastructure for TLS certificate generation
+* etcd3
 
 ### AWS
 * [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
@@ -50,10 +51,10 @@ creation
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
 ### Container Linux by CoreOS (1298.7.0, 1325.2.0, 1262.0.0)
-* etcd DNS Discovery Bootstrap
+* etcd3 DNS Discovery Bootstrap
 * kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.5.5)
+### Kubernetes (v1.6.1)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 
@@ -103,7 +104,7 @@ Terraform v0.9.3
 - Route 53 internal zone for VPC
 - Bastion host
 - Certificate Authority server
-- Etcd cluster bootstrapped from Route 53
+- etcd3 cluster bootstrapped from Route 53
 - High Availability Kubernetes configuration (masters running on etcd nodes)
 - Autoscaling worker node group across subnets in selected region
 - kube-system namespace and addons: DNS, UI, Dashboard
@@ -175,7 +176,7 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 
 #### TLS Certificates
 
-* [etcd coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
+* [etcd3 coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
 $ curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
