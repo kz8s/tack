@@ -71,6 +71,9 @@ post-terraform:
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
 	@$(MAKE) instances
 	kubectl --namespace=kube-system get cs
+	@echo "etcd-0 incorrectly reporting as unhelathy"
+	@echo "https://github.com/kubernetes/kubernetes/issues/27343"
+	@echo "https://github.com/kubernetes/kubernetes/pull/39716"
 	@echo "View nodes:"
 	@echo "% make nodes"
 	@echo "---"
