@@ -32,11 +32,10 @@ resource "aws_iam_role_policy" "master" {
   "Statement": [
     {
       "Action": [
-        "s3:List*",
         "s3:Get*"
       ],
       "Effect": "Allow",
-      "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }/*" ]
+      "Resource": [ "${ var.pki-s3-bucket-arn }/*" ]
     },
     {
       "Action": [

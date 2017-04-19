@@ -5,10 +5,10 @@ resource "aws_elb" "external" {
 
   health_check {
     healthy_threshold = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 6
     timeout = 3
-    target = "HTTP:8080/"
-    interval = 30
+    target = "TCP:443"
+    interval = 10
   }
 
   instances = [ "${ aws_instance.etcd.*.id }" ]
@@ -29,7 +29,7 @@ resource "aws_elb" "external" {
     kz8s = "${ var.name }"
     Name = "kz8s-apiserver"
     role = "apiserver"
-    version = "${ var.hyperkube-tag }"
+    version = "${ var.k8s["hyperkube-tag"] }"
     visibility = "public"
     KubernetesCluster = "${ var.name }"
   }

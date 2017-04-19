@@ -15,6 +15,7 @@ module.%:
 ## terraform apply
 apply: plan
 	@echo "${BLUE}❤ terraform apply - commencing${NC}"
+	# terraform apply -target=module.pki
 	terraform apply
 	@echo "${GREEN}✓ make $@ - success${NC}"
 

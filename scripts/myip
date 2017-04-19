@@ -2,7 +2,7 @@
 
 # http://ifconfig.co
 
-IP=$(curl --silent http://whatismyip.akamai.com/)
+IP=$(curl --silent ifconfig.co)
 
 if [[ $IP =~ .*:.* ]]
 then

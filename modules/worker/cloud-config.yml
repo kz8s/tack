@@ -9,7 +9,17 @@ coreos:
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
+    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    client-cert-auth: true
+    cert-file: /etc/kubernetes/ssl/k8s-worker.pem
+    key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
+
+  flannel:
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-worker.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-worker-key.pem
+    etcd_endpoints: https://etcd.${ internal-tld }:2379
 
   units:
     - name: format-ephemeral.service
@@ -38,8 +48,50 @@ coreos:
         Where=/var/lib/docker
         Type=ext4
 
+    - name: download-cfssl.service
+      command: start
+      content: |
+        [Unit]
+        After=network-online.target
+        Requires=network-online.target
+        Before=etcd2.service
+        Description=Download cfssl
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+
+    - name: create-certificates.service
+      command: start
+      content: |
+        [Unit]
+        After=download-cfssl.service
+        Requires=download-cfssl.service
+        Before=flannel.service
+        RequiredBy=flannel.service
+        Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
+        ExecStart=/opt/bin/create-certificates
+
     - name: etcd2.service
       command: start
+      drop-ins:
+        - name: wait-for-certs.conf
+          content: |
+            [Unit]
+            After=create-certificates.service
+            Requires=create-certificates.service
+            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
 
     - name: flanneld.service
       command: start
@@ -47,6 +99,8 @@ coreos:
         - name: 50-network-config.conf
           content: |
             [Service]
+            EnvironmentFile=-/etc/environment
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
             Restart=always
             RestartSec=10
 
@@ -62,41 +116,44 @@ coreos:
             Restart=always
             RestartSec=10
 
-    - name: s3-get-presigned-url.service
+    - name: prefetch-rkt-hyperkube.service
       command: start
       content: |
         [Unit]
         After=network-online.target
-        Description=Install s3-get-presigned-url
         Requires=network-online.target
+        Description=Prefetch rkt Hyperkube
         [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/s3-get-presigned-url \
-          https://github.com/kz8s/s3-get-presigned-url/releases/download/v0.1/s3-get-presigned-url_linux_amd64
-        ExecStart=/usr/bin/chmod +x /opt/bin/s3-get-presigned-url
-        RemainAfterExit=yes
         Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStart=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
 
-    - name: get-ssl.service
+    - name: prefetch-docker-hyperkube.service
       command: start
       content: |
         [Unit]
-        After=s3-get-presigned-url.service
-        Description=Get ssl artifacts from s3 bucket using IAM role
-        Requires=s3-get-presigned-url.service
+        After=docker.service
+        Requires=docker.service
+        Description=Prefetch docker Hyperkube
         [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
-        RemainAfterExit=yes
         Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/docker pull ${ hyperkube-image }:${ hyperkube-tag }
 
     - name: kubelet.service
       command: start
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
+        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
+        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
+        After=flanneld.service
+        After=prefetch-rkt-hyperkube.service
+        After=prefetch-docker-hyperkube.service
+        Requires=flanneld.service
         [Service]
+        EnvironmentFile=/etc/environment
         Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
@@ -114,19 +171,22 @@ coreos:
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
+        ExecStartPre=/usr/bin/systemctl is-active flanneld.service
+        ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          --api-servers=http://master.${ internal-tld }:8080 \
+          --api-servers=https://master.${ internal-tld } \
+          --cert-dir=/etc/kubernetes/ssl \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
-          --config=/etc/kubernetes/manifests \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --pod-manifest-path=/etc/kubernetes/manifests \
           --register-node=true \
           --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
           --tls-private-key-file=/etc/kubernetes/ssl/k8s-worker-key.pem
         Restart=always
-        RestartSec=5
+        RestartSec=14
         [Install]
         WantedBy=multi-user.target
 
@@ -134,6 +194,17 @@ coreos:
     reboot-strategy: etcd-lock
 
 write-files:
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      COREOS_PRIVATE_IPV4=$private_ipv4
+      ETCD_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCD_CERT_FILE=/etc/kubernetes/ssl/k8s-worker.pem
+      ETCD_KEY_FILE=/etc/kubernetes/ssl/k8s-worker-key.pem
+      ETCDCTL_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCDCTL_CERT_FILE=/etc/kubernetes/ssl/k8s-worker.pem
+      ETCDCTL_KEY_FILE=/etc/kubernetes/ssl/k8s-worker-key.pem
+
   - path: /opt/bin/host-rkt
     permissions: 0755
     owner: root:root
@@ -149,6 +220,7 @@ write-files:
         - name: local
           cluster:
             certificate-authority: /etc/kubernetes/ssl/ca.pem
+            server: https://master.${ internal-tld }
       users:
         - name: kubelet
           user:
@@ -178,7 +250,6 @@ write-files:
           - proxy
           - --kubeconfig=/etc/kubernetes/kubeconfig.yml
           - --master=https://master.${ internal-tld }
-          - --proxy-mode=iptables
           securityContext:
             privileged: true
           volumeMounts:
@@ -190,6 +261,9 @@ write-files:
             - mountPath: /etc/kubernetes/ssl
               name: "etc-kube-ssl"
               readOnly: true
+            - mountPath: /var/run/dbus
+              name: dbus
+              readOnly: false
         volumes:
           - name: "ssl-certs"
             hostPath:
@@ -200,6 +274,10 @@ write-files:
           - name: "etc-kube-ssl"
             hostPath:
               path: "/etc/kubernetes/ssl"
+          - name: dbus
+            hostPath:
+              path: "/var/run/dbus"
+
 
   - path: /etc/logrotate.d/docker-containers
     content: |
@@ -212,3 +290,84 @@ write-files:
         delaycompress
         copytruncate
       }
+
+  - path: /opt/bin/fetch-from-s3
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until /usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/$1 /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
+
+  - path: /opt/bin/wait-for-apiserver
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until curl --insecure https://master.${ internal-tld }/ &>/dev/null
+      do
+        echo "waiting for apiserver..."
+        sleep 5.2
+      done
+      echo "✓"
+
+
+  - path: /opt/bin/create-certificates
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -ex
+
+      OUTDIR=/etc/kubernetes/ssl
+
+      function error {
+        echo "✗ Error on line $1"'!'
+        exit 1
+      }
+      trap 'error $${LINENO}' ERR
+
+      until printf "." && curl -d '{"label":"primary"}' http://pki.${ internal-tld }:8888/api/v1/cfssl/info &>/dev/null
+      do sleep 5.2; done; echo "✓"
+
+
+      DNS1="kubernetes"
+      DNS2="kubernetes.default"
+      DNS3="kubernetes.default.svc"
+      DNS4="kubernetes.default.svc.cluster.local"
+      DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
+
+      function csr {
+        cat <<EOF
+      {"CN":"$1","hosts":[""],"key":{"algo":"rsa","size":2048}}
+      EOF
+      }
+
+      function generate {
+
+        CN=$1
+        PROFILE=$2
+        HOSTS=$3
+
+        echo "$(csr $CN)" \
+          | /opt/bin/cfssl gencert \
+            -remote=pki.${ internal-tld }:8888 \
+            -profile=$PROFILE \
+            -hostname="$HOSTS" - \
+          | /opt/bin/cfssljson -bare $CN
+
+        chmod 0644 $${CN}.pem $${CN}-key.pem
+
+      }
+
+      mkdir -p $OUTDIR && cd $OUTDIR
+
+      generate k8s-worker client "$${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"

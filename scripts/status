@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+kubectl get no
+kubectl cluster-info
+kubectl get po --namespace=kube-system
+kubectl get po
+kubectl exec busybox -- nslookup kubernetes

@@ -4,8 +4,8 @@
 [![Circle CI](https://circleci.com/gh/kz8s/tack.svg?style=svg)](https://circleci.com/gh/kz8s/tack)
 
 Opinionated [Terraform](https://terraform.io) module for creating a Highly Available [Kubernetes](http://kubernetes.io) cluster running on
-[CoreOS](https://coreos.com) (any channel) in an [AWS](https://aws.amazon.com)
-Virtual Private Cloud ([VPC](https://aws.amazon.com/vpc/)). With prerequisites
+[Container Linux by CoreOS](https://coreos.com) (any channel) in an [AWS
+Virtual Private Cloud VPC](https://aws.amazon.com/vpc/). With prerequisites
 installed `make all` will simply spin up a default cluster; and, since it is
 based on Terraform, customization is much easier than
 [CloudFormation](https://aws.amazon.com/cloudformation/).
@@ -39,28 +39,27 @@ $ make clean
 ```
 
 ## Features
-* TLS certificate generation
+* Cluster-internal Certificate Authority infrastructure for TLS certificate generation
 
 ### AWS
 * [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
 creation
 * AWS VPC Public and Private subnets
-* IAM protected S3 bucket for asset (TLS and manifests) distribution
+* IAM protected S3 bucket for asset distribution
 * Bastion Host
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### CoreOS (1185.5.0, 1235.2.0, 1262.0.0)
+### Container Linux by CoreOS (1298.7.0, 1325.2.0, 1262.0.0)
 * etcd DNS Discovery Bootstrap
-* kubelet runs under rkt (using CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
+* kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.5.1)
+### Kubernetes (v1.5.5)
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
-* SkyDNS utilizing cluster's etcd
 
-### Terraform (v0.8.2)
-* CoreOS AMI sourcing
+### Terraform (v0.9.3)
+* Container Linux by CoreOS AMI sourcing
 * Terraform Pattern Modules
 
 ## Prerequisites
@@ -80,7 +79,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.15 Python/2.7.10 Darwin/16.1.0 botocore/1.4.72
+aws-cli/1.11.76 Python/2.7.10 Darwin/16.5.0 botocore/1.5.39
 
 $ cfssl version
 Version: 1.2.0
@@ -91,20 +90,20 @@ $ jq --version
 jq-1.5
 
 $ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"4", GitVersion:"v1.4.5+5a0a696", GitCommit:"5a0a696437ad35c133c0c8493f7e9d22b0f9b81b", GitTreeState:"not a git tree", BuildDate:"2016-10-29T08:29:44Z", GoVersion:"go1.7.3", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.1", GitCommit:"b0b7a323cc5a4a2019b2e9520c21c7830b7f708e", GitTreeState:"clean", BuildDate:"2017-04-03T23:37:53Z", GoVersion:"go1.8", Compiler:"gc", Platform:"darwin/amd64"}
 
 $ terraform --version
-Terraform v0.8.2
+Terraform v0.9.3
 ```
 
 ## Launch Cluster
 
 `make all` will create:
 - AWS Key Pair (PEM file)
-- client and server TLS assets
-- s3 bucket for TLS assets (secured by IAM roles for master and worker nodes)
 - AWS VPC with private and public subnets
 - Route 53 internal zone for VPC
+- Bastion host
+- Certificate Authority server
 - Etcd cluster bootstrapped from Route 53
 - High Availability Kubernetes configuration (masters running on etcd nodes)
 - Autoscaling worker node group across subnets in selected region
@@ -152,12 +151,14 @@ Tack works in three phases:
 3. Post-Terraform
 
 #### Pre-Terraform
+
 The purpose of this phase is to prep the environment for Terraform execution. Some tasks are
 hard or messy to do in Terraform - a little prep work can go a long way here. Determining
-the CoreOS AMI for a given region, channel and VM Type for instance is easy enough to do
+the Container Linux by CoreOS AMI for a given region, channel and VM Type for instance is easy enough to do
 with a simple shell script.
 
 #### Terraform
+
 Terraform does the heavy lifting of resource creation and sequencing. Tack uses local
 modules to partition the work in a logical way. Although it is of course possible to do all
 of the Terraform work in a single `.tf` file or collection of `.tf` files, it becomes
@@ -165,7 +166,8 @@ unwieldy quickly and impossible to debug. Breaking the work into local modules m
 flow much easier to follow and provides the basis for composing variable solutions down the track - for example converting the worker Auto Scaling Group to use spot instances.
 
 #### Post-Terraform
-Once the infrastructure has been configured and instantiated it will take some time for it
+
+Once the infrastructure has been configured and instantiated it will take some type for it
 to settle. Waiting for the 'master' ELB to become healthy is an example of this.  
 
 ### Components
@@ -177,7 +179,7 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 * [etcd coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
-$ curl --cacert /etc/kubernetes/ssl/ca.pem  https://etcd1.k8s:2379/version
+$ curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
 $ openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
 $ openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
 ```
@@ -205,6 +207,7 @@ Starting to serve on localhost:8001
 If you have an existing VPC you'd like to deploy a cluster into, there is an option for this with _tack_.
 
 #### Constraints
+
 * You will need to allocate 3 static IPs for the etcd servers - Choose 3 unused IPs that fall within the IP range of the first subnet specified in `subnet-ids-private` under `vpc-existing.tfvars`
 * Your VPC has to have private and public subnets (for now)
 * You will need to know the following information:
@@ -215,6 +218,7 @@ If you have an existing VPC you'd like to deploy a cluster into, there is an opt
   * VPC Private Subnet Ids (e.g. subnet-lmn123,subnet-opq123)
 
 #### Enabling Existing VPC Support
+
 * Edit vpc-existing.tfvars
   * Uncomment the blocks with variables and fill in the missing information
 * Edit modules_override.tf - This uses the [overrides feature from Terraform](https://www.terraform.io/docs/configuration/override.html)
@@ -222,6 +226,7 @@ If you have an existing VPC you'd like to deploy a cluster into, there is an opt
 * Edit the Makefile as necessary for CIDR_PODS, CIDR_SERVICE_CLUSTER, etc to match what you need (e.g. avoid collisions with existing IP ranges in your VPC or extended infrastructure)
 
 #### Testing Existing VPC Support from Scratch
+
 In order to test existing VPC support, we need to generate a VPC and then try the overrides with it. After that we can clean it all up.  These instructions are meant for someone wanting to ensure that the _tack_ existing VPC code works properly.
 * Run `make all` to generate a VPC with Terraform
 * Edit terraform.tfstate
@@ -234,17 +239,20 @@ In order to test existing VPC support, we need to generate a VPC and then try th
   * Run `make clean` to clean up everything
 
 #### Additional Configuration
-* You probably want to [tag your subnets](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go#66) for internal/external load balancers
+
+* You should to [tag your subnets](https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/providers/aws/aws.go#66) for internal/external load balancers
 
 ## Inspiration
-* [Code examples to create CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
+
+* [Code examples to create Container Linux by CoreOS cluster on AWS with Terraform](https://github.com/xuwang/aws-terraform) by [xuwang](https://github.com/xuwang)
 * [kaws: tool for deploying multiple Kubernetes clusters](https://github.com/InQuicker/kaws)
-* [Kubernetes on CoreOS](https://github.com/coreos/coreos-kubernetes)
+* [Kubernetes on Container Linux by CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 
 
 ## Other Terraform Projects
+
 * [bakins/kubernetes-coreos-terraform](https://github.com/bakins/kubernetes-coreos-terraform)
 * [bobtfish/terraform-aws-coreos-kubernates-cluster](https://github.com/bobtfish/terraform-aws-coreos-kubernates-cluster)
 * [chiefy/tf-aws-kubernetes](https://github.com/chiefy/tf-aws-kubernetes)
@@ -257,9 +265,10 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [xuwang/aws-terraform](https://github.com/xuwang/aws-terraform)
 
 ## References
+
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
-* [CoreOS - Mounting Storage](https://coreos.com/os/docs/latest/mounting-storage.html)
-* [Deploying CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
+* [Container Linux by CoreOS - Mounting Storage](https://coreos.com/os/docs/latest/mounting-storage.html)
+* [Deploying Container Linux by CoreOS cluster with etcd secured by TLS/SSL](http://blog.skrobul.com/securing_etcd_with_tls/)
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)

@@ -1,5 +1,6 @@
 apiVersion: v1
 kind: Service
+
 metadata:
   name: elasticsearch-logging
   namespace: kube-system
@@ -19,6 +20,7 @@ spec:
 
 apiVersion: v1
 kind: ReplicationController
+
 metadata:
   name: elasticsearch-logging-v1
   namespace: kube-system
@@ -26,6 +28,7 @@ metadata:
     k8s-app: elasticsearch-logging
     version: v1
     kubernetes.io/cluster-service: "true"
+
 spec:
   replicas: 2
   selector:
@@ -39,10 +42,12 @@ spec:
         kubernetes.io/cluster-service: "true"
     spec:
       containers:
-      - image: gcr.io/google_containers/elasticsearch:1.7
+      - image: gcr.io/google_containers/elasticsearch:v2.4.1
         name: elasticsearch-logging
         resources:
           limits:
+            cpu: 1000m
+          requests:
             cpu: 100m
         ports:
         - containerPort: 9200
@@ -54,6 +59,11 @@ spec:
         volumeMounts:
         - name: es-persistent-storage
           mountPath: /data
+        env:
+        - name: "NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
       volumes:
       - name: es-persistent-storage
         emptyDir: {}
