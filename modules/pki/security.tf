@@ -21,10 +21,10 @@ resource "aws_security_group" "pki" {
 
   tags {
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "kz8s-pki-${ var.name }"
     builtWith = "terraform"
   }
 
   vpc_id = "${ var.vpc-id }"
-  
 }
