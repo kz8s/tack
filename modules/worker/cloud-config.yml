@@ -3,25 +3,46 @@
 ---
 coreos:
 
-  etcd2:
-    discovery-srv: ${ internal-tld }
-    peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
-    peer-client-cert-auth: true
-    peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
-    peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
-    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
-    client-cert-auth: true
-    cert-file: /etc/kubernetes/ssl/k8s-worker.pem
-    key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
-    proxy: on
+  locksmith:
+    endpoint: https://etcd.${ internal-tld }:2379
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
   flannel:
     etcd_cafile: /etc/kubernetes/ssl/ca.pem
     etcd_certfile: /etc/kubernetes/ssl/k8s-worker.pem
-    etcd_keyfile: /etc/kubernetes/ssl/k8s-worker-key.pem
     etcd_endpoints: https://etcd.${ internal-tld }:2379
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-worker-key.pem
 
   units:
+    - name: etcd-member.service
+      command: start
+      drop-ins:
+        - name: 01-wait-for-certs.conf
+          content: |
+            [Unit]
+            After=create-certificates.service
+            Requires=create-certificates.service
+            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
+
+        - name: 10-environment.conf
+          content: |
+            [Service]
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+            Environment="ETCD_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
+            Environment="ETCD_CLIENT_CERT_AUTH=TRUE"
+            Environment="ETCD_DISCOVERY_SRV=${ internal-tld }"
+            Environment="ETCD_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
+            Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
+            Environment="ETCD_PEER_CLIENT_AUTH=true"
+            Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
+            Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+            Environment="ETCD_PROXY=on"
+            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+
     - name: format-ephemeral.service
       command: start
       content: |
