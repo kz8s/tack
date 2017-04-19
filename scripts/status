@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-kubectl get no
+kubectl get nodes
 kubectl cluster-info
-kubectl get po --namespace=kube-system
-kubectl get po
+kubectl get pods --all-namespaces
 kubectl exec busybox -- nslookup kubernetes
