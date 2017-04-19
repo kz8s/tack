@@ -9,7 +9,17 @@ coreos:
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-worker.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
+    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    client-cert-auth: true
+    cert-file: /etc/kubernetes/ssl/k8s-worker.pem
+    key-file: /etc/kubernetes/ssl/k8s-worker-key.pem
     proxy: on
+
+  flannel:
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-worker.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-worker-key.pem
+    etcd_endpoints: https://etcd.${ internal-tld }:2379
 
   units:
     - name: format-ephemeral.service
@@ -61,6 +71,8 @@ coreos:
         [Unit]
         After=download-cfssl.service
         Requires=download-cfssl.service
+        Before=flannel.service
+        RequiredBy=flannel.service
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         [Service]
         Type=oneshot
@@ -87,6 +99,8 @@ coreos:
         - name: 50-network-config.conf
           content: |
             [Service]
+            EnvironmentFile=-/etc/environment
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
             Restart=always
             RestartSec=10
 
@@ -139,6 +153,7 @@ coreos:
         After=prefetch-docker-hyperkube.service
         Requires=flanneld.service
         [Service]
+        EnvironmentFile=/etc/environment
         Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
@@ -161,6 +176,7 @@ coreos:
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
           --api-servers=https://master.${ internal-tld } \
+          --cert-dir=/etc/kubernetes/ssl \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
@@ -170,7 +186,7 @@ coreos:
           --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
           --tls-private-key-file=/etc/kubernetes/ssl/k8s-worker-key.pem
         Restart=always
-        RestartSec=5
+        RestartSec=14
         [Install]
         WantedBy=multi-user.target
 
@@ -178,6 +194,17 @@ coreos:
     reboot-strategy: etcd-lock
 
 write-files:
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      COREOS_PRIVATE_IPV4=$private_ipv4
+      ETCD_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCD_CERT_FILE=/etc/kubernetes/ssl/k8s-worker.pem
+      ETCD_KEY_FILE=/etc/kubernetes/ssl/k8s-worker-key.pem
+      ETCDCTL_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCDCTL_CERT_FILE=/etc/kubernetes/ssl/k8s-worker.pem
+      ETCDCTL_KEY_FILE=/etc/kubernetes/ssl/k8s-worker-key.pem
+
   - path: /opt/bin/host-rkt
     permissions: 0755
     owner: root:root
