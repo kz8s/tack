@@ -36,7 +36,7 @@ module "pki" {
   internal-tld = "${ var.internal-tld }"
   k8s = "${ var.k8s }"
   name = "${ var.name }"
-  s3-bucket = "kz8s-pki-${ var.name }-${ var.aws["account-id"] }"
+  s3-bucket = "kz8s-pki-${ var.name }-${ var.aws["account-id"] }-${ var.aws["region"] }"
 
   # modules
   internal-zone-id = "${ module.route53.internal-zone-id }"
