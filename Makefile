@@ -79,6 +79,7 @@ post-terraform:
 	@echo "---"
 	@echo "View uninitialized kube-system pods:"
 	@echo "% make pods"
+	@echo "% watch -n 1 make pods"
 	@echo "---"
 	@echo "View ec2 instance info:"
 	@echo "% make instances"
