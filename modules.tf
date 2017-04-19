@@ -24,19 +24,6 @@ module "route53" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "security" {
-  source = "./modules/security"
-  depends-id = "${ module.vpc.depends-id }"
-
-  # variables
-  cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"
-  cidr-vpc = "${ var.cidr["vpc"] }"
-  name = "${ var.name }"
-
-  # modules
-  vpc-id = "${ module.vpc.id }"
-}
-
 module "pki" {
   source = "./modules/pki"
   depends-id = "${ module.vpc.depends-id }"
@@ -54,6 +41,19 @@ module "pki" {
   # modules
   internal-zone-id = "${ module.route53.internal-zone-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
+  vpc-id = "${ module.vpc.id }"
+}
+
+module "security" {
+  source = "./modules/security"
+  depends-id = "${ module.vpc.depends-id }"
+
+  # variables
+  cidr-allow-ssh = "${ var.cidr["allow-ssh"] }"
+  cidr-vpc = "${ var.cidr["vpc"] }"
+  name = "${ var.name }"
+
+  # modules
   vpc-id = "${ module.vpc.id }"
 }
 
