@@ -100,10 +100,10 @@ Terraform v0.9.3
 
 `make all` will create:
 - AWS Key Pair (PEM file)
-- client and server TLS assets
-- s3 bucket for TLS assets (secured by IAM roles for master and worker nodes)
 - AWS VPC with private and public subnets
 - Route 53 internal zone for VPC
+- Bastion host
+- Certificate Authority server
 - Etcd cluster bootstrapped from Route 53
 - High Availability Kubernetes configuration (masters running on etcd nodes)
 - Autoscaling worker node group across subnets in selected region
@@ -179,7 +179,7 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 * [etcd coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
-$ curl --cacert /etc/kubernetes/ssl/ca.pem  https://etcd1.k8s:2379/version
+$ curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
 $ openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
 $ openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
 ```
