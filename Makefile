@@ -159,13 +159,6 @@ wait-for-cluster: ; @scripts/do-task "wait-for-cluster" scripts/wait-for-cluster
 
 include makefiles/*.mk
 
-.PHONY: env
-env:
-	@HI=ho env
-	env
-	echo ${AWS_REGION}
-	echo ${INTERNAL_TLD}
-
 .DEFAULT_GOAL := help
 .PHONY: all clean create-addons create-admin-certificate create-busybox
 .PHONY: get-ca instances journal prereqs ssh ssh-bastion ssl status test
