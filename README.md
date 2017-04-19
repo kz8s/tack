@@ -194,7 +194,7 @@ Starting to serve on localhost:8001
 ```
 
 * [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging ](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging)
-* [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging)
+* [http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging/app/kibana](http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kibana-logging/app/kibana)
 
 ## FAQs
 
