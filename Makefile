@@ -31,7 +31,7 @@ AWS_EC2_KEY_PATH			:= ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
 INTERNAL_TLD 					:= ${CLUSTER_NAME}.kz8s
 
 HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
-HYPERKUBE_TAG					?= v1.6.1_coreos.0
+HYPERKUBE_TAG					?= v1.6.2_coreos.0
 
 CIDR_VPC							?= 10.0.0.0/16
 CIDR_PODS							?= 10.2.0.0/16
