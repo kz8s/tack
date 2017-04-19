@@ -16,9 +16,7 @@ EOS
 
 resource "aws_iam_instance_profile" "bastion" {
   name = "k8s-bastion-${ var.name }"
-  roles = [
-    "${ aws_iam_role.bastion.name }"
-  ]
+  role = "${ aws_iam_role.bastion.name }"
 }
 
 /*resource "aws_iam_role_policy" "bastion" {

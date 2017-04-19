@@ -18,9 +18,7 @@ EOS
 resource "aws_iam_instance_profile" "master" {
   name = "master-k8s-${ var.name }"
 
-  roles = [
-    "${ aws_iam_role.master.name }"
-  ]
+  role = "${ aws_iam_role.master.name }"
 }
 
 resource "aws_iam_role_policy" "master" {

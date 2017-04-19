@@ -19,13 +19,8 @@ EOS
 
 
 resource "aws_iam_instance_profile" "pki" {
-
   name = "kz8s-pki-${ var.name }"
-
-  roles = [
-    "${ aws_iam_role.pki.name }"
-  ]
-
+  role = "${ aws_iam_role.pki.name }"
 }
 
 
