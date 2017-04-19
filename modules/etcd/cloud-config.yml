@@ -4,18 +4,29 @@
 coreos:
 
   etcd2:
-    advertise-client-urls: http://${ fqdn }:2379
+    advertise-client-urls: https://${ fqdn }:2379
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
-    listen-client-urls: http://0.0.0.0:2379
+    listen-client-urls: https://0.0.0.0:2379
     listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
     peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    client-cert-auth: true
+    cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+
+  flannel:
+    interface: $private_ipv4
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    etcd_endpoints: https://etcd.${ internal-tld }:2379
 
   units:
     - name: etcd2.service
@@ -33,9 +44,23 @@ coreos:
     - name: flanneld.service
       command: start
       drop-ins:
+        # - name: 10-etcd.conf
+        #   content: |
+        #     [Service]
+        #     EnvironmentFile=/etc/environment
+        #     Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+        #     TimeoutStartSec=120
         - name: 50-network-config.conf
           content: |
+            [Unit]
+            Wants=create-certificates.service
+            After=create-certificates.service
             [Service]
+            EnvironmentFile=/etc/environment
+            # Environment="FLANNEL_OPTS=--ip-masq=true -v=6"
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+            # ExecStartPre=/usr/bin/env
+            # ExecStartPre=/opt/bin/wait-for-certs
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
               '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always
@@ -74,6 +99,8 @@ coreos:
       content: |
         [Unit]
         After=download-cfssl.service
+        Before=flannel.service
+        RequiredBy=flannel.service
         ConditionFileIsExecutable=/opt/bin/cfssl
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         Requires=download-cfssl.service
@@ -122,6 +149,7 @@ coreos:
         After=prefetch-docker-hyperkube.service
         Requires=flanneld.service
         [Service]
+        EnvironmentFile=-/etc/environment
         Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
@@ -157,6 +185,19 @@ coreos:
     reboot-strategy: etcd-lock
 
 write-files:
+
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      COREOS_PRIVATE_IPV4=$private_ipv4
+      ETCD_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCD_CERT_FILE=/etc/kubernetes/ssl/k8s-etcd.pem
+      ETCD_KEY_FILE=/etc/kubernetes/ssl/k8s-etcd-key.pem
+      ETCDCTL_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCDCTL_CERT_FILE=/etc/kubernetes/ssl/k8s-etcd.pem
+      ETCDCTL_KEY_FILE=/etc/kubernetes/ssl/k8s-etcd-key.pem
+      ETCDCTL_ENDPOINT=https://${ fqdn }:2379
+
   - path: /opt/bin/host-rkt
     permissions: 0755
     owner: root:root
@@ -204,7 +245,10 @@ write-files:
           - --client-ca-file=/etc/kubernetes/ssl/ca.pem
           - --cloud-provider=aws
           - --enable-swagger-ui
-          - --etcd-servers=http://etcd.${ internal-tld }:2379
+          - --etcd-cafile=/etc/kubernetes/ssl/ca.pem
+          - --etcd-certfile=/etc/kubernetes/ssl/k8s-etcd.pem
+          - --etcd-keyfile=/etc/kubernetes/ssl/k8s-etcd-key.pem
+          - --etcd-servers=https://etcd.${ internal-tld }:2379
           - --runtime-config=extensions/v1beta1/networkpolicies=true,batch/v2alpha1
           - --secure-port=443
           - --service-account-key-file=/etc/kubernetes/ssl/service-account-key.pem
@@ -377,11 +421,23 @@ write-files:
       done
       echo "✓"
 
+  - path: /opt/bin/wait-for-certs
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until ls /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
+
   - path: /opt/bin/create-certificates
     permissions: 0755
     owner: root:root
     content: |
-      #!/bin/bash -ex
+      #!/bin/bash -vex
 
       OUTDIR=/etc/kubernetes/ssl
 
