@@ -19,6 +19,7 @@ resource "aws_security_group" "bastion" {
 
   tags {
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "bastion-k8s-${ var.name }"
     builtWith = "terraform"
   }
@@ -49,6 +50,7 @@ resource "aws_security_group" "etcd" {
 
   tags {
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "etcd-k8s-${ var.name }"
     builtWith = "terraform"
   }
@@ -85,6 +87,7 @@ resource "aws_security_group" "external-elb" {
 
   tags {
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "master-external-elb-k8s-${ var.name }"
     builtWith = "terraform"
   }
@@ -115,6 +118,7 @@ resource "aws_security_group" "worker" {
 
   tags {
     KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
     Name = "worker-k8s-${ var.name }"
     builtWith = "terraform"
   }

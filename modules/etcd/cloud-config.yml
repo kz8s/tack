@@ -4,21 +4,29 @@
 coreos:
 
   etcd2:
-    advertise-client-urls: http://${ fqdn }:2379
-    # cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
-    # debug: true
+    advertise-client-urls: https://${ fqdn }:2379
     discovery-srv: ${ internal-tld }
     initial-advertise-peer-urls: https://${ fqdn }:2380
     initial-cluster-state: new
     initial-cluster-token: ${ cluster-token }
-    # key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
-    listen-client-urls: http://0.0.0.0:2379
+    listen-client-urls: https://0.0.0.0:2379
     listen-peer-urls: https://0.0.0.0:2380
     name: ${ hostname }
     peer-trusted-ca-file: /etc/kubernetes/ssl/ca.pem
     peer-client-cert-auth: true
     peer-cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
     peer-key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    trusted-ca-file: /etc/kubernetes/ssl/ca.pem
+    client-cert-auth: true
+    cert-file: /etc/kubernetes/ssl/k8s-etcd.pem
+    key-file: /etc/kubernetes/ssl/k8s-etcd-key.pem
+
+  flannel:
+    interface: $private_ipv4
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
+    etcd_endpoints: https://etcd.${ internal-tld }:2379
 
   units:
     - name: etcd2.service
@@ -27,15 +35,32 @@ coreos:
         - name: wait-for-certs.conf
           content: |
             [Unit]
-            After=get-ssl.service
-            Requires=get-ssl.service
+            After=create-certificates.service
+            Requires=create-certificates.service
+            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
 
     - name: flanneld.service
       command: start
       drop-ins:
+        # - name: 10-etcd.conf
+        #   content: |
+        #     [Service]
+        #     EnvironmentFile=/etc/environment
+        #     Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+        #     TimeoutStartSec=120
         - name: 50-network-config.conf
           content: |
+            [Unit]
+            Wants=create-certificates.service
+            After=create-certificates.service
             [Service]
+            EnvironmentFile=/etc/environment
+            # Environment="FLANNEL_OPTS=--ip-masq=true -v=6"
+            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+            # ExecStartPre=/usr/bin/env
+            # ExecStartPre=/opt/bin/wait-for-certs
             ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
               '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
             Restart=always
@@ -52,46 +77,79 @@ coreos:
             [Service]
             Restart=always
             RestartSec=10
-        - name: overlay.conf
-          content: |
-            [Service]
-            Environment="DOCKER_OPTS=--storage-driver=overlay"
 
-    - name: s3-get-presigned-url.service
+    - name: download-cfssl.service
       command: start
       content: |
         [Unit]
         After=network-online.target
-        Description=Install s3-get-presigned-url
         Requires=network-online.target
+        Before=etcd2.service
+        Description=Download cfssl
         [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /opt/bin
-        ExecStart=/usr/bin/curl -L -o /opt/bin/s3-get-presigned-url \
-          https://github.com/kz8s/s3-get-presigned-url/releases/download/v0.1/s3-get-presigned-url_linux_amd64
-        ExecStart=/usr/bin/chmod +x /opt/bin/s3-get-presigned-url
-        RemainAfterExit=yes
         Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
 
-    - name: get-ssl.service
+    - name: create-certificates.service
       command: start
       content: |
         [Unit]
-        After=s3-get-presigned-url.service
-        Description=Get ssl artifacts from s3 bucket using IAM role
-        Requires=s3-get-presigned-url.service
+        After=download-cfssl.service
+        Before=flannel.service
+        RequiredBy=flannel.service
+        ConditionFileIsExecutable=/opt/bin/cfssl
+        Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
+        Requires=download-cfssl.service
         [Service]
         ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStart=/bin/sh -c "/usr/bin/curl $(/opt/bin/s3-get-presigned-url \
-          ${ region } ${ bucket } ${ ssl-tar }) | tar xv -C /etc/kubernetes/ssl/"
+        ExecStartPre=/opt/bin/fetch-from-s3 service-account-key.pem
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
+        ExecStart=/opt/bin/create-certificates
         RemainAfterExit=yes
         Type=oneshot
+
+    - name: prefetch-rkt-hyperkube.service
+      command: start
+      content: |
+        [Unit]
+        After=network-online.target
+        Requires=network-online.target
+        Description=Prefetch rkt Hyperkube
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/rkt trust --trust-keys-from-https --prefix=quay.io/coreos/hyperkube
+        ExecStart=/usr/bin/rkt fetch ${ hyperkube-image }:${ hyperkube-tag }
+
+    - name: prefetch-docker-hyperkube.service
+      command: start
+      content: |
+        [Unit]
+        After=docker.service
+        Requires=docker.service
+        Description=Prefetch docker Hyperkube
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/docker pull ${ hyperkube }
 
     - name: kubelet.service
       command: start
+      runtime: true
       content: |
         [Unit]
+        ConditionPathExists=/etc/kubernetes/ssl/service-account-key.pem
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
+        After=flanneld.service
+        After=prefetch-rkt-hyperkube.service
+        After=prefetch-docker-hyperkube.service
+        Requires=flanneld.service
         [Service]
+        EnvironmentFile=-/etc/environment
         Environment="KUBELET_ACI=${ hyperkube-image }"
         Environment="KUBELET_VERSION=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
@@ -115,7 +173,8 @@ coreos:
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
-          --config=/etc/kubernetes/manifests \
+          # --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --pod-manifest-path=/etc/kubernetes/manifests \
           --register-schedulable=false
         Restart=always
         RestartSec=5
@@ -126,12 +185,42 @@ coreos:
     reboot-strategy: etcd-lock
 
 write-files:
+
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      COREOS_PRIVATE_IPV4=$private_ipv4
+      ETCD_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCD_CERT_FILE=/etc/kubernetes/ssl/k8s-etcd.pem
+      ETCD_KEY_FILE=/etc/kubernetes/ssl/k8s-etcd-key.pem
+      ETCDCTL_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCDCTL_CERT_FILE=/etc/kubernetes/ssl/k8s-etcd.pem
+      ETCDCTL_KEY_FILE=/etc/kubernetes/ssl/k8s-etcd-key.pem
+      ETCDCTL_ENDPOINT=https://${ fqdn }:2379
+
   - path: /opt/bin/host-rkt
     permissions: 0755
     owner: root:root
     content: |
       #!/bin/sh
       exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
+
+  - path: /etc/kubernetes/kubeconfig.yml
+    content: |
+      apiVersion: v1
+      kind: Config
+      clusters:
+        - name: local
+          cluster:
+            server: http://127.0.0.1:8080
+      users:
+        - name: kubelet
+      contexts:
+        - name: kubelet-context
+          context:
+            cluster: local
+            user: kubelet
+      current-context: kubelet-context
 
   - path: /etc/kubernetes/manifests/kube-apiserver.yml
     content: |
@@ -148,19 +237,22 @@ write-files:
           command:
           - /hyperkube
           - apiserver
-          - --admission-control=LimitRanger
-          - --admission-control=NamespaceExists
-          - --admission-control=NamespaceLifecycle
-          - --admission-control=ResourceQuota
-          - --admission-control=SecurityContextDeny
-          - --admission-control=ServiceAccount
+          - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
+          - --advertise-address=$private_ipv4
+          - --apiserver-count=${ apiserver-count }
           - --allow-privileged=true
+          - --anonymous-auth=false
           - --client-ca-file=/etc/kubernetes/ssl/ca.pem
           - --cloud-provider=aws
-          - --etcd-servers=http://etcd.${ internal-tld }:2379
-          - --insecure-bind-address=0.0.0.0
+          - --enable-swagger-ui
+          - --etcd-cafile=/etc/kubernetes/ssl/ca.pem
+          - --etcd-certfile=/etc/kubernetes/ssl/k8s-etcd.pem
+          - --etcd-keyfile=/etc/kubernetes/ssl/k8s-etcd-key.pem
+          - --etcd-servers=https://etcd.${ internal-tld }:2379
+          - --runtime-config=extensions/v1beta1/networkpolicies=true,batch/v2alpha1
           - --secure-port=443
-          - --service-account-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --service-account-key-file=/etc/kubernetes/ssl/service-account-key.pem
+          - --service-account-lookup
           - --service-cluster-ip-range=${ service-cluster-ip-range }
           - --tls-cert-file=/etc/kubernetes/ssl/k8s-apiserver.pem
           - --tls-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
@@ -213,7 +305,7 @@ write-files:
           - --leader-elect=true
           - --master=http://127.0.0.1:8080
           - --root-ca-file=/etc/kubernetes/ssl/ca.pem
-          - --service-account-private-key-file=/etc/kubernetes/ssl/k8s-apiserver-key.pem
+          - --service-account-private-key-file=/etc/kubernetes/ssl/service-account-key.pem
           resources:
             requests:
               cpu: 200m
@@ -255,17 +347,22 @@ write-files:
           - /hyperkube
           - proxy
           - --master=http://127.0.0.1:8080
-          - --proxy-mode=iptables
           securityContext:
             privileged: true
           volumeMounts:
           - mountPath: /etc/ssl/certs
             name: ssl-certs-host
             readOnly: true
+          - mountPath: /var/run/dbus
+            name: dbus
+            readOnly: false
         volumes:
         - hostPath:
             path: /usr/share/ca-certificates
           name: ssl-certs-host
+        - hostPath:
+            path: /var/run/dbus
+          name: dbus
 
   - path: /etc/kubernetes/manifests/kube-scheduler.yml
     content: |
@@ -306,3 +403,83 @@ write-files:
         delaycompress
         copytruncate
       }
+
+  - path: /opt/bin/fetch-from-s3
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until /usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/$1 /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
+
+  - path: /opt/bin/wait-for-certs
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until ls /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
+
+  - path: /opt/bin/create-certificates
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -vex
+
+      OUTDIR=/etc/kubernetes/ssl
+
+      function error {
+        echo "✗ Error on line $1"'!'
+        exit 1
+      }
+      trap 'error $LINENO' ERR
+
+      until printf "." && curl -d '{"label":"primary"}' http://pki.${ internal-tld }:8888/api/v1/cfssl/info &>/dev/null
+      do sleep 5.2; done; echo "✓"
+
+      DNS1="kubernetes"
+      DNS2="kubernetes.default"
+      DNS3="kubernetes.default.svc"
+      DNS4="kubernetes.default.svc.cluster.local"
+      DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
+
+      function csr {
+        cat <<EOF
+      {"CN":"$1","hosts":[""],"key":{"algo":"rsa","size":2048}}
+      EOF
+      }
+
+      function generate {
+
+        CN=$1
+        PROFILE=$2
+        HOSTS=$3
+
+        echo "$(csr $CN)" \
+          | /opt/bin/cfssl gencert \
+            -remote=pki.${ internal-tld }:8888 \
+            -profile=$PROFILE \
+            -hostname="$HOSTS" - \
+          | /opt/bin/cfssljson -bare $CN
+
+        chmod 0644 $${CN}.pem $${CN}-key.pem
+
+      }
+
+      mkdir -p $OUTDIR && cd $OUTDIR
+
+      generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
+      generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"

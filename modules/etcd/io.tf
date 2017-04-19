@@ -1,8 +1,8 @@
 variable "ami-id" {}
-variable "bucket-prefix" {}
+variable "aws" {
+  type = "map"
+}
 variable "cluster-domain" {}
-variable "hyperkube-image" {}
-variable "hyperkube-tag" {}
 variable "depends-id" {}
 variable "dns-service-ip" {}
 variable "etcd-ips" {}
@@ -11,10 +11,16 @@ variable "external-elb-security-group-id" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
-variable "key-name" {}
+
+variable "ip-k8s-service" {}
+
+variable "k8s" {
+  type = "map"
+}
+
 variable "name" {}
+variable "pki-s3-bucket" {}
 variable "pod-ip-range" {}
-variable "region" {}
 variable "service-cluster-ip-range" {}
 variable "subnet-ids-private" {}
 variable "subnet-ids-public" {}

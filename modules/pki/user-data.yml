@@ -1,0 +1,111 @@
+#cloud-config
+
+---
+coreos:
+  update:
+    reboot-strategy: etcd-lock
+
+  units:
+    - name: generate-service-account-key.service
+      command: start
+      content: |
+        [Unit]
+        Description=Generate service-account key file
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/cfssl
+        ExecStartPre=/bin/openssl genrsa -out /etc/cfssl/service-account-key.pem 2048 2>/dev/null
+        ExecStart=/usr/bin/rkt run \
+          --net=host \
+          --trust-keys-from-https \
+          --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+          --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
+          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/service-account-key.pem s3://${ s3-bucket }/
+
+    - name: download-cfssl.service
+      command: start
+      content: |
+        [Unit]
+        Description=Download cfssl
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/mkdir --parents /etc/cfssl
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+
+    - name: generate-rootca.service
+      command: start
+      content: |
+        [Unit]
+        ConditionFileIsExecutable=/opt/bin/cfssl
+        ConditionFileIsExecutable=/opt/bin/cfssljson
+        ConditionPathExists=/etc/cfssl
+        Description=Generate rootca and save to s3
+        [Service]
+        After=download-cfssl.service
+        Type=oneshot
+        RemainAfterExit=yes
+        WorkingDirectory=/etc/cfssl
+        ExecStartPre=/bin/sh -c "\
+          /opt/bin/cfssl gencert -initca ca-csr.json \
+          | /opt/bin/cfssljson -bare ca -"
+        ExecStart=/usr/bin/rkt run \
+          --net=host \
+          --trust-keys-from-https \
+          --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+          --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
+          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/ca.pem s3://${ s3-bucket }/
+
+    - name: cfssl.service
+      command: start
+      content: |
+        [Unit]
+        After=download-ssl.service
+        ConditionFileIsExecutable=/opt/bin/cfssl
+        Description=Start up cfssl service
+        [Service]
+        ExecStart=/opt/bin/cfssl serve \
+          -address 0.0.0.0 \
+          -ca /etc/cfssl/ca.pem \
+          -ca-key /etc/cfssl/ca-key.pem \
+          -config /etc/cfssl/ca-config.json
+        Restart=always
+        RestartSec=10
+
+write-files:
+  - path: /etc/cfssl/ca-csr.json
+    content: |
+      {
+        "CN": "CA",
+        "key": { "algo": "rsa", "size": 2048 },
+        "names": [{ "C": "US", "L": "San Francisco", "O": "Kubernetes", "ST": "California" }]
+      }
+
+  - path: /etc/cfssl/ca-config.json
+    content: |
+      {
+        "signing": {
+          "default": { "expiry": "43800h" },
+          "profiles": {
+            "server": {
+              "expiry": "43800h",
+              "usages": [ "signing", "key encipherment", "server auth" ]
+            },
+            "client": {
+              "expiry": "43800h",
+              "usages": [ "signing", "key encipherment", "client auth" ]
+            },
+            "client-server": {
+              "expiry": "43800h",
+              "usages": [ "signing", "key encipherment", "server auth", "client auth" ]
+            }
+          }
+        }
+      }
+
+  - path: /etc/cfssl/s3-bucket
+    content: ${ s3-bucket }
