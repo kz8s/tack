@@ -25,8 +25,8 @@ coreos:
             After=create-certificates.service
             Requires=create-certificates.service
             ConditionPathExists=/etc/kubernetes/ssl/ca.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
+            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
 
         - name: 10-environment.conf
           content: |
