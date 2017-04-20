@@ -33,7 +33,7 @@ resource "aws_iam_role_policy" "master" {
         "s3:Get*"
       ],
       "Effect": "Allow",
-      "Resource": [ "${ var.pki-s3-bucket-arn }/*" ]
+      "Resource": [ "${ var.s3-bucket-arn }/*" ]
     },
     {
       "Action": [

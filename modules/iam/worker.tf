@@ -35,7 +35,7 @@ resource "aws_iam_role_policy" "worker" {
         "s3:GetObject"
       ],
       "Effect": "Allow",
-      "Resource": [ "${ var.pki-s3-bucket-arn }/ca.pem" ]
+      "Resource": [ "${ var.s3-bucket-arn }/ca.pem" ]
     },
     {
       "Effect": "Allow",

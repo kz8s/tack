@@ -3,10 +3,6 @@ resource "aws_instance" "pki" {
   ami = "${ var.ami-id }"
   associate_public_ip_address = false
 
-  depends_on = [
-    "aws_s3_bucket.pki",
-  ]
-
   iam_instance_profile = "${ aws_iam_instance_profile.pki.name }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.aws["key-name"] }"

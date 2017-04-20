@@ -21,7 +21,7 @@ DIR_SSL				:= .cfssl
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION						?= us-east-1
+AWS_REGION						?= us-west-2
 COREOS_CHANNEL				?= stable
 COREOS_VM_TYPE				?= hvm
 CLUSTER_NAME 					?= test
@@ -79,13 +79,15 @@ post-terraform:
 	@echo "---"
 	@echo "View uninitialized kube-system pods:"
 	@echo "% make pods"
-	@echo "% watch -n 1 make pods"
 	@echo "---"
 	@echo "View ec2 instance info:"
 	@echo "% make instances"
 	@echo "---"
 	@echo "Status summaries:"
 	@echo "% make status"
+	@echo "---"
+	@echo "Watching pod status"
+	@scripts/watch-pods-until
 
 
 ## destroy and remove everything
@@ -124,7 +126,7 @@ dashboard: ; @./scripts/dashboard
 
 get-ca:
 	@OUTDIR=${DIR_SSL} \
-	PKI_S3_BUCKET=`terraform output pki-s3-bucket` \
+	PKI_S3_BUCKET=`terraform output s3-bucket` \
 	scripts/do-task "get root ca certificate" scripts/get-ca
 
 ## show instance information

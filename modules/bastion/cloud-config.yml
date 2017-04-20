@@ -1,0 +1,134 @@
+#cloud-config
+
+---
+coreos:
+
+  locksmith:
+    endpoint: https://etcd.${ internal-tld }:2379
+    etcd_cafile: /etc/kubernetes/ssl/ca.pem
+    etcd_certfile: /etc/kubernetes/ssl/k8s-bastion.pem
+    etcd_keyfile: /etc/kubernetes/ssl/k8s-bastion-key.pem
+
+
+  update:
+    reboot-strategy: etcd-lock
+
+
+  units:
+
+    - name: create-certificates.service
+      command: start
+      content: |
+        [Unit]
+        After=download-cfssl.service
+        Requires=download-cfssl.service
+        Before=flannel.service
+        RequiredBy=flannel.service
+        Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
+        ExecStart=/opt/bin/create-certificates
+
+    - name: download-cfssl.service
+      command: start
+      content: |
+        [Unit]
+        After=network-online.target
+        Requires=network-online.target
+        Before=etcd-member.service
+        Description=Download cfssl
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
+        ExecStartPre=-/usr/bin/mkdir --parents /opt/bin
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+        ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+        ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
+
+
+write-files:
+  - path: /etc/environment
+    permissions: 0644
+    content: |
+      ETCDCTL_CA_FILE=/etc/kubernetes/ssl/ca.pem
+      ETCDCTL_CERT_FILE=/etc/kubernetes/ssl/k8s-bastion.pem
+      ETCDCTL_ENDPOINTS=https://etcd.${ internal-tld }:2379
+      ETCDCTL_KEY_FILE=/etc/kubernetes/ssl/k8s-bastion-key.pem
+
+  - path: /opt/bin/host-rkt
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/sh
+      exec nsenter -m -u -i -n -p -t 1 -- /usr/bin/rkt "$@"
+
+  - path: /opt/bin/fetch-from-s3
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      until /usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ s3-bucket }/$1 /etc/kubernetes/ssl
+      do
+        echo "retrying"
+        sleep 5.2
+      done
+      echo "✓"
+
+  - path: /opt/bin/create-certificates
+    permissions: 0755
+    owner: root:root
+    content: |
+      #!/bin/bash -ex
+
+      OUTDIR=/etc/kubernetes/ssl
+
+      function error {
+        echo "✗ Error on line $1"'!'
+        exit 1
+      }
+      trap 'error $${LINENO}' ERR
+
+      until printf "." && curl -d '{"label":"primary"}' http://pki.${ internal-tld }:8888/api/v1/cfssl/info &>/dev/null
+      do sleep 5.2; done; echo "✓"
+
+      DNS1="kubernetes"
+      DNS2="kubernetes.default"
+      DNS3="kubernetes.default.svc"
+      DNS4="kubernetes.default.svc.cluster.local"
+      DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
+
+      function csr {
+        cat <<EOF
+      {"CN":"$1","hosts":[""],"key":{"algo":"rsa","size":2048}}
+      EOF
+      }
+
+      function generate {
+
+        CN=$1
+        PROFILE=$2
+        HOSTS=$3
+
+        echo "$(csr $CN)" \
+          | /opt/bin/cfssl gencert \
+            -remote=pki.${ internal-tld }:8888 \
+            -profile=$PROFILE \
+            -hostname="$HOSTS" - \
+          | /opt/bin/cfssljson -bare $CN
+
+        chmod 0644 $${CN}.pem $${CN}-key.pem
+
+      }
+
+      mkdir -p $OUTDIR && cd $OUTDIR
+
+      generate k8s-bastion client "k8s-bastion"

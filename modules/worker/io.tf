@@ -18,10 +18,8 @@ variable "internal-tld" {}
 variable "k8s" {
   type = "map"
 }
-/*variable "key-name" {}*/
 variable "name" {}
-variable "pki-s3-bucket" {}
-/*variable "region" {}*/
+variable "s3-bucket" {}
 variable "security-group-id" {}
 variable "subnet-ids" {}
 variable "volume_size" {

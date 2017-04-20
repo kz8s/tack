@@ -1,0 +1,20 @@
+#!/bin/bash -u
+
+WATCH=watch
+
+command -v ${WATCH} &> /dev/null
+[ $? -ne 0 ] && ( printf "cannot find 'watch' program\n\n$ brew install watch" ; exit 0 )
+
+${WATCH} -n 1 kubectl get pods --all-namespaces &
+WATCH_PID=$!
+
+function finish {
+  [ -z ${WATCH_PID} ] || kill ${WATCH_PID}
+}
+trap finish EXIT
+
+until [ `kubectl get po --all-namespaces | grep -v Running | wc -l` -eq 1 ]
+  do sleep 2
+done
+
+sleep 2

@@ -12,10 +12,9 @@ variable "k8s" {
 }
 variable "name" {}
 variable "s3-bucket" {}
+variable "s3-bucket-arn" {}
 variable "subnet-ids" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
 output "ip" { value = "${ aws_instance.pki.private_ip }" }
-output "s3-bucket" { value = "${ var.s3-bucket }" }
-output "s3-bucket-arn" { value = "${ aws_s3_bucket.pki.arn }" }

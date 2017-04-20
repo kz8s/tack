@@ -19,7 +19,7 @@ resource "aws_iam_instance_profile" "bastion" {
   role = "${ aws_iam_role.bastion.name }"
 }
 
-/*resource "aws_iam_role_policy" "bastion" {
+resource "aws_iam_role_policy" "bastion" {
   name = "bastion-k8s-${ var.name }"
   role = "${ aws_iam_role.bastion.id }"
   policy = <<EOS
@@ -29,12 +29,11 @@ resource "aws_iam_instance_profile" "bastion" {
     {
       "Effect": "Allow",
       "Action": [
-        "s3:List*",
         "s3:Get*"
       ],
-      "Resource": [ "arn:aws:s3:::${ var.bucket-prefix }-ssl/*" ]
+      "Resource": [ "${ var.s3-bucket-arn }/*" ]
     }
   ]
 }
 EOS
-}*/
+}

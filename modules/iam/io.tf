@@ -1,6 +1,6 @@
 variable "depends-id" {}
 variable "name" {}
-variable "pki-s3-bucket-arn" {}
+variable "s3-bucket-arn" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
 output "aws-iam-role-etcd-id" { value = "${ aws_iam_role.master.id }" }

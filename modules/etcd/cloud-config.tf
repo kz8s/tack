@@ -14,7 +14,7 @@ data "template_file" "cloud-config" {
     hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
     internal-tld = "${ var.internal-tld }"
     ip-k8s-service = "${ var.ip-k8s-service }"
-    pki-s3-bucket = "${ var.pki-s3-bucket }"
+    s3-bucket = "${ var.s3-bucket }"
     pod-ip-range = "${ var.pod-ip-range }"
     region = "${ var.aws["region"] }"
     service-cluster-ip-range = "${ var.service-cluster-ip-range }"

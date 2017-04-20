@@ -24,9 +24,9 @@ coreos:
             [Unit]
             After=create-certificates.service
             Requires=create-certificates.service
-            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-etcd-key.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/ca.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
 
         - name: 10-environment.conf
           content: |
@@ -75,7 +75,7 @@ coreos:
         [Unit]
         After=network-online.target
         Requires=network-online.target
-        Before=etcd2.service
+        Before=etcd-member.service
         Description=Download cfssl
         [Service]
         Type=oneshot
@@ -101,18 +101,6 @@ coreos:
         ExecStartPre=-/usr/bin/mkdir --parents /etc/kubernetes/ssl
         ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
         ExecStart=/opt/bin/create-certificates
-
-    - name: etcd2.service
-      command: start
-      drop-ins:
-        - name: wait-for-certs.conf
-          content: |
-            [Unit]
-            After=create-certificates.service
-            Requires=create-certificates.service
-            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
 
     - name: flanneld.service
       command: start
@@ -167,8 +155,8 @@ coreos:
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
-        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
-        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
+        ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
+        ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
         After=flanneld.service
         After=prefetch-rkt-hyperkube.service
         After=prefetch-docker-hyperkube.service
@@ -322,7 +310,7 @@ write-files:
         --trust-keys-from-https \
         --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
         --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
-        quay.io/coreos/awscli -- aws s3 cp s3://${ pki-s3-bucket }/$1 /etc/kubernetes/ssl
+        quay.io/coreos/awscli -- aws s3 cp s3://${ s3-bucket }/$1 /etc/kubernetes/ssl
       do
         echo "retrying"
         sleep 5.2
