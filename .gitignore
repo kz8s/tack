@@ -9,6 +9,7 @@
 terraform.tfplan
 terraform.tfstate*
 terraform.tfvars
+.terraform.tfstate.lock.info
 
 tmp/
 templates
