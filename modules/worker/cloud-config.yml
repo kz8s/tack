@@ -102,18 +102,6 @@ coreos:
         ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
         ExecStart=/opt/bin/create-certificates
 
-    - name: etcd2.service
-      command: start
-      drop-ins:
-        - name: wait-for-certs.conf
-          content: |
-            [Unit]
-            After=create-certificates.service
-            Requires=create-certificates.service
-            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
-
     - name: flanneld.service
       command: start
       drop-ins:
