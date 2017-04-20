@@ -24,9 +24,9 @@ coreos:
             [Unit]
             After=create-certificates.service
             Requires=create-certificates.service
-            ConditionPathExists=/etc/kubernetes/ssl/ca.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
-            ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/ca.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
+            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
 
         - name: 10-environment.conf
           content: |
@@ -75,7 +75,7 @@ coreos:
         [Unit]
         After=network-online.target
         Requires=network-online.target
-        Before=etcd2.service
+        Before=etcd-member.service
         Description=Download cfssl
         [Service]
         Type=oneshot
@@ -155,8 +155,8 @@ coreos:
       content: |
         [Unit]
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
-        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker.pem
-        ConditionPathExists=/etc/kubernetes/ssl/k8s-worker-key.pem
+        ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
+        ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
         After=flanneld.service
         After=prefetch-rkt-hyperkube.service
         After=prefetch-docker-hyperkube.service
