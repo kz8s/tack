@@ -272,6 +272,7 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [etcd dns discovery bootstrap](https://coreos.com/etcd/docs/latest/clustering.html#dns-discovery)
 * [Generate EC2 Key Pair](https://github.com/xuwang/aws-terraform/blob/master/scripts/aws-keypair.sh)
 * [Generate self-signed certificates](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
+* [kubectl Cheat Sheet](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/)
 * [Makefile `help` target](https://gist.github.com/rcmachado/af3db315e31383502660)
 * [Peeking under the hood of Kubernetes on AWS](https://github.com/kubernetes/kubernetes/blob/release-1.2/docs/design/aws_under_the_hood.md)
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
