@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "pki" {
 
   acl = "private"
-  bucket = "${ var.s3-bucket }"
+  bucket = "${ var.bucket }"
   force_destroy = true
 
   region = "${ var.aws["region"] }"

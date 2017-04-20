@@ -124,7 +124,7 @@ dashboard: ; @./scripts/dashboard
 
 get-ca:
 	@OUTDIR=${DIR_SSL} \
-	PKI_S3_BUCKET=`terraform output pki-s3-bucket` \
+	PKI_S3_BUCKET=`terraform output s3-bucket` \
 	scripts/do-task "get root ca certificate" scripts/get-ca
 
 ## show instance information

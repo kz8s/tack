@@ -7,7 +7,7 @@ data "template_file" "cloud-config" {
     hyperkube-image = "${ var.k8s["hyperkube-image"] }"
     hyperkube-tag = "${ var.k8s["hyperkube-tag"] }"
     internal-tld = "${ var.internal-tld }"
-    pki-s3-bucket = "${ var.pki-s3-bucket }"
+    s3-bucket = "${ var.s3-bucket }"
     region = "${ var.aws["region"] }"
   }
 }

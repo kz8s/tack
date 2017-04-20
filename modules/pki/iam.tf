@@ -37,7 +37,7 @@ resource "aws_iam_role_policy" "master" {
         "s3:Put*"
       ],
       "Effect": "Allow",
-      "Resource": [ "${ aws_s3_bucket.pki.arn }/*" ]
+      "Resource": [ "${ var.s3-bucket-arn }/*" ]
     }
   ]
 }

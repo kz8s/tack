@@ -19,7 +19,7 @@ variable "k8s" {
 }
 
 variable "name" {}
-variable "pki-s3-bucket" {}
+variable "s3-bucket" {}
 variable "pod-ip-range" {}
 variable "service-cluster-ip-range" {}
 variable "subnet-ids-private" {}

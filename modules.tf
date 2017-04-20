@@ -1,3 +1,12 @@
+module "s3" {
+  source = "./modules/s3"
+
+  # variables
+  aws = "${ var.aws }"
+  bucket = "kz8s-pki-${ var.name }-${ var.aws["account-id"] }-${ var.aws["region"] }"
+  name = "${ var.name }"
+}
+
 module "vpc" {
   source = "./modules/vpc"
   depends-id = ""
@@ -36,10 +45,11 @@ module "pki" {
   internal-tld = "${ var.internal-tld }"
   k8s = "${ var.k8s }"
   name = "${ var.name }"
-  s3-bucket = "kz8s-pki-${ var.name }-${ var.aws["account-id"] }-${ var.aws["region"] }"
 
   # modules
   internal-zone-id = "${ module.route53.internal-zone-id }"
+  s3-bucket = "${ module.s3.bucket }"
+  s3-bucket-arn = "${ module.s3.bucket-arn }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
 }
@@ -65,7 +75,7 @@ module "iam" {
   name = "${ var.name }"
 
   # modules
-  pki-s3-bucket-arn = "${ module.pki.s3-bucket-arn }"
+  s3-bucket-arn = "${ module.s3.bucket-arn }"
 }
 
 module "bastion" {
@@ -80,6 +90,8 @@ module "bastion" {
   name = "${ var.name }"
 
   # modules
+  s3-bucket = "${ module.s3.bucket }"
+  s3-bucket-arn = "${ module.s3.bucket-arn }"
   security-group-id = "${ module.security.bastion-id }"
   subnet-ids = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"
@@ -107,7 +119,7 @@ module "etcd" {
   etcd-security-group-id = "${ module.security.etcd-id }"
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
-  pki-s3-bucket = "${ module.pki.s3-bucket }"
+  s3-bucket = "${ module.s3.bucket }"
   subnet-ids-private = "${ module.vpc.subnet-ids-private }"
   subnet-ids-public = "${ module.vpc.subnet-ids-public }"
   vpc-id = "${ module.vpc.id }"
@@ -139,7 +151,7 @@ module "worker" {
 
   # modules
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
-  pki-s3-bucket = "${ module.pki.s3-bucket }"
+  s3-bucket = "${ module.s3.bucket }"
   security-group-id = "${ module.security.worker-id }"
   subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
