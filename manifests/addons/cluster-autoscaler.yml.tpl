@@ -5,7 +5,7 @@ metadata:
   name: cluster-autoscaler
   namespace: kube-system
   labels:
-    app: cluster-autoscaler
+    k8s-app: cluster-autoscaler
 spec:
   replicas: 1
   selector:
