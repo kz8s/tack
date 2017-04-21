@@ -21,7 +21,6 @@ module "vpc" {
 
 module "route53" {
   source = "./modules/route53"
-  # FIXME: depends on module.vpc
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
