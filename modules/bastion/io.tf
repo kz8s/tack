@@ -8,7 +8,7 @@ variable "name" {}
 variable "s3-bucket" {}
 variable "s3-bucket-arn" {}
 variable "security-group-id" {}
-variable "subnet-ids" {}
+variable "subnet-id" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

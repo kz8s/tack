@@ -55,7 +55,7 @@ module "pki" {
   internal-zone-id = "${ module.route53.internal-zone-id }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -99,7 +99,7 @@ module "bastion" {
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
   security-group-id = "${ module.security.bastion-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-public }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 

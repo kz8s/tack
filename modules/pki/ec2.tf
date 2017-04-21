@@ -8,7 +8,7 @@ resource "aws_instance" "pki" {
   key_name = "${ var.aws["key-name"] }"
 
   source_dest_check = true
-  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
+  subnet_id = "${ var.subnet-id }"
 
   tags  {
     builtWith = "terraform"
