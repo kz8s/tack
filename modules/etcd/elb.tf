@@ -22,11 +22,11 @@ resource "aws_elb" "external" {
   }
 
   security_groups = [ "${ var.external-elb-security-group-id }" ]
-  subnets = [ "${ split(",", var.subnet-ids-public) }" ]
+  subnets = [ "${ var.subnet-id-public }" ]
 
   tags {
     builtWith = "terraform"
-    kz8s = "${ var.name }"
+    kz8s = "${ var.name }i"
     Name = "kz8s-apiserver"
     role = "apiserver"
     version = "${ var.k8s["hyperkube-tag"] }"

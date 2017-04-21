@@ -22,8 +22,8 @@ variable "name" {}
 variable "s3-bucket" {}
 variable "pod-ip-range" {}
 variable "service-cluster-ip-range" {}
-variable "subnet-ids-private" {}
-variable "subnet-ids-public" {}
+variable "subnet-id-private" {}
+variable "subnet-id-public" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

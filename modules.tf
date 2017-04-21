@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "k8s" {
+  name = "kz8s-${ var.name }"
+  retention_in_days = 3
+}
+
 module "s3" {
   source = "./modules/s3"
 
@@ -119,8 +124,8 @@ module "etcd" {
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   s3-bucket = "${ module.s3.bucket }"
-  subnet-ids-private = "${ module.vpc.subnet-ids-private }"
-  subnet-ids-public = "${ module.vpc.subnet-ids-public }"
+  subnet-id-private = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  subnet-id-public = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -152,6 +157,6 @@ module "worker" {
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   s3-bucket = "${ module.s3.bucket }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
