@@ -51,6 +51,7 @@ module "pki" {
   name = "${ var.name }"
 
   # modules
+  instance-profile-name = "${ module.iam.instance-profile-name-pki }"
   internal-zone-id = "${ module.route53.internal-zone-id }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
@@ -94,6 +95,7 @@ module "bastion" {
   name = "${ var.name }"
 
   # modules
+  instance-profile-name = "${ module.iam.instance-profile-name-bastion }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
   security-group-id = "${ module.security.bastion-id }"

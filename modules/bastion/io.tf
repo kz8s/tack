@@ -1,5 +1,6 @@
 variable "ami-id" {}
 variable "depends-id" {}
+variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
 variable "key-name" {}

@@ -4,6 +4,7 @@ variable "aws" {
 }
 variable "cidr-vpc" {}
 variable "depends-id" {}
+variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
 variable "internal-zone-id" {}

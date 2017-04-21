@@ -1,5 +1,6 @@
 resource "aws_iam_role" "bastion" {
   name = "k8s-bastion-${ var.name }"
+
   assume_role_policy = <<EOS
 {
   "Version": "2012-10-17",
