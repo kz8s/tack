@@ -3,6 +3,8 @@
 CLUSTER_DOMAIN=$(terraform output cluster-domain)
 DNS_SERVICE_IP=$(terraform output dns-service-ip)
 INTERNAL_TLD=$(terraform output internal-tld)
+REGION=$(terraform output region)
+WORKER_ASG_NAME=$(terraform output worker-autoscaling-group-name)
 
 OUTDIR=.addons
 
@@ -11,7 +13,8 @@ cp manifests/addons/* ${OUTDIR}
 
 sed -i.bak 's|${CLUSTER_DOMAIN}|'"${CLUSTER_DOMAIN}|g" "${OUTDIR}/"*.tpl
 sed -i.bak 's|${DNS_SERVICE_IP}|'"${DNS_SERVICE_IP}|g" "${OUTDIR}/"*.tpl
-sed -i.bak 's|${INTERNAL_TLD}|'"${INTERNAL_TLD}|g" "${OUTDIR}/"*.tpl
+sed -i.bak 's|${REGION}|'"${REGION}|g" "${OUTDIR}/"*.tpl
+sed -i.bak 's|${WORKER_ASG_NAME}|'"${WORKER_ASG_NAME}|g" "${OUTDIR}/"*.tpl
 
 for file in ${OUTDIR}/*.tpl
   do mv "${file}" ${file/.tpl/}

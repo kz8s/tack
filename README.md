@@ -249,7 +249,7 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Kubernetes on Container Linux by CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
-
+* [AutoScaling your Kubernetes cluster on AWS](https://renzedevries.wordpress.com/2017/01/10/autoscaling-your-kubernetes-cluster-on-aws/)
 
 ## Other Terraform Projects
 
@@ -278,3 +278,4 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
 * [Setting up etcd to run in production](https://github.com/kelseyhightower/etcd-production-setup)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
+* [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
