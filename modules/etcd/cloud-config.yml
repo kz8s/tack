@@ -483,3 +483,13 @@ write-files:
 
       generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
+
+  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
+    content: |
+        {
+            "name": "podnet",
+            "type": "flannel",
+            "delegate": {
+                "isDefaultGateway": true
+            }
+        }

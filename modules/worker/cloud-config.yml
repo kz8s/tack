@@ -379,3 +379,13 @@ write-files:
       mkdir -p $OUTDIR && cd $OUTDIR
 
       generate k8s-worker client "$${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
+
+  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
+    content: |
+        {
+            "name": "podnet",
+            "type": "flannel",
+            "delegate": {
+                "isDefaultGateway": true
+            }
+        }
