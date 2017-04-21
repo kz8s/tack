@@ -40,10 +40,9 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       tolerations:
-      - key: "master"
-        operator: "Equal"
-        value: "true"
-        effect: "NoSchedule"
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       volumes:

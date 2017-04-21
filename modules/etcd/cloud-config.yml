@@ -173,9 +173,9 @@ coreos:
           --cluster-domain=${ cluster-domain } \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --pod-manifest-path=/etc/kubernetes/manifests \
-          --node-labels role=master \
+          --node-labels node-role.kubernetes.io/master \
           --register-node=true \
-          --register-with-taints master=true:NoExecute
+          --register-with-taints node-role.kubernetes.io/master='':NoSchedule
         Restart=always
         RestartSec=5
         [Install]
