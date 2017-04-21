@@ -99,7 +99,6 @@ coreos:
         [Unit]
         After=download-cfssl.service
         Before=flannel.service
-        RequiredBy=flannel.service
         ConditionFileIsExecutable=/opt/bin/cfssl
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         Requires=download-cfssl.service
