@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: kube-dns
@@ -40,6 +40,10 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       tolerations:
+      - key: "master"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       volumes:

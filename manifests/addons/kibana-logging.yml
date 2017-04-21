@@ -19,7 +19,7 @@ spec:
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 
 metadata:
@@ -38,7 +38,16 @@ spec:
     metadata:
       labels:
         k8s-app: kibana-logging
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
+      tolerations:
+      - key: "master"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
       containers:
       - name: kibana-logging
         image: gcr.io/google_containers/kibana:v4.6.1

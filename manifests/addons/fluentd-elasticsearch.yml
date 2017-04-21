@@ -13,6 +13,8 @@ spec:
       name: fluentd-elasticsearch
       labels:
         k8s-app: fluentd-logging
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       containers:
       - name: fluentd-elasticsearch

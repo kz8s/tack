@@ -171,9 +171,11 @@ coreos:
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
-          # --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --pod-manifest-path=/etc/kubernetes/manifests \
-          --register-schedulable=false
+          --node-labels role=master \
+          --register-node=true \
+          --register-with-taints master=true:NoExecute
         Restart=always
         RestartSec=5
         [Install]
@@ -247,7 +249,7 @@ write-files:
           - --etcd-certfile=/etc/kubernetes/ssl/k8s-etcd.pem
           - --etcd-keyfile=/etc/kubernetes/ssl/k8s-etcd-key.pem
           - --etcd-servers=https://etcd.${ internal-tld }:2379
-          - --runtime-config=extensions/v1beta1/networkpolicies=true,batch/v2alpha1
+          - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true,apps/v1beta1=true
           - --secure-port=443
           - --service-account-key-file=/etc/kubernetes/ssl/service-account-key.pem
           - --service-account-lookup
