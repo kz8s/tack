@@ -28,7 +28,7 @@ spec:
         operator: "Exists"
       containers:
       - name: fluentd
-        image: quay.io/fluent/fluentd-kubernetes-daemonset
+        image: fluent/fluentd-kubernetes-daemonset:v0.12.33-elasticsearch
         env:
           - name:  FLUENT_ELASTICSEARCH_HOST
             value: "elasticsearch-logging"
