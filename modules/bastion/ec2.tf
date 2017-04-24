@@ -7,7 +7,7 @@ resource "aws_instance" "bastion" {
 
   # TODO: force private_ip to prevent collision with etcd machines
 
-  source_dest_check = false
+  source_dest_check = true
   subnet_id = "${ var.subnet-id }"
 
   tags  {
