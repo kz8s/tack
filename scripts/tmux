@@ -1,0 +1,19 @@
+#!/bin/bash
+
+TACK_SESSION=${TACK_SESSION:-tack}
+
+echo $TACK_SESSION
+
+tmux has-session -t ${TACK_SESSION}
+if [ $? -ne 0 ]
+then
+  tmux new-session -s ${TACK_SESSION} -d
+
+  tmux split-window -d -t 0 "watch make instances"
+  tmux split-window -d -t 0
+  tmux split-window -d -t 0 "watch make pods"
+
+  tmux select-layout tiled
+fi
+
+tmux attach -t ${TACK_SESSION}
