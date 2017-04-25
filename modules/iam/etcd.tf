@@ -37,7 +37,10 @@ resource "aws_iam_role_policy" "master" {
     },
     {
       "Action": [
-        "ec2:*",
+        "ec2:Describe*",
+        "ec2:AttachVolume",
+        "ec2:DetachVolume",
+        "ec2:DescribeInstances",
         "elasticloadbalancing:*"
         ],
       "Effect": "Allow",
