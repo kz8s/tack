@@ -7,9 +7,9 @@ metadata:
   labels:
     k8s-app: elasticsearch-logging
     kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: "Elasticsearch"
+    kubernetes.io/name: "Elasticsearch discovery"
     role: master
-    
+
 spec:
   ports:
   - port: 9300
