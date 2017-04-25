@@ -64,7 +64,7 @@ spec:
             cpu: 256m
         ports:
         - containerPort: 9200
-          name: http
+          name: db
           protocol: TCP
         - containerPort: 9300
           name: transport
@@ -92,7 +92,7 @@ spec:
         - name: "ES_JAVA_OPTS"
           value: "-Xms256m -Xmx256m"
         - name: "NETWORK_HOST"
-          value: "_eth0_"          
+          value: "_eth0_"
       volumes:
       - emptyDir:
           medium: ""
