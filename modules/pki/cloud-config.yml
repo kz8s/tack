@@ -11,6 +11,7 @@ coreos:
       content: |
         [Unit]
         Description=Generate service-account key file
+        ConditionFileNotEmpty=!/etc/cfssl/service-account-key.pem
         [Service]
         Type=oneshot
         RemainAfterExit=yes
@@ -28,11 +29,12 @@ coreos:
       content: |
         [Unit]
         Description=Download cfssl
+        ConditionFileNotEmpty=!/opt/bin/cfssl
+        ConditionFileNotEmpty=!/opt/bin/cfssljson
         [Service]
         Type=oneshot
         RemainAfterExit=yes
         ExecStartPre=/usr/bin/mkdir --parents /opt/bin
-        ExecStartPre=/usr/bin/mkdir --parents /etc/cfssl
         ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
         ExecStartPre=/usr/bin/curl -L -o /opt/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
         ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
@@ -43,13 +45,14 @@ coreos:
         [Unit]
         ConditionFileIsExecutable=/opt/bin/cfssl
         ConditionFileIsExecutable=/opt/bin/cfssljson
-        ConditionPathExists=/etc/cfssl
+        ConditionFileNotEmpty=!/etc/cfssl/ca.pem
         Description=Generate rootca and save to s3
         [Service]
         After=download-cfssl.service
         Type=oneshot
         RemainAfterExit=yes
         WorkingDirectory=/etc/cfssl
+        ExecStartPre=/usr/bin/mkdir --parents /etc/cfssl
         ExecStartPre=/bin/sh -c "\
           /opt/bin/cfssl gencert -initca ca-csr.json \
           | /opt/bin/cfssljson -bare ca -"
