@@ -49,7 +49,7 @@ spec:
         operator: "Exists"
       containers:
       - name: kibana-logging
-        image: gcr.io/google_containers/kibana:v4.6.1
+        image: docker.elastic.co/kibana/kibana:5.3.1
         resources:
           # keep request = limit to keep this container in guaranteed class
           limits:
@@ -59,8 +59,12 @@ spec:
         env:
           - name: "ELASTICSEARCH_URL"
             value: "http://elasticsearch-logging.kube-system.svc.cluster.local:9200"
-          - name: "KIBANA_BASE_URL"
-            value: "/api/v1/proxy/namespaces/kube-system/services/kibana-logging"
+          - name: XPACK_SECURITY_ENABLED
+            value: "false"
+          - name: LOGGING_VERBOSE
+            value: "true"
+          # - name: "KIBANA_BASE_URL"
+          #   value: "/api/v1/proxy/namespaces/kube-system/services/kibana-logging"
         ports:
         - containerPort: 5601
           name: ui
