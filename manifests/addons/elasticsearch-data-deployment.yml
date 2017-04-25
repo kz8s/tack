@@ -1,0 +1,97 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+
+metadata:
+  name: elasticsearch-data
+  namespace: kube-system
+  labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    role: data
+    version: v1
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: elasticsearch-logging
+      role: data
+      version: v1
+
+  template:
+
+    metadata:
+
+      labels:
+        k8s-app: elasticsearch-logging
+        kubernetes.io/cluster-service: "true"
+        role: data
+        version: v1
+
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "sysctl",
+            "image": "busybox",
+            "imagePullPolicy": "IfNotPresent",
+            "command": ["sysctl", "-w", "vm.max_map_count=262144"],
+            "securityContext": {
+              "privileged": true
+            }
+          }
+        ]'
+
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      containers:
+      - image: quay.io/pires/docker-elasticsearch-kubernetes:5.3.0
+        name: elasticsearch-data
+        securityContext:
+          privileged: false
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURCE
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 256m
+        ports:
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        volumeMounts:
+        - name: storage
+          mountPath: /data
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: "CLUSTER_NAME"
+          value: "myesdb"
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: "ES_JAVA_OPTS"
+          value: "-Xms256m -Xmx256m"
+        - name: "NETWORK_HOST"
+          value: "_eth0_"
+      volumes:
+      - emptyDir:
+          medium: ""
+        name: "storage"

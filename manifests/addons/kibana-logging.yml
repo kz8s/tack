@@ -58,7 +58,7 @@ spec:
             cpu: 100m
         env:
           - name: "ELASTICSEARCH_URL"
-            value: "http://elasticsearch-logging:9200"
+            value: "http://elasticsearch-logging.kube-system.svc.cluster.local:9200"
           - name: "KIBANA_BASE_URL"
             value: "/api/v1/proxy/namespaces/kube-system/services/kibana-logging"
         ports:
