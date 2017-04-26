@@ -250,6 +250,7 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
 * [AutoScaling your Kubernetes cluster on AWS](https://renzedevries.wordpress.com/2017/01/10/autoscaling-your-kubernetes-cluster-on-aws/)
+* [Bash template substitution for manifests - from kayrus/elk-kubernetes](https://github.com/kayrus/elk-kubernetes/blob/master/deploy.sh)
 
 ## Other Terraform Projects
 

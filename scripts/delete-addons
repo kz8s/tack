@@ -1,0 +1,22 @@
+#!/bin/bash -ex
+
+CDIR=$(cd `dirname "$0"` && pwd)
+source $CDIR/utils
+
+NAMESPACE=${NAMESPACE:-kube-system}
+KUBECTL="kubectl ${KUBECTL_PARAMS} --namespace=\"${NAMESPACE}\""
+
+OBJECTS="daemonset/fluentd
+service/elasticsearch-logging
+service/heapster
+service/kube-dns
+deploy/heapster-v1.3.0
+deploy/kube-dns
+deploy/kube-dns-autoscaler
+deploy/kibana-logging
+rc/elasticsearch-logging-v1
+"
+
+for object in ${OBJECTS}; do
+  eval "${KUBECTL} delete --ignore-not-found --now \"${object}\""
+done
