@@ -19,7 +19,7 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    kubernetes.io/cluster-service: "true"
+    kubernetes.io/cluster-service: 'true'
 spec:
   # replicas: not specified here:
   # 1. In order to make Addon Manager do not reconcile this replicas parameter.
@@ -88,7 +88,7 @@ spec:
         - --v=2
         env:
         - name: PROMETHEUS_PORT
-          value: "10055"
+          value: '10055'
         ports:
         - containerPort: 10053
           name: dns-local
