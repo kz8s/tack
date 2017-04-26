@@ -6,8 +6,42 @@ coreos:
     reboot-strategy: etcd-lock
 
   units:
+  - name: get-service-account-key.service
+    command: start
+    content: |
+      [Unit]
+      Description=Get service-account key file
+      OnFailure=generate-service-account-key.service
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStartPre=-/usr/bin/mkdir --parents /etc/cfssl
+      ExecStart=/usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ s3-bucket }/service-account-key.pem /etc/cfssl/service-account-key.pem
+
+  - name: get-rootca.service
+    command: start
+    content: |
+      [Unit]
+      ConditionPathExists=/etc/cfssl
+      OnFailure=generate-rootca.service
+      Description=Get rootCA
+      [Service]
+      After=download-cfssl.service
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/usr/bin/rkt run \
+        --net=host \
+        --trust-keys-from-https \
+        --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
+        --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
+        quay.io/coreos/awscli -- aws s3 cp s3://${ s3-bucket }/ca.pem /etc/cfssl/ca.pem
+
     - name: generate-service-account-key.service
-      command: start
       content: |
         [Unit]
         Description=Generate service-account key file
@@ -38,7 +72,6 @@ coreos:
         ExecStart=/usr/bin/chmod +x /opt/bin/cfssl /opt/bin/cfssljson
 
     - name: generate-rootca.service
-      command: start
       content: |
         [Unit]
         ConditionFileIsExecutable=/opt/bin/cfssl
