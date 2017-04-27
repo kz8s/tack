@@ -280,3 +280,4 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Setting up etcd to run in production](https://github.com/kelseyhightower/etcd-production-setup)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
 * [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
+* [Persistent Storage - Kubernetes on AWS](http://kubernetes-on-aws.readthedocs.io/en/latest/user-guide/using-volumes.html)
