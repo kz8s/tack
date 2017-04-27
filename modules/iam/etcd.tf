@@ -1,5 +1,5 @@
 resource "aws_iam_role" "master" {
-  name = "master-k8s-${ var.name }"
+  name = "kz8s-master-${ var.name }"
 
   assume_role_policy = <<EOS
 {

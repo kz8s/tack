@@ -1,5 +1,5 @@
 resource "aws_iam_role" "worker" {
-  name = "worker-k8s-${ var.name }"
+  name = "kz8s-worker-${ var.name }"
 
   assume_role_policy = <<EOS
 {
