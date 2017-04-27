@@ -43,12 +43,12 @@ coreos:
       command: start
       content: |
         [Unit]
+        After=download-cfssl.service
         ConditionFileIsExecutable=/opt/bin/cfssl
         ConditionFileIsExecutable=/opt/bin/cfssljson
         ConditionFileNotEmpty=!/etc/cfssl/ca.pem
         Description=Generate rootca and save to s3
         [Service]
-        After=download-cfssl.service
         Type=oneshot
         RemainAfterExit=yes
         WorkingDirectory=/etc/cfssl
