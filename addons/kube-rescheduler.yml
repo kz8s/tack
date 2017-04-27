@@ -20,7 +20,7 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         operator: Exists
-        effect: NoSchedule        
+        effect: NoSchedule
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       hostNetwork: true
