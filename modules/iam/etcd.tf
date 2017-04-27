@@ -16,13 +16,13 @@ EOS
 }
 
 resource "aws_iam_instance_profile" "master" {
-  name = "master-k8s-${ var.name }"
+  name = "kz8s-master-${ var.name }"
 
   role = "${ aws_iam_role.master.name }"
 }
 
 resource "aws_iam_role_policy" "master" {
-  name = "master-k8s-${ var.name }"
+  name = "kz8s-master-${ var.name }"
 
   policy = <<EOS
 {
@@ -39,6 +39,8 @@ resource "aws_iam_role_policy" "master" {
       "Action": [
         "ec2:Describe*",
         "ec2:AttachVolume",
+        "ec2:CreateVolume",
+        "ec2:DeleteVolume",
         "ec2:DetachVolume",
         "ec2:DescribeInstances",
         "elasticloadbalancing:*"

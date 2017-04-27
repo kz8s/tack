@@ -18,13 +18,13 @@ EOS
 }
 
 resource "aws_iam_instance_profile" "worker" {
-  name = "worker-k8s-${ var.name }"
+  name = "kz8s-worker-${ var.name }"
 
   role = "${ aws_iam_role.worker.name }"
 }
 
 resource "aws_iam_role_policy" "worker" {
-  name = "worker-k8s-${var.name}"
+  name = "kz8s-worker-${var.name}"
   role = "${ aws_iam_role.worker.id }"
   policy = <<EOS
 {

@@ -26,7 +26,7 @@ resource "aws_iam_instance_profile" "pki" {
 
 resource "aws_iam_role_policy" "pki" {
 
-  name = "k8s-pki-${ var.name }"
+  name = "kz8s-pki-${ var.name }"
 
   policy = <<EOS
 {
