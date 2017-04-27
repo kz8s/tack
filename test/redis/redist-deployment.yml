@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  serviceName: redis
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        application: redis
+        version: 3.2.5
+    spec:
+      containers:
+      - name: redis
+        image: redis:3.2.5
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: default
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 7Gi
