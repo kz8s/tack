@@ -37,12 +37,13 @@ resource "aws_iam_role_policy" "master" {
     },
     {
       "Action": [
-        "ec2:Describe*",
         "ec2:AttachVolume",
+        "ec2:CreateTags",
         "ec2:CreateVolume",
         "ec2:DeleteVolume",
-        "ec2:DetachVolume",
+        "ec2:Describe*",
         "ec2:DescribeInstances",
+        "ec2:DetachVolume",
         "elasticloadbalancing:*"
         ],
       "Effect": "Allow",
