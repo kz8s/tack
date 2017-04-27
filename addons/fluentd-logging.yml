@@ -17,15 +17,11 @@ spec:
         k8s-app: fluentd-logging
         version: v1
         kubernetes.io/cluster-service: "true"
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         operator: Exists
         effect: NoSchedule
-      - key: "CriticalAddonsOnly"
-        operator: "Exists"
       containers:
       - name: fluentd
         image: fluent/fluentd-kubernetes-daemonset:v0.12.33-elasticsearch
