@@ -136,7 +136,7 @@ module "worker" {
   capacity = {
     desired = 3
     max = 5
-    min = 3
+    min = 1
   }
   cluster-domain = "${ var.cluster-domain }"
   dns-service-ip = "${ var.dns-service-ip }"
