@@ -110,31 +110,31 @@ Terraform v0.9.3
 - kube-system namespace and addons: DNS, UI, Dashboard
 
 ```bash
-$ make all
+make all
 ```
 
 To open dashboard:
 
 ```bash
-$ make dashboard
+make dashboard
 ```
 
 To display instance information:
 
 ```bash
-$ make instances
+make instances
 ```
 
 To display status:
 
 ```bash
-$ make status
+make status
 ```
 
 To destroy, remove and generally undo everything:
 
 ```
-$ make clean
+make clean
 ```
 
 `make all` and `make clean` should be idempotent - should an error occur simply try running
@@ -179,9 +179,9 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 * [etcd3 coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
-$ curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
-$ openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
-$ openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
+curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
+openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
+openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
 ```
 
 #### ElasticSearch and Kibana
