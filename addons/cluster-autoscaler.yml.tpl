@@ -43,6 +43,7 @@ spec:
             - --skip-nodes-with-system-pods=false
             - --stderrthreshold=info
             - --v=4
+            - --write-status-configmap=true
           env:
             - name: AWS_REGION
               value: ${REGION}
