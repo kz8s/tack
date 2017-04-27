@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### Container Linux by CoreOS (1298.7.0, 1325.2.0, 1262.0.0)
+### Container Linux by CoreOS (1353.7.0, 1381.1.0, 1381.0.0)
 * etcd3 DNS Discovery Bootstrap
 * kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
@@ -79,7 +79,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.78 Python/2.7.10 Darwin/16.5.0 botocore/1.5.41
+aws-cli/1.11.80 Python/2.7.10 Darwin/16.5.0 botocore/1.5.43
 
 $ cfssl version
 Version: 1.2.0
