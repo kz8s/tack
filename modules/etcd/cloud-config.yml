@@ -99,7 +99,6 @@ coreos:
         [Unit]
         After=download-cfssl.service
         Before=flannel.service
-        RequiredBy=flannel.service
         ConditionFileIsExecutable=/opt/bin/cfssl
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         Requires=download-cfssl.service
@@ -172,9 +171,11 @@ coreos:
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
-          # --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --kubeconfig=/etc/kubernetes/kubeconfig.yml \
           --pod-manifest-path=/etc/kubernetes/manifests \
-          --register-schedulable=false
+          --node-labels node-role.kubernetes.io/master \
+          --register-node=true \
+          --register-with-taints node-role.kubernetes.io/master='':NoSchedule
         Restart=always
         RestartSec=5
         [Install]
@@ -248,7 +249,7 @@ write-files:
           - --etcd-certfile=/etc/kubernetes/ssl/k8s-etcd.pem
           - --etcd-keyfile=/etc/kubernetes/ssl/k8s-etcd-key.pem
           - --etcd-servers=https://etcd.${ internal-tld }:2379
-          - --runtime-config=extensions/v1beta1/networkpolicies=true,batch/v2alpha1
+          - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true,apps/v1beta1=true
           - --secure-port=443
           - --service-account-key-file=/etc/kubernetes/ssl/service-account-key.pem
           - --service-account-lookup
@@ -482,3 +483,13 @@ write-files:
 
       generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },*.${ region }.elb.amazonaws.com"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
+
+  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
+    content: |
+        {
+            "name": "podnet",
+            "type": "flannel",
+            "delegate": {
+                "isDefaultGateway": true
+            }
+        }

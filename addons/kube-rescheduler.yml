@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kube-rescheduler
+  namespace: kube-system
+  labels:
+    k8s-app: kube-rescheduler
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "Rescheduler"
+spec:
+  # `replicas` should always be the default of 1, rescheduler crashes otherwise
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-rescheduler
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      hostNetwork: true
+      containers:
+      - name: kube-rescheduler
+        image: gcr.io/google-containers/rescheduler:v0.3.0
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi

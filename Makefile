@@ -64,8 +64,7 @@ post-terraform:
 	@$(MAKE) create-admin-certificate
 	@$(MAKE) create-kubeconfig
 	@$(MAKE) wait-for-cluster
-	@$(MAKE) .addons
-	@$(MAKE) create-addons
+	scripts/create-addons addons
 	@$(MAKE) create-busybox
 	kubectl get no
 	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"

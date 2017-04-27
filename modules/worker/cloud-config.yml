@@ -93,7 +93,6 @@ coreos:
         After=download-cfssl.service
         Requires=download-cfssl.service
         Before=flannel.service
-        RequiredBy=flannel.service
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         [Service]
         Type=oneshot
@@ -190,6 +189,7 @@ coreos:
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
+          --node-labels node-role.kubernetes.io/node \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --register-node=true \
           --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
@@ -380,3 +380,13 @@ write-files:
       mkdir -p $OUTDIR && cd $OUTDIR
 
       generate k8s-worker client "$${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
+
+  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
+    content: |
+        {
+            "name": "podnet",
+            "type": "flannel",
+            "delegate": {
+                "isDefaultGateway": true
+            }
+        }

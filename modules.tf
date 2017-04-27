@@ -21,7 +21,6 @@ module "vpc" {
 
 module "route53" {
   source = "./modules/route53"
-  # FIXME: depends on module.vpc
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
@@ -47,10 +46,11 @@ module "pki" {
   name = "${ var.name }"
 
   # modules
+  instance-profile-name = "${ module.iam.instance-profile-name-pki }"
   internal-zone-id = "${ module.route53.internal-zone-id }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -90,10 +90,11 @@ module "bastion" {
   name = "${ var.name }"
 
   # modules
+  instance-profile-name = "${ module.iam.instance-profile-name-bastion }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
   security-group-id = "${ module.security.bastion-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-public }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -120,8 +121,8 @@ module "etcd" {
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   s3-bucket = "${ module.s3.bucket }"
-  subnet-ids-private = "${ module.vpc.subnet-ids-private }"
-  subnet-ids-public = "${ module.vpc.subnet-ids-public }"
+  subnet-id-private = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  subnet-id-public = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
 
@@ -135,7 +136,7 @@ module "worker" {
   capacity = {
     desired = 3
     max = 5
-    min = 3
+    min = 1
   }
   cluster-domain = "${ var.cluster-domain }"
   dns-service-ip = "${ var.dns-service-ip }"
@@ -153,6 +154,6 @@ module "worker" {
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   s3-bucket = "${ module.s3.bucket }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-ids = "${ module.vpc.subnet-ids-private }"
+  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }

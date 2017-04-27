@@ -1,0 +1,23 @@
+#!/bin/bash -eu
+
+CDIR=$(cd `dirname "$0"` && pwd)
+source $CDIR/utils
+
+ADDONS=$(cd "$1" && pwd)
+
+KUBECTL="kubectl"
+ACTION="create --save-config"
+
+CLUSTER_DOMAIN=$(terraform output cluster-domain)
+DNS_SERVICE_IP=$(terraform output dns-service-ip)
+INTERNAL_TLD=$(terraform output internal-tld)
+REGION=$(terraform output region)
+WORKER_ASG_NAME=$(terraform output worker-autoscaling-group-name)
+
+cd $ADDONS
+
+for yml in *.yml.tpl; do
+  render_template "${yml}" | eval "${KUBECTL} ${ACTION} -f -"
+done
+
+${KUBECTL} ${ACTION} -f ${ADDONS}

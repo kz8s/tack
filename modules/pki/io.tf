@@ -4,6 +4,7 @@ variable "aws" {
 }
 variable "cidr-vpc" {}
 variable "depends-id" {}
+variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
 variable "internal-zone-id" {}
@@ -13,7 +14,7 @@ variable "k8s" {
 variable "name" {}
 variable "s3-bucket" {}
 variable "s3-bucket-arn" {}
-variable "subnet-ids" {}
+variable "subnet-id" {}
 variable "vpc-id" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

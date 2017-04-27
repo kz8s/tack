@@ -13,8 +13,8 @@ resource "aws_instance" "etcd" {
     volume_type = "gp2"
   }
 
-  source_dest_check = false
-  subnet_id = "${ element( split(",", var.subnet-ids-private), 0 ) }"
+  source_dest_check = true
+  subnet_id = "${ var.subnet-id-private }"
 
   tags {
     builtWith = "terraform"

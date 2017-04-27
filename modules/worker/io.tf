@@ -21,7 +21,7 @@ variable "k8s" {
 variable "name" {}
 variable "s3-bucket" {}
 variable "security-group-id" {}
-variable "subnet-ids" {}
+variable "subnet-id" {}
 variable "volume_size" {
   default = {
     ebs = 250

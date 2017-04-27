@@ -50,7 +50,7 @@ creation
 * Multi-AZ Auto-Scaling Worker Nodes
 * [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
 
-### Container Linux by CoreOS (1298.7.0, 1325.2.0, 1262.0.0)
+### Container Linux by CoreOS (1353.7.0, 1381.1.0, 1381.0.0)
 * etcd3 DNS Discovery Bootstrap
 * kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
@@ -79,7 +79,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.78 Python/2.7.10 Darwin/16.5.0 botocore/1.5.41
+aws-cli/1.11.80 Python/2.7.10 Darwin/16.5.0 botocore/1.5.43
 
 $ cfssl version
 Version: 1.2.0
@@ -110,31 +110,31 @@ Terraform v0.9.3
 - kube-system namespace and addons: DNS, UI, Dashboard
 
 ```bash
-$ make all
+make all
 ```
 
 To open dashboard:
 
 ```bash
-$ make dashboard
+make dashboard
 ```
 
 To display instance information:
 
 ```bash
-$ make instances
+make instances
 ```
 
 To display status:
 
 ```bash
-$ make status
+make status
 ```
 
 To destroy, remove and generally undo everything:
 
 ```
-$ make clean
+make clean
 ```
 
 `make all` and `make clean` should be idempotent - should an error occur simply try running
@@ -179,9 +179,9 @@ Like many great tools, _tack_ has started out as a collection of scripts, makefi
 * [etcd3 coreos cloudint](https://github.com/coreos/coreos-cloudinit/blob/master/config/etcd.go)
 
 ```bash
-$ curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
-$ openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
-$ openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
+curl --cacert /etc/kubernetes/ssl/ca.pem --cert /etc/kubernetes/ssl/k8s-etcd.pem --key /etc/kubernetes/ssl/k8s-etcd-key.pem https://etcd.test.kz8s:2379/health
+openssl x509 -text -noout -in /etc/kubernetes/ssl/ca.pem
+openssl x509 -text -noout -in /etc/kubernetes/ssl/k8s-etcd.pem
 ```
 
 #### ElasticSearch and Kibana
@@ -249,7 +249,8 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Kubernetes on Container Linux by CoreOS](https://github.com/coreos/coreos-kubernetes)
 * [Terraform Infrastructure Design Patterns](https://www.opencredo.com/2015/09/14/terraform-infrastructure-design-patterns/) by [Bart Spaans](https://www.opencredo.com/author/bart/)
 * [The infrastructure that runs Brandform](https://github.com/brandfolder/infrastructure)
-
+* [AutoScaling your Kubernetes cluster on AWS](https://renzedevries.wordpress.com/2017/01/10/autoscaling-your-kubernetes-cluster-on-aws/)
+* [Bash template substitution for manifests - from kayrus/elk-kubernetes](https://github.com/kayrus/elk-kubernetes/blob/master/deploy.sh)
 
 ## Other Terraform Projects
 
@@ -278,3 +279,5 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [Self documenting Makefile](https://gist.github.com/prwhite/8168133)
 * [Setting up etcd to run in production](https://github.com/kelseyhightower/etcd-production-setup)
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
+* [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
+* [Persistent Storage - Kubernetes on AWS](http://kubernetes-on-aws.readthedocs.io/en/latest/user-guide/using-volumes.html)

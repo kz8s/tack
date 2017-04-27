@@ -1,14 +1,14 @@
 resource "aws_instance" "bastion" {
   ami = "${ var.ami-id }"
   associate_public_ip_address = true
-  iam_instance_profile = "${ aws_iam_instance_profile.bastion.name }"
+  iam_instance_profile = "${ var.instance-profile-name }"
   instance_type = "${ var.instance-type }"
   key_name = "${ var.key-name }"
 
   # TODO: force private_ip to prevent collision with etcd machines
 
-  source_dest_check = false
-  subnet_id = "${ element( split(",", var.subnet-ids), 0 ) }"
+  source_dest_check = true
+  subnet_id = "${ var.subnet-id }"
 
   tags  {
     builtWith = "terraform"

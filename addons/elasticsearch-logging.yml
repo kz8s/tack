@@ -18,31 +18,37 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1beta1
+kind: StatefulSet
 
 metadata:
-  name: elasticsearch-logging-v1
+  name: elasticsearch-logging
   namespace: kube-system
   labels:
     k8s-app: elasticsearch-logging
-    version: v1
     kubernetes.io/cluster-service: "true"
+    version: v1
 
 spec:
   replicas: 2
-  selector:
-    k8s-app: elasticsearch-logging
-    version: v1
+  serviceName: elasticsearch-logging
   template:
     metadata:
       labels:
         k8s-app: elasticsearch-logging
         version: v1
         kubernetes.io/cluster-service: "true"
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
       containers:
-      - image: gcr.io/google_containers/elasticsearch:v2.4.1
+      - image: gcr.io/google_containers/elasticsearch:v2.4.1-2
         name: elasticsearch-logging
         resources:
           limits:
@@ -64,6 +70,14 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-      volumes:
-      - name: es-persistent-storage
-        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: es-persistent-storage
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: default
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 25Gi

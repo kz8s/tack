@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: kube-dns
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    kubernetes.io/cluster-service: "true"
+    kubernetes.io/cluster-service: 'true'
 spec:
   # replicas: not specified here:
   # 1. In order to make Addon Manager do not reconcile this replicas parameter.
@@ -40,6 +40,9 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       volumes:
@@ -85,7 +88,7 @@ spec:
         - --v=2
         env:
         - name: PROMETHEUS_PORT
-          value: "10055"
+          value: '10055'
         ports:
         - containerPort: 10053
           name: dns-local
