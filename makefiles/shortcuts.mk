@@ -8,6 +8,6 @@ nodes:
 	kubectl get nodes
 
 pods:
-	@kubectl get pods --all-namespaces
+	@kubectl get pods --all-namespaces -o wide
 
 .PHONY: addons dns nodes pods
