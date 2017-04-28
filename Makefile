@@ -21,26 +21,28 @@ DIR_SSL				:= .cfssl
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION						?= us-west-2
-COREOS_CHANNEL				?= stable
-COREOS_VM_TYPE				?= hvm
-CLUSTER_NAME 					?= test
+export AWS_REGION						?= us-west-2
+export COREOS_CHANNEL				?= stable
+export COREOS_VM_TYPE				?= hvm
+export CLUSTER_NAME         ?= test
 
-AWS_EC2_KEY_NAME			?= kz8s-$(CLUSTER_NAME)
-AWS_EC2_KEY_PATH			:= ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
-INTERNAL_TLD 					:= ${CLUSTER_NAME}.kz8s
+export AWS_EC2_KEY_NAME     ?= kz8s-$(CLUSTER_NAME)
+export AWS_EC2_KEY_PATH     := ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
+export INTERNAL_TLD         := ${CLUSTER_NAME}.kz8s
 
-HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
-HYPERKUBE_TAG					?= v1.6.2_coreos.0
+export HYPERKUBE_IMAGE      ?= quay.io/coreos/hyperkube
+export HYPERKUBE_TAG        ?= v1.6.2_coreos.0
 
-CIDR_VPC							?= 10.0.0.0/16
-CIDR_PODS							?= 10.2.0.0/16
-CIDR_SERVICE_CLUSTER	?= 10.3.0.0/24
+export CIDR_VPC							?= 10.0.0.0/16
+export CIDR_PODS            ?= 10.2.0.0/16
+export CIDR_SERVICE_CLUSTER	?= 10.3.0.0/24
 
-K8S_SERVICE_IP				?= 10.3.0.1
-K8S_DNS_IP						?= 10.3.0.10
+export K8S_SERVICE_IP       ?= 10.3.0.1
+export K8S_DNS_IP           ?= 10.3.0.10
 
-ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
+export ETCD_IPS             ?= 10.0.10.10,10.0.10.11,10.0.10.12
+
+export PKI_IP               ?= 10.0.10.9
 
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
