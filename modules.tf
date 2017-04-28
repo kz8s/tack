@@ -42,6 +42,7 @@ module "pki" {
   cidr-vpc = "${ var.cidr["vpc"] }"
   instance-type = "${ var.instance-type["pki"] }"
   internal-tld = "${ var.internal-tld }"
+  ip = "${ var.pki-ip }"
   k8s = "${ var.k8s }"
   name = "${ var.name }"
 
