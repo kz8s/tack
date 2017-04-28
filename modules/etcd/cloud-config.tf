@@ -7,6 +7,7 @@ data "template_file" "cloud-config" {
     cluster-domain = "${ var.cluster-domain }"
     cluster-token = "etcd-cluster-${ var.name }"
     dns-service-ip = "${ var.dns-service-ip }"
+    external-elb = "${ aws_elb.external.dns_name }"
     fqdn = "etcd${ count.index + 1 }.${ var.internal-tld }"
     hostname = "etcd${ count.index + 1 }"
     hyperkube = "${ var.k8s["hyperkube-image"] }:${ var.k8s["hyperkube-tag"] }"
