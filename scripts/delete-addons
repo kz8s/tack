@@ -4,10 +4,9 @@ CDIR=$(cd `dirname "$0"` && pwd)
 source $CDIR/utils
 
 NAMESPACE=${NAMESPACE:-kube-system}
-KUBECTL="kubectl ${KUBECTL_PARAMS} --namespace=\"${NAMESPACE}\""
+KUBECTL="kubectl --namespace=\"${NAMESPACE}\""
 
-OBJECTS="daemonset/fluentd
-service/elasticsearch-logging
+OBJECTS="
 service/heapster
 service/kube-dns
 deploy/heapster-v1.3.0
@@ -15,6 +14,8 @@ deploy/kube-dns
 deploy/kube-dns-autoscaler
 deploy/kibana-logging
 rc/elasticsearch-logging-v1
+statefulset/elasticsearch-logging
+daemonset/fluentd
 "
 
 for object in ${OBJECTS}; do

@@ -1,0 +1,14 @@
+#!/bin/bash -eux
+
+AWS_REGION=$(terraform output region)
+CLUSTER_DOMAIN=$(terraform output cluster-domain)
+DNS_SERVICE_IP=$(terraform output dns-service-ip)
+INTERNAL_TLD=$(terraform output internal-tld)
+WORKER_ASG_NAME=$(terraform output worker-autoscaling-group-name)
+
+kubectl create --namespace=kube-system configmap kube-system-config \
+  --from-literal=AWS_REGION=${AWS_REGION} \
+  --from-literal=CLUSTER_DOMAIN=${CLUSTER_DOMAIN} \
+  --from-literal=DNS_SERVICE_IP=${DNS_SERVICE_IP} \
+  --from-literal=INTERNAL_TLD=${INTERNAL_TLD} \
+  --from-literal=WORKER_ASG_NAME=${WORKER_ASG_NAME}

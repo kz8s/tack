@@ -62,15 +62,14 @@ all: prereqs create-keypair init apply
 
 .PHONY: post-terraform
 post-terraform:
+	@$(MAKE) instances
 	@$(MAKE) get-ca
 	@$(MAKE) create-admin-certificate
 	@$(MAKE) create-kubeconfig
 	@$(MAKE) wait-for-cluster
-	scripts/create-addons addons
+	@$(MAKE) create-addons
 	@$(MAKE) create-busybox
-	kubectl get no
-	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
-	@$(MAKE) instances
+	kubectl get nodes -o wide
 	kubectl --namespace=kube-system get cs
 	@echo "etcd-0 incorrectly reporting as unhelathy"
 	@echo "https://github.com/kubernetes/kubernetes/issues/27343"
@@ -94,14 +93,17 @@ post-terraform:
 ## destroy and remove everything
 clean: destroy delete-keypair
 	@-pkill -f "kubectl proxy" ||:
-	@-rm -rf .addons ||:
 	@-rm terraform.tfvars ||:
 	@-rm terraform.tfplan ||:
 	@-rm -rf .terraform ||:
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
 
-create-addons: ; @scripts/do-task "create add-ons" kubectl create -f .addons/
+## create kube-system addons
+create-addons:
+	scripts/create-kube-dns-service
+	scripts/create-kube-system-configmap
+	kubectl apply --recursive -f addons
 
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 	scripts/create-admin-certificate \
