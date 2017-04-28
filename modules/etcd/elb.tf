@@ -7,7 +7,7 @@ resource "aws_elb" "external" {
     healthy_threshold = 2
     unhealthy_threshold = 6
     timeout = 3
-    target = "TCP:443"
+    target = "SSL:443"
     interval = 10
   }
 
