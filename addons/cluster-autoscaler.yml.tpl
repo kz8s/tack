@@ -25,7 +25,7 @@ spec:
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       containers:
-        - image: gcr.io/google_containers/cluster-autoscaler:v0.5.1
+        - image: gcr.io/google_containers/cluster-autoscaler:v0.5.2
           name: cluster-autoscaler
           resources:
             limits:
@@ -38,7 +38,7 @@ spec:
             - ./cluster-autoscaler
             - --cloud-provider=aws
             - --nodes=1:5:${WORKER_ASG_NAME}
-            - --scale-down-delay=1m
+            - --scale-down-delay=5m
             - --skip-nodes-with-local-storage=false
             - --skip-nodes-with-system-pods=false
             - --stderrthreshold=info
