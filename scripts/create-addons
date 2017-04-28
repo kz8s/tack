@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-CDIR=$(cd `dirname "$0"` && pwd)
+CDIR=$(dirname "${BASH_SOURCE}")
 source $CDIR/utils
 
 ADDONS=$(cd "$1" && pwd)
