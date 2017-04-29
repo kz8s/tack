@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
+TACK_ROOT=$(dirname "${BASH_SOURCE}")/..
+
 print_red() {
   printf '%b' "\033[91m$1\033[0m\n"
 }

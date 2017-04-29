@@ -1,12 +1,11 @@
-#!/bin/bash -e
+#!/bin/bash -eux
 
 source ${0%/*}/retry
 
-[ -z "$OUTDIR" ] && { echo "Need to set OUTDIR"; exit 1; }
-[ -z "$PKI_S3_BUCKET" ] && { echo "Need to set PKI_S3_BUCKET"; exit 1; }
+echo $DIR_SSL
+PKI_S3_BUCKET=`terraform output s3-bucket`
+CA_PATH="s3://$PKI_S3_BUCKET/ca.pem"
 
-CA_PATH="s3://${PKI_S3_BUCKET}/ca.pem"
+mkdir -p $DIR_SSL
 
-[ -d ${OUTDIR} ] || mkdir ${OUTDIR}
-
-_retry "❤ Grabbing ${CA_PATH}" aws s3 cp ${CA_PATH} ${OUTDIR}
+_retry "❤ Grabbing $CA_PATH" aws s3 cp $CA_PATH $DIR_SSL

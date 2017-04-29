@@ -3,7 +3,12 @@
 WATCH=watch
 
 command -v ${WATCH} &> /dev/null
-[ $? -ne 0 ] && ( printf "cannot find 'watch' program\n\n$ brew install watch" ; exit 0 )
+if [ $? -ne 0 ]; then
+  printf "not going to 'watch' pods - cannot find 'watch' program, try: \n\n$ brew install watch\n\n"
+  printf "here is the pod status as of now:\n\n"
+  kubectl get po --all-namespaces
+  exit 0
+fi
 
 ${WATCH} -n 1 kubectl get pods --all-namespaces &
 WATCH_PID=$!

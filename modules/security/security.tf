@@ -1,5 +1,5 @@
 resource "aws_security_group" "bastion" {
-  description = "k8s bastion security group"
+  description = "kz8s bastion security group"
 
   egress = {
     from_port = 0
@@ -15,20 +15,53 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = [ "${ var.cidr-allow-ssh }" ]
   }
 
-  name = "bastion-k8s-${ var.name }"
+  name = "kz8s-bastion-${ var.name }"
 
   tags {
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
-    Name = "bastion-k8s-${ var.name }"
+    Name = "kz8s-bastion-${ var.name }"
     builtWith = "terraform"
   }
 
   vpc_id = "${ var.vpc-id }"
 }
 
+
+resource "aws_security_group" "pki" {
+
+  description = "k8s pki security group"
+
+  egress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+
+  ingress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    self = true
+    cidr_blocks = [ "${ var.cidr-vpc }" ]
+  }
+
+  name = "kz8s-pki-${ var.name }"
+
+  tags {
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-pki-${ var.name }"
+    builtWith = "terraform"
+  }
+
+  vpc_id = "${ var.vpc-id }"
+}
+
+
 resource "aws_security_group" "etcd" {
-  description = "k8s etcd security group"
+  description = "kz8s etcd security group"
 
   egress = {
     from_port = 0
@@ -46,20 +79,21 @@ resource "aws_security_group" "etcd" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "etcd-k8s-${ var.name }"
+  name = "kz8s-etcd-${ var.name }"
 
   tags {
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
-    Name = "etcd-k8s-${ var.name }"
+    Name = "kz8s-etcd-${ var.name }"
     builtWith = "terraform"
   }
 
   vpc_id = "${ var.vpc-id }"
 }
 
+
 resource "aws_security_group" "external-elb" {
-  description = "k8s-${ var.name } master (apiserver) external elb"
+  description = "kz8s-${ var.name } master (apiserver) external elb"
 
   egress {
     from_port = 0
@@ -83,12 +117,12 @@ resource "aws_security_group" "external-elb" {
     cidr_blocks = [ "0.0.0.0/0" ]
   }
 
-  name = "master-external-elb-k8s-${ var.name }"
+  name = "kz8s-master-external-elb-${ var.name }"
 
   tags {
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
-    Name = "master-external-elb-k8s-${ var.name }"
+    Name = "kz8s-master-external-elb-${ var.name }"
     builtWith = "terraform"
   }
 
@@ -96,7 +130,7 @@ resource "aws_security_group" "external-elb" {
 }
 
 resource "aws_security_group" "worker" {
-  description = "k8s worker security group"
+  description = "kz8s worker security group"
 
   egress = {
     from_port = 0
@@ -114,12 +148,12 @@ resource "aws_security_group" "worker" {
     cidr_blocks = [ "${ var.cidr-vpc }" ]
   }
 
-  name = "worker-k8s-${ var.name }"
+  name = "kz8s-worker-${ var.name }"
 
   tags {
     KubernetesCluster = "${ var.name }"
     kz8s = "${ var.name }"
-    Name = "worker-k8s-${ var.name }"
+    Name = "kz8s-worker-${ var.name }"
     builtWith = "terraform"
   }
 

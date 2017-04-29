@@ -22,8 +22,6 @@ resource "aws_instance" "pki" {
 
   user_data = "${ data.template_file.cloud-config.rendered }"
 
-  vpc_security_group_ids = [
-    "${ aws_security_group.pki.id }",
-  ]
+  vpc_security_group_ids = [ "${ var.security-group-id }" ]
 
 }

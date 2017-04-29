@@ -2,6 +2,7 @@
 .cfssl
 .key-pair
 .keypair
+.kube
 .srl
 .ssl
 .terraform
@@ -11,6 +12,5 @@ terraform.tfstate*
 terraform.tfvars
 .terraform.tfstate.lock.info
 
-tmp/
 templates
 *.bak
