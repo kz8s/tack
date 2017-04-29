@@ -5,8 +5,9 @@ GREEN	:= \033[0;32m
 RED		:= \033[0;31m
 NC		:= \033[0m
 
-DIR_KEY_PAIR	:= .keypair
-DIR_SSL				:= .cfssl
+export DIR_KEY_PAIR	  := .keypair
+export DIR_SSL        := .cfssl
+export DIR_KUBECONFIG := .kube
 
 # CIDR_PODS: flannel overlay range
 # - https://coreos.com/flannel/docs/latest/flannel-config.html
@@ -52,8 +53,7 @@ export PKI_IP               ?= 10.0.10.9
 
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.addons: ; @scripts/do-task "initialize add-ons" \
-	./scripts/init-addons
+.addons: ; @scripts/do-task "initialize add-ons" ./scripts/init-addons
 
 ## generate key-pair, variables and then `terraform apply`
 all: prereqs create-keypair init apply
@@ -86,7 +86,6 @@ post-terraform:
 	@echo "Status summaries:"
 	@echo "% make status"
 	@echo "---"
-	@echo "Watching pod status"
 	@scripts/watch-pods-until
 
 
@@ -106,57 +105,33 @@ create-addons:
 	kubectl apply --recursive -f addons
 
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
-	scripts/create-admin-certificate \
-		${DIR_SSL} \
-		`terraform output name` \
-		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
-		`terraform output bastion-ip`
+	scripts/create-admin-certificate
 
 create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
 
 create-kubeconfig:
-	@OUTDIR=tmp \
-	NAME=`terraform output name` \
-	CA_PATH=${DIR_SSL}/ca.pem \
-	MASTER_ELB_URL=`terraform output external-elb` \
-	ADMIN_CERT_PATH=${DIR_SSL}/k8s-admin.pem \
-	ADMIN_KEY_PATH=${DIR_SSL}/k8s-admin-key.pem \
 	scripts/create-kubeconfig
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
 
-get-ca:
-	@OUTDIR=${DIR_SSL} \
-	PKI_S3_BUCKET=`terraform output s3-bucket` \
-	scripts/do-task "get root ca certificate" scripts/get-ca
+## get ca certificate
+get-ca: ; scripts/do-task "get root ca certificate" scripts/get-ca
 
 ## show instance information
-instances: ; @scripts/instances \
-	`terraform output name` \
-	`terraform output region`
+instances: ; @scripts/instances
 
 ## journalctl on etcd1
-journal: ; @scripts/ssh \
-	${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
-	`terraform output bastion-ip` \
-	"ssh `terraform output etcd1-ip` journalctl -fl"
+journal: ; @scripts/ssh "ssh `terraform output etcd1-ip` journalctl -fl"
 
 prereqs: ; @scripts/do-task "checking prerequisities" scripts/prereqs
 
 ## ssh into etcd1
-ssh:
-	@scripts/ssh \
-		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
-		`terraform output bastion-ip` \
-		"ssh `terraform output etcd1-ip`"
+ssh: ; @scripts/ssh "ssh `terraform output etcd1-ip`"
 
 ## ssh into bastion host
-ssh-bastion:
-	@scripts/ssh \
-		${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem \
-		`terraform output bastion-ip`
+ssh-bastion: ; @scripts/ssh
 
 ## status
 status: instances ; scripts/status

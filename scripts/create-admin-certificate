@@ -1,26 +1,11 @@
-#!/bin/bash -ex
+#!/bin/bash -eux
 
-function usage { cat <<EOF
 
-USAGE: $0 output-dir name key_file bastion_ip
-  example: $0 test-cfssl test .keypair/k8s-testing.pem 55.11.22.33
+echo $DIR_SSL
+echo $CLUSTER_NAME
+echo $AWS_EC2_KEY_PATH
+BASTION_IP=`terraform output bastion-ip`
 
-EOF
-
-  exit 1
-}
-
-OUTDIR=$1
-[ -z "$OUTDIR" ] && usage
-
-NAME=$2
-[ -z "${NAME}" ] && usage
-
-KEY_FILE=$3
-[ -z "${KEY_FILE}" ] && usage
-
-BASTION_IP=$4
-[ -z "${BASTION_IP}" ] && usage
 
 function error {
   echo "✗ Error on line $1"'!'
@@ -31,7 +16,7 @@ trap 'error ${LINENO}' ERR
 # setup port forwarding
 #
 ssh-keyscan ${BASTION_IP}
-ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} -nNT -L 8888:pki.${NAME}.kz8s:8888 core@${BASTION_IP} &
+ssh -o StrictHostKeyChecking=no -i ${AWS_EC2_KEY_PATH} -nNT -L 8888:pki.${CLUSTER_NAME}.kz8s:8888 core@${BASTION_IP} &
 SSH_PID=$!
 
 function finish {
@@ -66,6 +51,6 @@ function generate {
 
 }
 
-mkdir -p $OUTDIR && cd $OUTDIR
+mkdir -p $DIR_SSL && cd $DIR_SSL
 
-generate k8s-admin client ""
+generate k8s-admin client
