@@ -167,7 +167,7 @@ flow much easier to follow and provides the basis for composing variable solutio
 
 #### Post-Terraform
 
-Once the infrastructure has been configured and instantiated it will take some type for it
+Once the infrastructure has been configured and instantiated it will take some time for it
 to settle. Waiting for the 'master' ELB to become healthy is an example of this.  
 
 ### Components
