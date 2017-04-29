@@ -7,6 +7,8 @@ resource "aws_instance" "pki" {
   instance_type = "${ var.instance-type }"
   key_name = "${ var.aws["key-name"] }"
 
+  private_ip = "${ var.ip }"
+
   source_dest_check = true
   subnet_id = "${ var.subnet-id }"
 

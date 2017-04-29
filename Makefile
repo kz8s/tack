@@ -21,26 +21,28 @@ DIR_SSL				:= .cfssl
 
 # ∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨∨
 
-AWS_REGION						?= us-west-2
-COREOS_CHANNEL				?= stable
-COREOS_VM_TYPE				?= hvm
-CLUSTER_NAME 					?= test
+export AWS_REGION						?= us-west-2
+export COREOS_CHANNEL				?= stable
+export COREOS_VM_TYPE				?= hvm
+export CLUSTER_NAME         ?= test
 
-AWS_EC2_KEY_NAME			?= kz8s-$(CLUSTER_NAME)
-AWS_EC2_KEY_PATH			:= ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
-INTERNAL_TLD 					:= ${CLUSTER_NAME}.kz8s
+export AWS_EC2_KEY_NAME     ?= kz8s-$(CLUSTER_NAME)
+export AWS_EC2_KEY_PATH     := ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
+export INTERNAL_TLD         := ${CLUSTER_NAME}.kz8s
 
-HYPERKUBE_IMAGE				?= quay.io/coreos/hyperkube
-HYPERKUBE_TAG					?= v1.6.2_coreos.0
+export HYPERKUBE_IMAGE      ?= quay.io/coreos/hyperkube
+export HYPERKUBE_TAG        ?= v1.6.2_coreos.0
 
-CIDR_VPC							?= 10.0.0.0/16
-CIDR_PODS							?= 10.2.0.0/16
-CIDR_SERVICE_CLUSTER	?= 10.3.0.0/24
+export CIDR_VPC							?= 10.0.0.0/16
+export CIDR_PODS            ?= 10.2.0.0/16
+export CIDR_SERVICE_CLUSTER	?= 10.3.0.0/24
 
-K8S_SERVICE_IP				?= 10.3.0.1
-K8S_DNS_IP						?= 10.3.0.10
+export K8S_SERVICE_IP       ?= 10.3.0.1
+export K8S_DNS_IP           ?= 10.3.0.10
 
-ETCD_IPS 							?= 10.0.10.10,10.0.10.11,10.0.10.12
+export ETCD_IPS             ?= 10.0.10.10,10.0.10.11,10.0.10.12
+
+export PKI_IP               ?= 10.0.10.9
 
 # Alternative:
 # CIDR_PODS ?= "172.15.0.0/16"
@@ -60,15 +62,14 @@ all: prereqs create-keypair init apply
 
 .PHONY: post-terraform
 post-terraform:
+	@$(MAKE) instances
 	@$(MAKE) get-ca
 	@$(MAKE) create-admin-certificate
 	@$(MAKE) create-kubeconfig
 	@$(MAKE) wait-for-cluster
-	scripts/create-addons addons
+	@$(MAKE) create-addons
 	@$(MAKE) create-busybox
-	kubectl get no
-	@echo "${BLUE}❤ worker nodes may take several minutes to come online ${NC}"
-	@$(MAKE) instances
+	kubectl get nodes -o wide
 	kubectl --namespace=kube-system get cs
 	@echo "etcd-0 incorrectly reporting as unhelathy"
 	@echo "https://github.com/kubernetes/kubernetes/issues/27343"
@@ -92,14 +93,17 @@ post-terraform:
 ## destroy and remove everything
 clean: destroy delete-keypair
 	@-pkill -f "kubectl proxy" ||:
-	@-rm -rf .addons ||:
 	@-rm terraform.tfvars ||:
 	@-rm terraform.tfplan ||:
 	@-rm -rf .terraform ||:
 	@-rm -rf tmp ||:
 	@-rm -rf ${DIR_SSL} ||:
 
-create-addons: ; @scripts/do-task "create add-ons" kubectl create -f .addons/
+## create kube-system addons
+create-addons:
+	scripts/create-kube-dns-service
+	scripts/create-kube-system-configmap
+	kubectl apply --recursive -f addons
 
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 	scripts/create-admin-certificate \

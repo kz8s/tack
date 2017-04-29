@@ -12,6 +12,7 @@ variable "k8s" {
   type = "map"
 }
 variable "name" {}
+variable "ip" {}
 variable "s3-bucket" {}
 variable "s3-bucket-arn" {}
 variable "subnet-id" {}

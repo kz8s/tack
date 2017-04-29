@@ -37,16 +37,27 @@ spec:
           command:
             - ./cluster-autoscaler
             - --cloud-provider=aws
-            - --nodes=1:5:${WORKER_ASG_NAME}
+            - --nodes=1:5:$(WORKER_ASG_NAME)
             - --scale-down-delay=5m
-            - --skip-nodes-with-local-storage=false
+            - --skip-nodes-with-local-storage=true
             - --skip-nodes-with-system-pods=false
             - --stderrthreshold=info
             - --v=4
             - --write-status-configmap=true
           env:
-            - name: AWS_REGION
-              value: ${REGION}
+          - name: AWS_REGION
+            valueFrom:
+              configMapKeyRef:
+                name: kube-system-config
+                key: AWS_REGION
+          - name: WORKER_ASG_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: kube-system-config
+                key: WORKER_ASG_NAME
+          envFrom:
+          - configMapRef:
+              name: kube-system-config
           volumeMounts:
             - name: ssl-certs
               mountPath: /etc/ssl/certs/ca-certificates.crt

@@ -7,11 +7,10 @@ resource "aws_elb" "external" {
     healthy_threshold = 2
     unhealthy_threshold = 6
     timeout = 3
-    target = "TCP:443"
+    target = "SSL:443"
     interval = 10
   }
 
-  instances = [ "${ aws_instance.etcd.*.id }" ]
   idle_timeout = 3600
 
   listener {
@@ -33,4 +32,11 @@ resource "aws_elb" "external" {
     visibility = "public"
     KubernetesCluster = "${ var.name }"
   }
+}
+
+resource "aws_elb_attachment" "master" {
+  count = "${ length( split(",", var.etcd-ips) ) }"
+
+  elb      = "${ aws_elb.external.id }"
+  instance = "${ element(aws_instance.etcd.*.id, count.index) }"
 }

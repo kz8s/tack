@@ -44,6 +44,7 @@ variable "k8s" {
 }
 variable "k8s-service-ip" { default = "10.3.0.1" }
 variable "name" {}
+variable "pki-ip" {}
 variable "s3-bucket" {}
 variable "vpc-existing" {
   default = {

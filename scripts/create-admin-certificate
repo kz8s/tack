@@ -43,12 +43,6 @@ trap finish EXIT
 #
 sleep 5.2 && curl -d '{"label":"primary"}' http://localhost:8888/api/v1/cfssl/info
 
-DNS1="kubernetes"
-DNS2="kubernetes.default"
-DNS3="kubernetes.default.svc"
-DNS4="kubernetes.default.svc.cluster.local"
-DEFAULT_HOSTS="$DNS1,$DNS2,$DNS3,$DNS4,127.0.0.1"
-
 
 function csr {
   cat <<EOF
@@ -61,13 +55,11 @@ function generate {
 
   CN=$1
   PROFILE=$2
-  HOSTS=$3
 
   echo "$(csr $CN)" \
     | cfssl gencert \
       -remote=localhost:8888 \
-      -profile=$PROFILE \
-      -hostname="$HOSTS" - \
+      -profile=$PROFILE  - \
     | cfssljson -bare $CN
 
   chmod 0644 $CN.pem ${CN}-key.pem
@@ -76,4 +68,4 @@ function generate {
 
 mkdir -p $OUTDIR && cd $OUTDIR
 
-generate k8s-admin client-server "${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
+generate k8s-admin client ""
