@@ -51,6 +51,7 @@ module "pki" {
   internal-zone-id = "${ module.route53.internal-zone-id }"
   s3-bucket = "${ module.s3.bucket }"
   s3-bucket-arn = "${ module.s3.bucket-arn }"
+  security-group-id = "${ module.security.pki-id }"
   subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
   vpc-id = "${ module.vpc.id }"
 }
