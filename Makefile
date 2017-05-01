@@ -34,9 +34,9 @@ export INTERNAL_TLD         := ${CLUSTER_NAME}.kz8s
 export HYPERKUBE_IMAGE      ?= quay.io/coreos/hyperkube
 export HYPERKUBE_TAG        ?= v1.6.2_coreos.0
 
-export CIDR_VPC							?= 10.0.0.0/16
+export CIDR_VPC             ?= 10.0.0.0/16
 export CIDR_PODS            ?= 10.2.0.0/16
-export CIDR_SERVICE_CLUSTER	?= 10.3.0.0/24
+export CIDR_SERVICE_CLUSTER ?= 10.3.0.0/24
 
 export K8S_SERVICE_IP       ?= 10.3.0.1
 export K8S_DNS_IP           ?= 10.3.0.10
@@ -110,8 +110,7 @@ create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
 
-create-kubeconfig:
-	scripts/create-kubeconfig
+create-kubeconfig: ; scripts/create-kubeconfig
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
