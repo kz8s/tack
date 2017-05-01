@@ -79,7 +79,7 @@ Tested with prerequisite versions:
 
 ```bash
 $ aws --version
-aws-cli/1.11.80 Python/2.7.10 Darwin/16.5.0 botocore/1.5.43
+aws-cli/1.11.82 Python/2.7.10 Darwin/16.5.0 botocore/1.5.45
 
 $ cfssl version
 Version: 1.2.0
