@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-BASTION_IP=`terraform output bastion-ip
+BASTION_IP=`terraform output bastion-ip`
 
 COMMAND=$1
 
