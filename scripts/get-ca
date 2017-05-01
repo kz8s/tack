@@ -1,8 +1,8 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 source ${0%/*}/retry
 
-echo $DIR_SSL
+echo "DIR_SSL=$DIR_SSL"
 PKI_S3_BUCKET=`terraform output s3-bucket`
 CA_PATH="s3://$PKI_S3_BUCKET/ca.pem"
 

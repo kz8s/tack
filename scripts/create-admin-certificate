@@ -1,9 +1,9 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 
-echo $DIR_SSL
-echo $CLUSTER_NAME
-echo $AWS_EC2_KEY_PATH
+echo "DIR_SSL=$DIR_SSL"
+echo "CLUSTER_NAME=$CLUSTER_NAME"
+echo "AWS_EC2_KEY_PATH=$AWS_EC2_KEY_PATH"
 BASTION_IP=`terraform output bastion-ip`
 
 
