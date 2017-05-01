@@ -60,7 +60,7 @@ all: prereqs create-keypair init apply
 	@echo "${GREEN}✓ terraform portion of 'make all' has completed ${NC}\n"
 	@$(MAKE) post-terraform
 
-.PHONY: post-terraform
+## steps performed after 'terraform apply' success
 post-terraform:
 	@$(MAKE) instances
 	@$(MAKE) get-ca
@@ -104,12 +104,15 @@ create-addons:
 	scripts/create-kube-system-configmap
 	kubectl apply --recursive -f addons
 
+## create admin certificate for accessing apiserver
 create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 	scripts/create-admin-certificate
 
+## create busybox container for dns test
 create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
 
+## create kubeconfig
 create-kubeconfig: ; scripts/create-kubeconfig
 
 ## start proxy and open kubernetes dashboard
@@ -124,6 +127,7 @@ instances: ; @scripts/instances
 ## journalctl on etcd1
 journal: ; @scripts/ssh "ssh `terraform output etcd1-ip` journalctl -fl"
 
+## check prerequisites
 prereqs: ; @scripts/do-task "checking prerequisities" scripts/prereqs
 
 ## ssh into etcd1
@@ -144,5 +148,5 @@ include makefiles/*.mk
 
 .DEFAULT_GOAL := help
 .PHONY: all clean create-addons create-admin-certificate create-busybox
-.PHONY: get-ca instances journal prereqs ssh ssh-bastion ssl status test
-.PHONY: wait-for-cluster
+.PHONY: get-ca instances journal post-terraform prereqs ssh ssh-bastion ssl status
+.PHONY: test wait-for-cluster
