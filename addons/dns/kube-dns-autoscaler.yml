@@ -40,4 +40,4 @@ spec:
           - --default-params={"linear":{"coresPerReplica":256,"nodesPerReplica":16,"preventSinglePointFailure":true}}
           - --logtostderr=true
           - --v=2
-      serviceAccountName: kube-dns-autoscaler
+      serviceAccountName: kube-dns
