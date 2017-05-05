@@ -3,37 +3,38 @@
 CDIR=$(dirname "${BASH_SOURCE}")
 
 set -x
+CIDR_ALLOW_SSH=$("${CDIR}"/myip)
 
-echo $AWS_REGION
-echo $COREOS_CHANNEL
-echo $COREOS_VM_TYPE
-echo $AWS_EC2_KEY_NAME
-echo $INTERNAL_TLD
-echo $CLUSTER_NAME
-CIDR_ALLOW_SSH=`$CDIR/myip`
-echo $CIDR_VPC
-echo $CIDR_PODS
-echo $CIDR_SERVICE_CLUSTER
-echo $K8S_SERVICE_IP
-echo $K8S_DNS_IP
-echo $ETCD_IPS
-echo $HYPERKUBE_IMAGE
-echo $HYPERKUBE_TAG
-echo $PKI_IP
+echo "$AWS_REGION"
+echo "$COREOS_CHANNEL"
+echo "$COREOS_VM_TYPE"
+echo "$AWS_EC2_KEY_NAME"
+echo "$INTERNAL_TLD"
+echo "$CLUSTER_NAME"
+echo "$CIDR_ALLOW_SSH"
+echo "$CIDR_VPC"
+echo "$CIDR_PODS"
+echo "$CIDR_SERVICE_CLUSTER"
+echo "$K8S_SERVICE_IP"
+echo "$K8S_DNS_IP"
+echo "$ETCD_IPS"
+echo "$HYPERKUBE_IMAGE"
+echo "$HYPERKUBE_TAG"
+echo "$PKI_IP"
 
 set +x
 
-COREOS_AMI_ID=`curl -s \
-  $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
-    $COREOS_CHANNEL $COREOS_VM_TYPE $AWS_REGION)`
-
+COREOS_AMI_ID="$(curl -s \
+  "$(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
+    "$COREOS_CHANNEL" "$COREOS_VM_TYPE" "$AWS_REGION")")"
+    
 #this is a more direct method to get account id rather than get-user
-AWS_ACCOUNT_ID=`aws sts get-caller-identity|jq --raw-output '.Account'`
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity|jq --raw-output '.Account')
 
-AWS_REGION_AZS=`aws ec2 describe-availability-zones --region ${AWS_REGION} --output json \
+AWS_REGION_AZS=$(aws ec2 describe-availability-zones --region "${AWS_REGION}" --output json \
   | jq --raw-output '.AvailabilityZones | map(.ZoneName) | .[]' \
   | xargs \
-  | sed -e 's/ /,/g'`
+  | sed -e 's/ /,/g')
 
 
 cat <<EOF > terraform.tfvars
