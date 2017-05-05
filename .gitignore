@@ -15,4 +15,4 @@ terraform.tfvars
 templates
 *.bak
 
-.direnv
+.envrc
