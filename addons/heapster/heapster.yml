@@ -68,6 +68,7 @@ spec:
           command:
             - /heapster
             - --source=kubernetes.summary_api:''
+            - --sink=influxdb:http://monitoring-influxdb:8086
         - image: gcr.io/google_containers/addon-resizer:1.7
           name: heapster-nanny
           resources:
