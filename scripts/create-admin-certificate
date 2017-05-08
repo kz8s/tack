@@ -24,10 +24,10 @@ function finish {
 }
 trap finish EXIT
 
-# test cfssl connection
+# test cfssl connection -- retry until up
 #
-sleep 5.2 && curl -d '{"label":"primary"}' http://localhost:8888/api/v1/cfssl/info
-
+until printf "." && curl -d '{"label":"primary"}' http://localhost:8888/api/v1/cfssl/info &>/dev/null
+do sleep 2.5; done; echo "✓
 
 function csr {
   cat <<EOF
