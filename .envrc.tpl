@@ -18,4 +18,4 @@ export AWS_REGION=eu-west-1
 export AWS_DEFAULT_REGION=$AWS_REGION
 export CLUSTER_NAME=xxxxxx
 export ETCD_IPS=10.0.10.10
-export HYPERKUBE_TAG ?= v1.5.1_coreos.0
+export HYPERKUBE_TAG=v1.5.1_coreos.0
