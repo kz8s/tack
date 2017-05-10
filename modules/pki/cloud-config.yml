@@ -22,7 +22,7 @@ coreos:
           --trust-keys-from-https \
           --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
           --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
-          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/service-account-key.pem s3://${ s3-bucket }/
+          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/service-account-key.pem s3://${ s3-bucket }/ --region ${ region }
 
     - name: download-cfssl.service
       command: start
@@ -61,7 +61,7 @@ coreos:
           --trust-keys-from-https \
           --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
           --volume=ssl,kind=host,source=/etc/cfssl,readOnly=true --mount=volume=ssl,target=/etc/cfssl \
-          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/ca.pem s3://${ s3-bucket }/
+          quay.io/coreos/awscli -- aws s3 cp /etc/cfssl/ca.pem s3://${ s3-bucket }/ --region ${ region }
 
     - name: cfssl.service
       command: start
