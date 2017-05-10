@@ -86,6 +86,7 @@ module "bastion" {
 
   # variables
   ami-id = "${ var.coreos-aws["ami"] }"
+  aws = "${ var.aws }"
   instance-type = "${ var.instance-type["bastion"] }"
   internal-tld = "${ var.internal-tld }"
   key-name = "${ var.aws["key-name"] }"

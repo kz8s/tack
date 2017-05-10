@@ -1,4 +1,7 @@
 variable "ami-id" {}
+variable "aws" {
+  type = "map"
+}
 variable "depends-id" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
