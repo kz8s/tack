@@ -12,9 +12,7 @@ resource "aws_security_group" "bastion" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = [
-      "${ split(",", var.cidr-allow-ssh) }"
-    ]
+    cidr_blocks = [ "${ var.cidr-allow-ssh }" ]
   }
 
   name = "kz8s-bastion-${ var.name }"
