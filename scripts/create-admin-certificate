@@ -27,7 +27,7 @@ trap finish EXIT
 # test cfssl connection -- retry until up
 #
 until printf "." && curl -d '{"label":"primary"}' http://localhost:8888/api/v1/cfssl/info &>/dev/null
-do sleep 2.5; done; echo "✓
+do sleep 2.5; done; echo "✓"
 
 function csr {
   cat <<EOF
