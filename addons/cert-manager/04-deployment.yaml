@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: kube-cert-manager
+  name: kube-cert-manager
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kube-cert-manager
+      name: kube-cert-manager
+    spec:
+      containers:
+        - name: kube-cert-manager
+          image: rosskukulinski/kube-cert-manager:0.5.0-san
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kube-cert-manager-secret
+                  key: aws_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kube-cert-manager-secret
+                  key: aws_key
+          args:
+            #- "-class="
+            - "-data-dir=/var/lib/cert-manager"
+            - "-acme-url=https://acme-v01.api.letsencrypt.org/directory"
+            # NOTE: the URL above points to the staging server, where you won't get real certs.
+            # Uncomment the line below to use the production LetsEncrypt server:
+            #- "-acme-url=https://acme-v01.api.letsencrypt.org/directory"
+            # You can run multiple instances of kube-cert-manager for the same namespace(s), 
+            # each watching for a different value for the 'class' label
+            #- "-class=default"
+            # You can choose to monitor only some namespaces, otherwise all namespaces will be monitored
+            #- "-namespaces=default,test"
+            # If you set a default email, you can omit the field/annotation from Certificates/Ingresses
+            - "-default-email=email@example.org"
+            # If you set a default provider, you can omit the field/annotation from Certificates/Ingresses
+            - "-default-provider=route53"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/cert-manager
+        - name: kubectl-proxy
+          image: bruj0/kubectl-proxy:1.6.2
+          ports:
+            - containerPort: 8001
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: kube-cert-manager-pvc
