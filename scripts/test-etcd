@@ -18,11 +18,6 @@ ssh-keyscan ${BASTION_IP}
 ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} -nNT -L 8822:etcd1.${INTERNAL_TLD}:22 core@${BASTION_IP} &
 SSH_PID=$!
 
-function finish {
-  [ -z ${SSH_PID} ] || kill ${SSH_PID}
-}
-trap finish EXIT
-
 sleep 1
 
 ${SSH_CMD} -- curl ${CERTS} -s ${ETCD_URL}/version | jq
