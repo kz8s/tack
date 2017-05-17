@@ -37,7 +37,9 @@ resource "aws_iam_role_policy" "master" {
     },
     {
       "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
         "ec2:AttachVolume",
+        "ec2:CreateSecurityGroup",
         "ec2:CreateTags",
         "ec2:CreateVolume",
         "ec2:DeleteVolume",
