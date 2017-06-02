@@ -44,6 +44,12 @@ resource "aws_iam_role_policy" "master" {
         "ec2:Describe*",
         "ec2:DescribeInstances",
         "ec2:DetachVolume",
+        "ec2:CreateSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:DeleteSecurityGroup",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
         "elasticloadbalancing:*"
         ],
       "Effect": "Allow",
