@@ -16,7 +16,7 @@ trap 'error ${LINENO}' ERR
 # setup port forwarding
 #
 ssh-keyscan ${BASTION_IP}
-ssh -o StrictHostKeyChecking=no -i ${AWS_EC2_KEY_PATH} -nNT -L 8888:pki.${CLUSTER_NAME}.kz8s:8888 core@${BASTION_IP} &
+ssh -o StrictHostKeyChecking=no -i ${AWS_EC2_KEY_PATH} -nNT -L 8888:pki.${INTERNAL_TLD}:8888 core@${BASTION_IP} &
 SSH_PID=$!
 
 function finish {
