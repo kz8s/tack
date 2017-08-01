@@ -8,17 +8,24 @@ KUBECTL="kubectl --namespace=\"${NAMESPACE}\""
 
 OBJECTS="
 storageclass/default
+statefulset/elasticsearch-logging
 service/heapster
 service/kube-dns
-deploy/heapster-v1.3.0
+deploy/heapster-v1.4.0
 deploy/kube-dns
 deploy/kube-dns-autoscaler
 deploy/kibana-logging
 rc/elasticsearch-logging-v1
-statefulset/elasticsearch-logging
 daemonset/fluentd
+deployment/cluster-autoscaler
+service/kubernetes-dashboard
+deployment/kubernetes-dashboard
+deployment/kube-rescheduler
 "
 
 for object in ${OBJECTS}; do
   eval "${KUBECTL} delete --ignore-not-found --now \"${object}\""
 done
+
+# delete elastsearch persisten volume claims
+kubectl delete pvc -l k8s-app=elasticsearch-logging --namespace=kube-system
