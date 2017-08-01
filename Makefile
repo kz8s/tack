@@ -90,7 +90,7 @@ post-terraform:
 
 
 ## destroy and remove everything
-clean: destroy delete-keypair
+clean: delete-addons destroy delete-keypair
 	@-pkill -f "kubectl proxy" ||:
 	@-rm terraform.tfvars ||:
 	@-rm terraform.tfplan ||:
@@ -111,11 +111,14 @@ create-admin-certificate: ; @scripts/do-task "create admin certificate" \
 create-busybox: ; @scripts/do-task "create busybox test pod" \
 	kubectl create -f test/pods/busybox.yml
 
-create-kubeconfig:
+create-kubeconfig: ; @scripts/do-task "create kubeconfig" \
 	scripts/create-kubeconfig
 
 ## start proxy and open kubernetes dashboard
 dashboard: ; @./scripts/dashboard
+
+## delete addons
+delete-addons: ; @-scripts/delete-addons
 
 ## get ca certificate
 get-ca: ; scripts/do-task "get root ca certificate" scripts/get-ca
@@ -146,5 +149,5 @@ include makefiles/*.mk
 
 .DEFAULT_GOAL := help
 .PHONY: all clean create-addons create-admin-certificate create-busybox
-.PHONY: get-ca instances journal prereqs ssh ssh-bastion ssl status test
-.PHONY: wait-for-cluster
+.PHONY: delete-addons get-ca instances journal prereqs ssh ssh-bastion ssl
+.PHONY: status test wait-for-cluster
