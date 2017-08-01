@@ -37,6 +37,22 @@ $ make dashboard
 $ make clean
 ```
 
+## Component and Tool Versions
+
+component / tool | version
+---------------- | -------:
+Container Linux by CoreOS | 1409.7.0, 1381.1.0, 1381.0.0
+kubernetes                | 1.7.2
+flanneld                  | 0.7.1
+docker                    | 1.12.6
+etcd                      | 3.1.6
+rkt                       | 1.25.0
+terraform                 | 0.9.11
+cfssl                     | 1.2.0
+aws-cli                   | aws-cli/1.11.120 Python/2.7.10 Darwin/16.7.0 botocore/1.5.83
+jq                        | 1.5
+
+
 ## Features
 * Cluster-internal Certificate Authority infrastructure for TLS certificate generation
 * etcd3
@@ -48,17 +64,18 @@ creation
 * IAM protected S3 bucket for asset distribution
 * Bastion Host
 * Multi-AZ Auto-Scaling Worker Nodes
-* [NAT Gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html)
+* VPC NAT Gateway
+* VPC Endpoint for simplified S3 access from EC2 instances
 
-### Container Linux by CoreOS (1353.7.0, 1381.1.0, 1381.0.0)
+### Container Linux by CoreOS
 * etcd3 DNS Discovery Bootstrap
 * kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
-### Kubernetes (v1.6.2)
+### Kubernetes
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 
-### Terraform (v0.9.4)
+### Terraform
 * Container Linux by CoreOS AMI sourcing
 * Terraform Pattern Modules
 
@@ -73,27 +90,6 @@ Quick install prerequisites on Mac OS X with [Homebrew](http://brew.sh/):
 
 ```bash
 $ brew update && brew install awscli cfssl jq kubernetes-cli terraform
-```
-
-Tested with prerequisite versions:
-
-```bash
-$ aws --version
-aws-cli/1.11.80 Python/2.7.10 Darwin/16.5.0 botocore/1.5.43
-
-$ cfssl version
-Version: 1.2.0
-Revision: dev
-Runtime: go1.7.1
-
-$ jq --version
-jq-1.5
-
-$ kubectl version --client
-Client Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.2", GitCommit:"477efc3cbe6a7effca06bd1452fa356e2201e1ee", GitTreeState:"clean", BuildDate:"2017-04-19T22:51:55Z", GoVersion:"go1.8.1", Compiler:"gc", Platform:"darwin/amd64"}
-
-$ terraform --version
-Terraform v0.9.4
 ```
 
 ## Launch Cluster
@@ -281,3 +277,4 @@ In order to test existing VPC support, we need to generate a VPC and then try th
 * [ssl artifact generation](https://github.com/coreos/coreos-kubernetes/tree/master/lib)
 * [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)
 * [Persistent Storage - Kubernetes on AWS](http://kubernetes-on-aws.readthedocs.io/en/latest/user-guide/using-volumes.html)
+* [VPC endpoint Terraform example setup](https://gist.github.com/radeksimko/929a41675323eefed023)

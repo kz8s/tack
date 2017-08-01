@@ -2,8 +2,8 @@ SHELL += -eu
 
 BLUE	:= \033[0;34m
 GREEN	:= \033[0;32m
-RED     := \033[0;31m
-NC      := \033[0m
+RED   := \033[0;31m
+NC    := \033[0m
 
 export DIR_KEY_PAIR   := .keypair
 export DIR_SSL        := .cfssl
@@ -32,7 +32,7 @@ export AWS_EC2_KEY_PATH     := ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
 export INTERNAL_TLD         := ${CLUSTER_NAME}.kz8s
 
 export HYPERKUBE_IMAGE      ?= quay.io/coreos/hyperkube
-export HYPERKUBE_TAG        ?= v1.6.2_coreos.0
+export HYPERKUBE_TAG        ?= v1.7.2_coreos.0
 
 export CIDR_VPC             ?= 10.0.0.0/16
 export CIDR_PODS            ?= 10.2.0.0/16
@@ -100,6 +100,7 @@ clean: destroy delete-keypair
 
 ## create kube-system addons
 create-addons:
+	scripts/create-default-storage-class
 	scripts/create-kube-dns-service
 	scripts/create-kube-system-configmap
 	kubectl apply --recursive -f addons

@@ -8,7 +8,7 @@ general:
 machine:
   environment:
     CFSSL_VERSION: R1.2
-    TERRAFORM_VERSION: 0.7.3
+    TERRAFORM_VERSION: 0.9.11
 
 dependencies:
   pre:
