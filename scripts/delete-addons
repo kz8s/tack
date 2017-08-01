@@ -7,6 +7,7 @@ NAMESPACE=${NAMESPACE:-kube-system}
 KUBECTL="kubectl --namespace=\"${NAMESPACE}\""
 
 OBJECTS="
+storageclass/default
 service/heapster
 service/kube-dns
 deploy/heapster-v1.3.0
