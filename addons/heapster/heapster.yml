@@ -21,24 +21,24 @@ apiVersion: apps/v1beta1
 kind: Deployment
 
 metadata:
-  name: heapster-v1.3.0
+  name: heapster-v1.4.0
   namespace: kube-system
   labels:
     k8s-app: heapster
     kubernetes.io/cluster-service: "true"
-    version: v1.3.0
+    version: v1.4.0
 
 spec:
   replicas: 1
   selector:
     matchLabels:
       k8s-app: heapster
-      version: v1.3.0
+      version: v1.4.0
   template:
     metadata:
       labels:
         k8s-app: heapster
-        version: v1.3.0
+        version: v1.4.0
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
@@ -49,7 +49,7 @@ spec:
       - key: "CriticalAddonsOnly"
         operator: "Exists"
       containers:
-        - image: gcr.io/google_containers/heapster:v1.3.0
+        - image: gcr.io/google_containers/heapster:v1.4.0
           name: heapster
           livenessProbe:
             httpGet:
@@ -68,7 +68,7 @@ spec:
           command:
             - /heapster
             - --source=kubernetes.summary_api:''
-        - image: gcr.io/google_containers/addon-resizer:1.7
+        - image: gcr.io/google_containers/addon-resizer:2.0
           name: heapster-nanny
           resources:
             limits:
@@ -92,8 +92,7 @@ spec:
             - --extra-cpu=4m
             - --memory=200Mi
             - --extra-memory=4Mi
-            - --threshold=5
-            - --deployment=heapster-v1.3.0
+            - --deployment=heapster-v1.4.0
             - --container=heapster
             - --poll-period=300000
             - --estimator=exponential
