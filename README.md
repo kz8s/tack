@@ -41,23 +41,25 @@ $ make clean
 
 component / tool | version
 ---------------- | -------:
-Container Linux by CoreOS | 1409.7.0, 1381.1.0, 1381.0.0
+Container Linux by CoreOS | 1409.7.0, 1465.3.0, 1492.1.0
 kubernetes                | 1.7.2
 flanneld                  | 0.7.1
 docker                    | 1.12.6
 etcd                      | 3.1.6
 rkt                       | 1.25.0
-terraform                 | 0.9.11
+terraform                 | 0.10.0
 cfssl                     | 1.2.0
-aws-cli                   | aws-cli/1.11.120 Python/2.7.10 Darwin/16.7.0 botocore/1.5.83
+aws-cli                   | aws-cli/1.11.129 Python/2.7.10 Darwin/16.7.0 botocore/1.5.92
 jq                        | 1.5
 
 
 ## Features
+
 * Cluster-internal Certificate Authority infrastructure for TLS certificate generation
 * etcd3
 
 ### AWS
+
 * [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
 creation
 * AWS VPC Public and Private subnets
@@ -68,18 +70,22 @@ creation
 * VPC Endpoint for simplified S3 access from EC2 instances
 
 ### Container Linux by CoreOS
+
 * etcd3 DNS Discovery Bootstrap
 * kubelet runs under rkt (using Container Linux by CoreOS recommended [Kubelet Wrapper Script](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html))
 
 ### Kubernetes
+
 * [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
 * Service accounts enabled
 
 ### Terraform
+
 * Container Linux by CoreOS AMI sourcing
 * Terraform Pattern Modules
 
 ## Prerequisites
+
 * [AWS Command Line Interface](http://aws.amazon.com/documentation/cli/)
 * [CFSSL: CloudFlare's PKI and TLS toolkit](https://cfssl.org/)
 * [jq](https://stedolan.github.io/jq/)

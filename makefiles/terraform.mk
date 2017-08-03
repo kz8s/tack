@@ -12,8 +12,7 @@ module.%:
 ## terraform apply
 apply: plan
 	@echo "${BLUE}❤ terraform apply - commencing${NC}"
-	# terraform apply -target=module.pki
-	terraform apply
+	terraform apply terraform.tfplan
 	@echo "${GREEN}✓ make $@ - success${NC}"
 
 ## terraform destroy
@@ -27,7 +26,8 @@ init: terraform.tfvars
 
 ## terraform plan
 plan: get init
-	terraform validate
+	terraform init
+	terraform validate -var-file=terraform.tfvars
 	@echo "${GREEN}✓ terraform validate - success${NC}"
 	terraform plan -out terraform.tfplan
 
