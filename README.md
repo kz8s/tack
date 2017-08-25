@@ -76,7 +76,7 @@ creation
 
 ### Kubernetes
 
-* [Highly Available ApiServer Configuration](http://kubernetes.io/v1.1/docs/admin/high-availability.html)
+* [Highly Available ApiServer Configuration](https://kubernetes.io/docs/admin/high-availability/)
 * Service accounts enabled
 
 ### Terraform
