@@ -42,7 +42,7 @@ $ make clean
 component / tool | version
 ---------------- | -------:
 Container Linux by CoreOS | 1409.7.0, 1465.3.0, 1492.1.0
-kubernetes                | 1.7.2
+kubernetes                | 1.7.4
 flanneld                  | 0.7.1
 docker                    | 1.12.6
 etcd                      | 3.1.6

@@ -32,7 +32,7 @@ export AWS_EC2_KEY_PATH     := ${DIR_KEY_PAIR}/${AWS_EC2_KEY_NAME}.pem
 export INTERNAL_TLD         := ${CLUSTER_NAME}.kz8s
 
 export HYPERKUBE_IMAGE      ?= quay.io/coreos/hyperkube
-export HYPERKUBE_TAG        ?= v1.7.2_coreos.0
+export HYPERKUBE_TAG        ?= v1.7.4_coreos.0
 
 export CIDR_VPC             ?= 10.0.0.0/16
 export CIDR_PODS            ?= 10.2.0.0/16
