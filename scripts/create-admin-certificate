@@ -19,10 +19,6 @@ ssh-keyscan ${BASTION_IP}
 ssh -o StrictHostKeyChecking=no -i ${AWS_EC2_KEY_PATH} -nNT -L 8888:pki.${INTERNAL_TLD}:8888 core@${BASTION_IP} &
 SSH_PID=$!
 
-function finish {
-  [ -z ${SSH_PID} ] || kill ${SSH_PID}
-}
-trap finish EXIT
 
 # test cfssl connection -- retry until up
 #
