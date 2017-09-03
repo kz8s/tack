@@ -1,0 +1,11 @@
+apiVersion: "stable.k8s.psg.io/v1"
+kind: "Certificate"
+metadata:
+  name: "registry"
+  labels:
+    stable.k8s.psg.io/kcm.class: "default"
+spec:
+  domain: "registry.$(CLUSTER_DOMAIN)"
+  email: "email@example.org"
+  provider: "route53"
+  secretName: cert-inc-testbed
