@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "worker" {
   launch_configuration = "${ aws_launch_configuration.worker.name }"
   max_size = "${ var.capacity["max"] }"
   min_size = "${ var.capacity["min"] }"
-  vpc_zone_identifier = [ "${ var.subnet-id }" ]
+  vpc_zone_identifier = [ "${ var.subnet-ids }" ]
 
   tag {
     key = "builtWith"

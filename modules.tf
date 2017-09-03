@@ -156,6 +156,6 @@ module "worker" {
   instance-profile-name = "${ module.iam.instance-profile-name-worker }"
   s3-bucket = "${ module.s3.bucket }"
   security-group-id = "${ module.security.worker-id }"
-  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  subnet-ids = "${ module.vpc.subnet-ids-private }"
   vpc-id = "${ module.vpc.id }"
 }
