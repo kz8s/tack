@@ -159,3 +159,65 @@ resource "aws_security_group" "worker" {
 
   vpc_id = "${ var.vpc-id }"
 }
+
+#resource "aws_security_group" "concourse-worker" {
+#  description = "kz8s concourse worker security group"
+#
+#  egress = {
+#    from_port = 0
+#    to_port = 0
+#    protocol = "-1"
+#    /*self = true*/
+#    cidr_blocks = [ "0.0.0.0/0" ]
+#  }
+#
+#  ingress = {
+#    from_port = 0
+#    to_port = 0
+#    protocol = "-1"
+#    self = true
+#    cidr_blocks = [ "${ var.cidr-vpc }" ]
+#  }
+#
+#  name = "kz8s-concourse-worker-${ var.name }"
+#
+#  tags {
+#    KubernetesCluster = "${ var.name }"
+#    kz8s = "${ var.name }"
+#    Name = "kz8s-concourse-worker-${ var.name }"
+#    builtWith = "terraform"
+#  }
+#
+#  vpc_id = "${ var.vpc-id }"
+#}
+#
+#resource "aws_security_group" "elk-worker" {
+#  description = "kz8s ELK worker security group"
+#
+#  egress = {
+#    from_port = 0
+#    to_port = 0
+#    protocol = "-1"
+#    /*self = true*/
+#    cidr_blocks = [ "0.0.0.0/0" ]
+#  }
+#
+#  ingress = {
+#    from_port = 0
+#    to_port = 0
+#    protocol = "-1"
+#    self = true
+#    cidr_blocks = [ "${ var.cidr-vpc }" ]
+#  }
+#
+#  name = "kz8s-elk-worker-${ var.name }"
+#
+#  tags {
+#    KubernetesCluster = "${ var.name }"
+#    kz8s = "${ var.name }"
+#    Name = "kz8s-elk-worker-${ var.name }"
+#    builtWith = "terraform"
+#  }
+#
+#  vpc_id = "${ var.vpc-id }"
+#}

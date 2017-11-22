@@ -1,0 +1,22 @@
+#!/bin/sh
+
+CIDR_POD=10.2.0.0/16
+
+CIDR_SERVICE_CLUSTER=
+CIDR_VPC=
+
+HYPERKUBE_IMAGE=quay.io/coreos/hyperkube
+HYPERKUBE_TAG=v1.8.4_coreos.0
+
+export TF_VAR_aws='{ account-id = "${AWS_ACCOUNT_ID}", azs = "${AWS_REGION_AZS}", key-name = "${AWS_EC2_KEY_NAME}", region = "${AWS_REGION}" }'
+export TF_VAR_cidr='{ allow-ssh = "${CIDR_ALLOW_SSH}", pods = "${CIDR_PODS}", service-cluster = "${CIDR_SERVICE_CLUSTER}", vpc = "${CIDR_VPC}" }'
+export TF_VAR_coreos_aws='{ ami = "${COREOS_AMI_ID}", channel = "${COREOS_CHANNEL}", type = "${COREOS_VM_TYPE}" }'
+export TF_VAR_k8s='{ hyperkube-image = "${HYPERKUBE_IMAGE}", hyperkube-tag = "${HYPERKUBE_TAG}" }'
+
+export TF_VAR_dns_service_ip="${K8S_DNS_IP}"
+export TF_VAR_internal_tld="${INTERNAL_TLD}"
+export TF_VAR_k8s_service_ip="${K8S_SERVICE_IP}"
+export TF_VAR_name="${CLUSTER_NAME}"
+export TF_VAR_pki_ip="${PKI_IP}"
+export TF_VAR_s3_bucket="${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
+export TF_VAR_etcd_ips="$ETCD_IPS"
