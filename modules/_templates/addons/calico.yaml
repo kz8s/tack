@@ -9,6 +9,9 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
   name: calico-config
   namespace: kube-system
 data:
@@ -61,6 +64,8 @@ metadata:
   name: calico-node
   namespace: kube-system
   labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: calico-node
 spec:
   selector:
@@ -233,6 +238,8 @@ metadata:
   name: calico-kube-controllers
   namespace: kube-system
   labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: calico-kube-controllers
   annotations:
     scheduler.alpha.kubernetes.io/critical-pod: ''
@@ -305,6 +312,8 @@ metadata:
   name: calico-policy-controller
   namespace: kube-system
   labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
     k8s-app: calico-policy
 spec:
   # Turn this deployment off in favor of the kube-controllers deployment above.
@@ -336,6 +345,9 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
   name: calico-kube-controllers
   namespace: kube-system
 
@@ -344,5 +356,8 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
   name: calico-node
   namespace: kube-system
