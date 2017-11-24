@@ -25,7 +25,6 @@ module "route53" {
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
-  etcd-ips = "${ var.etcd-ips }"
   internal-tld = "${ var.internal-tld }"
   name = "${ var.name }"
 
@@ -130,32 +129,36 @@ module "bastion" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "etcd" {
-  source = "../modules/etcd"
-  depends-id = "${ module.route53.depends-id }"
+module "apiserver" {
+  source = "../modules/master"
+  #depends-id = "${ module.route53.depends-id }"
+  depends-id = "${ module.etcd-cluster.depends-id }"
 
-  # variables
+  ## variables
   ami-id = "${ var.coreos-aws["ami"] }"
   aws = "${ var.aws }"
+
+  #azs = ["us-east-1b", "us-east-1d", "us-east-1f"]
+  ## skip one item over when selecting AZs. NOTE: pubic and pivate subnet-ids 
+  ## should also be updated
+  #azs = "${ slice(split(",", var.aws["azs"]), 1, length(split(",", var.aws["azs"]))) }"
+  azs = "${ split(",", var.aws["azs"]) }"
+  private-subnet-ids = "${ split(",", module.vpc.subnet-ids-private) }"
+  public-subnet-ids = "${ split(",", module.vpc.subnet-ids-public) }"
+  vpc-id = "${ module.vpc.id }"
+
   cluster-domain = "${ var.cluster-domain }"
-  dns-service-ip = "${ var.dns-service-ip }"
-  etcd-ips = "${ var.etcd-ips }"
-  instance-type = "${ var.instance-type["etcd"] }"
+  instance-type = "${ var.instance-type["apiserver"] }"
   internal-tld = "${ var.internal-tld }"
-  ip-k8s-service = "${ var.k8s-service-ip }"
   k8s = "${ var.k8s }"
   name = "${ var.name }"
-  pod-ip-range = "${ var.cidr["pods"] }"
-  service-cluster-ip-range = "${ var.cidr["service-cluster"] }"
+  internal-zone-id = "${ module.route53.internal-zone-id }"
 
-  # modules
+  ## modules
   etcd-security-group-id = "${ module.security.etcd-id }"
   external-elb-security-group-id = "${ module.security.external-elb-id }"
   instance-profile-name = "${ module.iam.instance-profile-name-master }"
   s3-bucket = "${ module.s3.bucket }"
-  subnet-id-private = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
-  subnet-id-public = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
-  vpc-id = "${ module.vpc.id }"
 }
 
 #module "worker" {
