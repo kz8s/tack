@@ -9,7 +9,7 @@ module "s3" {
 }
 
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../modules/vpc"
   depends-id = ""
 
   # variables
@@ -21,7 +21,7 @@ module "vpc" {
 }
 
 module "route53" {
-  source = "./modules/route53"
+  source = "../modules/route53"
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
@@ -34,7 +34,7 @@ module "route53" {
 }
 
 module "pki" {
-  source = "./modules/pki"
+  source = "../modules/pki"
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
@@ -58,7 +58,7 @@ module "pki" {
 }
 
 module "security" {
-  source = "./modules/security"
+  source = "../modules/security"
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
@@ -71,7 +71,7 @@ module "security" {
 }
 
 module "iam" {
-  source = "./modules/iam"
+  source = "../modules/iam"
   depends-id = "${ module.pki.depends-id }"
 
   # variables
@@ -82,7 +82,7 @@ module "iam" {
 }
 
 module "bastion" {
-  source = "./modules/bastion"
+  source = "../modules/bastion"
   depends-id = "${ module.vpc.depends-id }"
 
   # variables
@@ -102,7 +102,7 @@ module "bastion" {
 }
 
 module "etcd" {
-  source = "./modules/etcd"
+  source = "../modules/etcd"
   depends-id = "${ module.route53.depends-id }"
 
   # variables
@@ -129,98 +129,98 @@ module "etcd" {
   vpc-id = "${ module.vpc.id }"
 }
 
-module "worker" {
-  source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id }"
+#module "worker" {
+  #source = "../modules/worker"
+  #depends-id = "${ module.route53.depends-id }"
 
-  # variables
-  ami-id = "${ var.coreos-aws["ami"] }"
-  aws = "${ var.aws }"
-  capacity = {
-    desired = 3
-    max = 5
-    min = 1
-  }
-  cluster-domain = "${ var.cluster-domain }"
-  dns-service-ip = "${ var.dns-service-ip }"
-  instance-type = "${ var.instance-type["worker"] }"
-  internal-tld = "${ var.internal-tld }"
-  k8s = "${ var.k8s }"
-  name = "${ var.name }"
-  volume_size = {
-    ebs = 250
-    root = 52
-  }
-  worker-name = "general"
+  ## variables
+  #ami-id = "${ var.coreos-aws["ami"] }"
+  #aws = "${ var.aws }"
+  #capacity = {
+    #desired = 3
+    #max = 5
+    #min = 1
+  #}
+  #cluster-domain = "${ var.cluster-domain }"
+  #dns-service-ip = "${ var.dns-service-ip }"
+  #instance-type = "${ var.instance-type["worker"] }"
+  #internal-tld = "${ var.internal-tld }"
+  #k8s = "${ var.k8s }"
+  #name = "${ var.name }"
+  #volume_size = {
+    #ebs = 250
+    #root = 52
+  #}
+  #worker-name = "general"
 
-  # modules
-  instance-profile-name = "${ module.iam.instance-profile-name-worker }"
-  s3-bucket = "${ module.s3.bucket }"
-  security-group-id = "${ module.security.worker-id }"
-  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
-  vpc-id = "${ module.vpc.id }"
-}
+  ## modules
+  #instance-profile-name = "${ module.iam.instance-profile-name-worker }"
+  #s3-bucket = "${ module.s3.bucket }"
+  #security-group-id = "${ module.security.worker-id }"
+  #subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  #vpc-id = "${ module.vpc.id }"
+#}
 
-module "concourse-worker" {
-  source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id }"
+#module "concourse-worker" {
+  #source = "../modules/worker"
+  #depends-id = "${ module.route53.depends-id }"
 
-  # variables
-  ami-id = "${ var.coreos-aws["ami"] }"
-  aws = "${ var.aws }"
-  capacity = {
-    desired = 1
-    max = 5
-    min = 1
-  }
-  cluster-domain = "${ var.cluster-domain }"
-  dns-service-ip = "${ var.dns-service-ip }"
-  instance-type = "${ var.instance-type["concourse-worker"] }"
-  internal-tld = "${ var.internal-tld }"
-  k8s = "${ var.k8s }"
-  name = "${ var.name }"
-  volume_size = {
-    ebs = 250
-    root = 52
-  }
-  worker-name = "concourse"
+  ## variables
+  #ami-id = "${ var.coreos-aws["ami"] }"
+  #aws = "${ var.aws }"
+  #capacity = {
+    #desired = 1
+    #max = 5
+    #min = 1
+  #}
+  #cluster-domain = "${ var.cluster-domain }"
+  #dns-service-ip = "${ var.dns-service-ip }"
+  #instance-type = "${ var.instance-type["concourse-worker"] }"
+  #internal-tld = "${ var.internal-tld }"
+  #k8s = "${ var.k8s }"
+  #name = "${ var.name }"
+  #volume_size = {
+    #ebs = 250
+    #root = 52
+  #}
+  #worker-name = "concourse"
 
-  # modules
-  instance-profile-name = "${ module.iam.instance-profile-name-concourse-worker }"
-  s3-bucket = "${ module.s3.bucket }"
-  security-group-id = "${ module.security.worker-id }"
-  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
-  vpc-id = "${ module.vpc.id }"
-}
+  ## modules
+  #instance-profile-name = "${ module.iam.instance-profile-name-concourse-worker }"
+  #s3-bucket = "${ module.s3.bucket }"
+  #security-group-id = "${ module.security.worker-id }"
+  #subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  #vpc-id = "${ module.vpc.id }"
+#}
 
-module "elk-worker" {
-  source = "./modules/worker"
-  depends-id = "${ module.route53.depends-id }"
+#module "elk-worker" {
+  #source = "../modules/worker"
+  #depends-id = "${ module.route53.depends-id }"
 
-  # variables
-  ami-id = "${ var.coreos-aws["ami"] }"
-  aws = "${ var.aws }"
-  capacity = {
-    desired = 1
-    max = 5
-    min = 1
-  }
-  cluster-domain = "${ var.cluster-domain }"
-  dns-service-ip = "${ var.dns-service-ip }"
-  instance-type = "${ var.instance-type["elk-worker"] }"
-  internal-tld = "${ var.internal-tld }"
-  k8s = "${ var.k8s }"
-  name = "${ var.name }"
-  volume_size = {
-    ebs = 250
-    root = 52
-  }
-  worker-name = "elk"
+  ## variables
+  #ami-id = "${ var.coreos-aws["ami"] }"
+  #aws = "${ var.aws }"
+  #capacity = {
+    #desired = 1
+    #max = 5
+    #min = 1
+  #}
+  #cluster-domain = "${ var.cluster-domain }"
+  #dns-service-ip = "${ var.dns-service-ip }"
+  #instance-type = "${ var.instance-type["elk-worker"] }"
+  #internal-tld = "${ var.internal-tld }"
+  #k8s = "${ var.k8s }"
+  #name = "${ var.name }"
+  #volume_size = {
+    #ebs = 250
+    #root = 52
+  #}
+  #worker-name = "elk"
 
-  # modules
-  instance-profile-name = "${ module.iam.instance-profile-name-elk-worker }"
-  s3-bucket = "${ module.s3.bucket }"
-  security-group-id = "${ module.security.worker-id }"
-  subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
-  vpc-id = "${ module.vpc.id }"
-}
+  ## modules
+  #instance-profile-name = "${ module.iam.instance-profile-name-elk-worker }"
+  #s3-bucket = "${ module.s3.bucket }"
+  #security-group-id = "${ module.security.worker-id }"
+  #subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  #vpc-id = "${ module.vpc.id }"
+#}

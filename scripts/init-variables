@@ -65,7 +65,7 @@ internal-tld = "${INTERNAL_TLD}"
 k8s-service-ip = "${K8S_SERVICE_IP}"
 name = "${CLUSTER_NAME}"
 pki-ip = "${PKI_IP}"
-s3-bucket = "${AWS_ACCOUNT_ID}-${CLUSTER_NAME}-${AWS_REGION}"
+s3-bucket = "tack-${CLUSTER_NAME}"
 etcd-ips = "$ETCD_IPS"
 EOF
 

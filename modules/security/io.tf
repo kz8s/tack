@@ -10,5 +10,5 @@ output "etcd-id" { value = "${ aws_security_group.etcd.id }" }
 output "external-elb-id" { value = "${ aws_security_group.external-elb.id }" }
 output "pki-id" { value = "${ aws_security_group.pki.id }" }
 output "worker-id" { value = "${ aws_security_group.worker.id }" }
-output "elk-worker-id" { value = "${ aws_security_group.elk-worker.id }" }
-output "concourse-worker-id" { value = "${ aws_security_group.concourse-worker.id }" }
+#output "elk-worker-id" { value = "${ aws_security_group.elk-worker.id }" }
+#output "concourse-worker-id" { value = "${ aws_security_group.concourse-worker.id }" }

@@ -27,6 +27,8 @@ resource "aws_instance" "etcd" {
     visibility = "private"
   }
 
+  depends_on = [ "aws_s3_bucket_object.calico-addon" ]
+
   user_data = "${ element(data.template_file.cloud-config.*.rendered, count.index) }"
   vpc_security_group_ids = [ "${ var.etcd-security-group-id }" ]
 }

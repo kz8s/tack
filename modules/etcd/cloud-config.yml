@@ -3,13 +3,6 @@
 ---
 coreos:
 
-  flannel:
-    interface: $private_ipv4
-    etcd_cafile: /etc/kubernetes/ssl/ca.pem
-    etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
-    etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
-    etcd_endpoints: https://etcd.${ internal-tld }:2379
-
   locksmith:
     endpoint: https://etcd.${ internal-tld }:2379
     etcd_cafile: /etc/kubernetes/ssl/ca.pem
@@ -49,33 +42,8 @@ coreos:
             Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
             Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
 
-    - name: flanneld.service
-      command: start
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Unit]
-            Wants=create-certificates.service
-            After=create-certificates.service
-            [Service]
-            EnvironmentFile=/etc/environment
-            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
-            ExecStartPre=-/usr/bin/etcdctl mk /coreos.com/network/config \
-              '{ "Network": "${ pod-ip-range }", "Backend": { "Type": "vxlan" } }'
-            Restart=always
-            RestartSec=10
-
     - name: docker.service
       command: start
-      drop-ins:
-        - name: 40-flannel.conf
-          content: |
-            [Unit]
-            After=flanneld.service
-            Requires=flanneld.service
-            [Service]
-            Restart=always
-            RestartSec=10
 
     - name: download-cfssl.service
       command: start
@@ -98,14 +66,12 @@ coreos:
       content: |
         [Unit]
         After=download-cfssl.service
-        Before=flannel.service
         ConditionFileIsExecutable=/opt/bin/cfssl
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         Requires=download-cfssl.service
         [Service]
-        ExecStartPre=-/usr/bin/mkdir -p /etc/kubernetes/ssl
-        ExecStartPre=/opt/bin/fetch-from-s3 service-account-key.pem
-        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
+        ExecStartPre=/opt/bin/fetch-from-s3 service-account-key.pem /etc/kubernetes/ssl
+        ExecStartPre=/opt/bin/fetch-from-s3 ca.pem /etc/kubernetes/ssl
         ExecStart=/opt/bin/create-certificates
         RemainAfterExit=yes
         Type=oneshot
@@ -142,10 +108,8 @@ coreos:
         [Unit]
         ConditionFileNotEmpty=/etc/kubernetes/ssl/service-account-key.pem
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
-        After=flanneld.service
         After=prefetch-rkt-hyperkube.service
         After=prefetch-docker-hyperkube.service
-        Requires=flanneld.service
         [Service]
         EnvironmentFile=-/etc/environment
         Environment="KUBELET_ACI=${ hyperkube-image }"
@@ -167,7 +131,6 @@ coreos:
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          --api-servers=http://127.0.0.1:8080 \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
@@ -409,24 +372,15 @@ write-files:
     owner: root:root
     content: |
       #!/bin/bash -e
+      mkdir -p /etc/kubernetes/{addons,ssl}
       until /usr/bin/rkt run \
         --net=host \
         --trust-keys-from-https \
         --volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true --mount volume=dns,target=/etc/resolv.conf \
         --volume=ssl,kind=host,source=/etc/kubernetes/ssl,readOnly=false --mount=volume=ssl,target=/etc/kubernetes/ssl \
-        quay.io/coreos/awscli -- aws s3 cp s3://${ s3-bucket }/$1 /etc/kubernetes/ssl
-      do
-        echo "retrying"
-        sleep 5.2
-      done
-      echo "✓"
-
-  - path: /opt/bin/wait-for-certs
-    permissions: 0755
-    owner: root:root
-    content: |
-      #!/bin/bash -e
-      until ls /etc/kubernetes/ssl
+        --volume=addons,kind=host,source=/etc/kubernetes/addons,readOnly=false \
+        --mount=volume=addons,target=/etc/kubernetes/addons \
+        quay.io/coreos/awscli -- aws s3 cp "s3://${ s3-bucket }/$1" "$2"
       do
         echo "retrying"
         sleep 5.2
@@ -483,13 +437,3 @@ write-files:
 
       generate k8s-apiserver client-server "$${DEFAULT_HOSTS},${ ip-k8s-service },master.${ internal-tld },${ external-elb }"
       generate k8s-etcd client-server "etcd.${ internal-tld },${ fqdn }"
-
-  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
-    content: |
-        {
-            "name": "podnet",
-            "type": "flannel",
-            "delegate": {
-                "isDefaultGateway": true
-            }
-        }

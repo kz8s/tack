@@ -14,7 +14,7 @@ metadata:
 data:
   # Configure this with the location of your etcd cluster.
   # etcd1,etcd2,etcd3
-  etcd_endpoints: "https://${fqdn}:2379"
+  etcd_endpoints: "https://etcd.${ internal-tld }:2379"
 
   # Configure the Calico backend to use.
   calico_backend: "bird"
@@ -49,9 +49,6 @@ data:
   etcd_ca: "/calico-secrets/ca.pem"
   etcd_cert: "/calico-secrets/k8s-etcd.pem"
   etcd_key: "/calico-secrets/k8s-etcd-key.pem"
-  #etcd_ca: /etc/kubernetes/ssl/ca.pem
-  #etcd_cert: /etc/kubernetes/ssl/k8s-etcd.pem
-  #etcd_key: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
 ---
 
@@ -75,14 +72,19 @@ spec:
         k8s-app: calico-node
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
-        scheduler.alpha.kubernetes.io/tolerations: |
-          [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
-           {"key":"CriticalAddonsOnly", "operator":"Exists"}]
     spec:
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      - effect: NoSchedule
+        operator: Exists
       hostNetwork: true
       serviceAccountName: calico-node
-      # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
-      # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
+      # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes
+      # to do a "force deletion"
+      # https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
       terminationGracePeriodSeconds: 0
       containers:
         # Runs calico/node container on each Kubernetes node.  This
@@ -114,8 +116,7 @@ spec:
               value: "ACCEPT"
             # Configure the IP Pool from which Pod IPs will be chosen.
             - name: CALICO_IPV4POOL_CIDR
-              value: "192.168.0.0/16"
-              #value: "${cluster_cidr}"
+              value: "${pod-ip-range}"
             - name: CALICO_IPV4POOL_IPIP
               value: "cross-subnet"
               #value: "always"
@@ -219,8 +220,8 @@ spec:
             path: /etc/cni/net.d
         # Mount in the etcd TLS secrets.
         - name: etcd-certs
-          secret:
-            secretName: calico-etcd-secrets
+          hostPath:
+            path: /etc/kubernetes/ssl
 
 ---
 
@@ -235,9 +236,6 @@ metadata:
     k8s-app: calico-kube-controllers
   annotations:
     scheduler.alpha.kubernetes.io/critical-pod: ''
-    scheduler.alpha.kubernetes.io/tolerations: |
-      [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
-       {"key":"CriticalAddonsOnly", "operator":"Exists"}]
 spec:
   # The controllers can only have a single active instance.
   replicas: 1
@@ -250,6 +248,11 @@ spec:
       labels:
         k8s-app: calico-kube-controllers
     spec:
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - key: CriticalAddonsOnly
+        operator: Exists
       # The controllers must run in the host network namespace so that
       # it isn't governed by policy that would prevent it from working.
       hostNetwork: true
@@ -289,8 +292,8 @@ spec:
       volumes:
         # Mount in the etcd TLS secrets.
         - name: etcd-certs
-          secret:
-            secretName: calico-etcd-secrets
+          hostPath:
+            path: /etc/kubernetes/ssl
 
 ---
 
