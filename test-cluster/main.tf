@@ -81,6 +81,35 @@ module "iam" {
   s3-bucket-arn = "${ module.s3.bucket-arn }"
 }
 
+module "etcd-cluster" {
+  source = "../modules/etcd"
+  depends-id = "${ module.route53.depends-id }"
+
+  # variables
+  ami-id = "${ var.coreos-aws["ami"] }"
+  aws = "${ var.aws }"
+
+  # cluster-size should be an odd number
+  cluster-size = 3
+  #azs = ["us-east-1b", "us-east-1d", "us-east-1f"]
+  azs = "${ split(",", var.aws["azs"]) }"
+
+  instance-type = "${ var.instance-type["etcd"] }"
+  internal-tld = "${ var.internal-tld }"
+  name = "${ var.name }"
+
+  # modules
+  etcd-security-group-id = "${ module.security.etcd-id }"
+  instance-profile-name = "${ module.iam.instance-profile-name-master }"
+  s3-bucket = "${ module.s3.bucket }"
+  subnet-id-private = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
+  private-subnet-ids = "${ split(",", module.vpc.subnet-ids-private) }"
+
+  subnet-id-public = "${ element( split(",", module.vpc.subnet-ids-public), 0 ) }"
+  vpc-id = "${ module.vpc.id }"
+  internal-zone-id = "${ module.route53.internal-zone-id }"
+}
+
 module "bastion" {
   source = "../modules/bastion"
   depends-id = "${ module.vpc.depends-id }"

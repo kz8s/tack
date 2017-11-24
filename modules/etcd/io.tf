@@ -2,30 +2,26 @@ variable "ami-id" {}
 variable "aws" {
   type = "map"
 }
-variable "cluster-domain" {}
 variable "depends-id" {}
-variable "dns-service-ip" {}
-variable "etcd-ips" {}
 variable "etcd-security-group-id" {}
-variable "external-elb-security-group-id" {}
 variable "instance-profile-name" {}
 variable "instance-type" {}
 variable "internal-tld" {}
+variable "internal-zone-id" {}
 
-variable "ip-k8s-service" {}
-
-variable "k8s" {
-  type = "map"
-}
+variable "root-volume-size" { default = 50 }
+variable "root-volume-type" { default = "gp2" }
+variable "cluster-size" { default = 3 }
+variable "azs" { default = ["us-east-1b", "us-east-1d", "us-east-1f"] }
 
 variable "name" {}
 variable "s3-bucket" {}
-variable "pod-ip-range" {}
-variable "service-cluster-ip-range" {}
 variable "subnet-id-private" {}
+variable "private-subnet-ids" { type = "list" }
 variable "subnet-id-public" {}
 variable "vpc-id" {}
+#variable "etcd-ips" {}
 
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }
-output "external-elb" { value = "${ aws_elb.external.dns_name }" }
-output "internal-ips" { value = "${ join(",", aws_instance.etcd.*.public_ip) }" }
+output "internal-ips" { value = "${ join(",", aws_instance.etcd.*.private_ip) }" }
+output "etcd-ips" { value = "${ join(",", aws_instance.etcd.*.private_ip) }" }

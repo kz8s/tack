@@ -129,6 +129,37 @@ resource "aws_security_group" "external-elb" {
   vpc_id = "${ var.vpc-id }"
 }
 
+resource "aws_security_group" "apiserver" {
+  description = "kz8s apiserver security group"
+
+  egress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    /*self = true*/
+    cidr_blocks = [ "0.0.0.0/0" ]
+  }
+
+  ingress = {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    self = true
+    cidr_blocks = [ "${ var.cidr-vpc }" ]
+  }
+
+  name = "kz8s-apiserver-${ var.name }"
+
+  tags {
+    KubernetesCluster = "${ var.name }"
+    kz8s = "${ var.name }"
+    Name = "kz8s-apiserver-${ var.name }"
+    builtWith = "terraform"
+  }
+
+  vpc_id = "${ var.vpc-id }"
+}
+
 resource "aws_security_group" "worker" {
   description = "kz8s worker security group"
 
