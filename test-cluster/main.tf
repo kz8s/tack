@@ -161,37 +161,39 @@ module "apiserver" {
   s3-bucket = "${ module.s3.bucket }"
 }
 
-#module "worker" {
-  #source = "../modules/worker"
-  #depends-id = "${ module.route53.depends-id }"
+module "worker" {
+  source = "../modules/worker"
+  depends-id = "${ module.route53.depends-id }"
 
-  ## variables
-  #ami-id = "${ var.coreos-aws["ami"] }"
-  #aws = "${ var.aws }"
-  #capacity = {
-    #desired = 3
-    #max = 5
-    #min = 1
-  #}
-  #cluster-domain = "${ var.cluster-domain }"
-  #dns-service-ip = "${ var.dns-service-ip }"
-  #instance-type = "${ var.instance-type["worker"] }"
-  #internal-tld = "${ var.internal-tld }"
-  #k8s = "${ var.k8s }"
-  #name = "${ var.name }"
-  #volume_size = {
-    #ebs = 250
-    #root = 52
-  #}
-  #worker-name = "general"
+  node-labels = ["node-role.kubernetes.io/node"]
 
-  ## modules
-  #instance-profile-name = "${ module.iam.instance-profile-name-worker }"
-  #s3-bucket = "${ module.s3.bucket }"
-  #security-group-id = "${ module.security.worker-id }"
-  #subnet-id = "${ element( split(",", module.vpc.subnet-ids-private), 0 ) }"
-  #vpc-id = "${ module.vpc.id }"
-#}
+  # variables
+  ami-id = "${ var.coreos-aws["ami"] }"
+  aws = "${ var.aws }"
+  capacity = {
+    desired = 1
+    max = 1
+    min = 1
+  }
+  cluster-domain = "${ var.cluster-domain }"
+  dns-service-ip = "${ module.apiserver.dns-service-ip }"
+  instance-type = "${ var.instance-type["worker"] }"
+  internal-tld = "${ var.internal-tld }"
+  k8s = "${ var.k8s }"
+  name = "${ var.name }"
+  volume_size = {
+    ebs = 250
+    root = 52
+  }
+  worker-name = "general"
+
+  # modules
+  instance-profile-name = "${ module.iam.instance-profile-name-worker }"
+  s3-bucket = "${ module.s3.bucket }"
+  security-group-id = "${ module.security.worker-id }"
+  subnet-ids = "${ split(",", module.vpc.subnet-ids-private) }"
+  vpc-id = "${ module.vpc.id }"
+}
 
 #module "concourse-worker" {
   #source = "../modules/worker"
