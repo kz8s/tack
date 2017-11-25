@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+echo $KUBECONFIG
+
 AWS_REGION=$(terraform output region)
 CLUSTER_DOMAIN=$(terraform output cluster-domain)
 DNS_SERVICE_IP=$(terraform output dns-service-ip)

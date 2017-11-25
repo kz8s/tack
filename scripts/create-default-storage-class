@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash -u
+
+echo $KUBECONFIG
 
 cat <<EOF | kubectl create -f -
 apiVersion: storage.k8s.io/v1

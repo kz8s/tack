@@ -22,13 +22,13 @@ resource "aws_launch_configuration" "worker" {
 
   user_data = "${ data.template_file.cloud-config.rendered }"
 
-  /*lifecycle {
+  lifecycle {
     create_before_destroy = true
-  }*/
+  }
 }
 
 resource "aws_autoscaling_group" "worker" {
-  name = "worker-${ var.worker-name }-${ var.name }"
+  name = "${ var.worker-name }-worker-${ var.name }"
 
   desired_capacity = "${ var.capacity["desired"] }"
   health_check_grace_period = 60
@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "worker" {
   launch_configuration = "${ aws_launch_configuration.worker.name }"
   max_size = "${ var.capacity["max"] }"
   min_size = "${ var.capacity["min"] }"
-  vpc_zone_identifier = [ "${ var.subnet-id }" ]
+  vpc_zone_identifier = [ "${ var.subnet-ids }" ]
 
   tag {
     key = "builtWith"
@@ -72,7 +72,7 @@ resource "aws_autoscaling_group" "worker" {
 
   tag {
     key = "role"
-    value = "worker"
+    value = "${ var.worker-name }-worker"
     propagate_at_launch = true
   }
 

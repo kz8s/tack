@@ -1,0 +1,4 @@
+# Issues
+
+- etcd is collocated with apiserver/master
+- without rback, etcd tls certificates are easily accessible to cluster users

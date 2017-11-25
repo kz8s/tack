@@ -9,39 +9,33 @@ coreos:
     etcd_certfile: /etc/kubernetes/ssl/k8s-etcd.pem
     etcd_keyfile: /etc/kubernetes/ssl/k8s-etcd-key.pem
 
-  flannel:
-    etcd_cafile: /etc/kubernetes/ssl/ca.pem
-    etcd_certfile: /etc/kubernetes/ssl/k8s-worker.pem
-    etcd_endpoints: https://etcd.${ internal-tld }:2379
-    etcd_keyfile: /etc/kubernetes/ssl/k8s-worker-key.pem
-
   units:
-    - name: etcd-member.service
-      command: start
-      drop-ins:
-        - name: 01-wait-for-certs.conf
-          content: |
-            [Unit]
-            After=create-certificates.service
-            Requires=create-certificates.service
-            ConditionFileNotEmpty=/etc/kubernetes/ssl/ca.pem
-            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
-            ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
+    #- name: etcd-member.service
+      #command: start
+      #drop-ins:
+        #- name: 01-wait-for-certs.conf
+          #content: |
+            #[Unit]
+            #After=create-certificates.service
+            #Requires=create-certificates.service
+            #ConditionFileNotEmpty=/etc/kubernetes/ssl/ca.pem
+            #ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
+            #ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
 
-        - name: 10-environment.conf
-          content: |
-            [Service]
-            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
-            Environment="ETCD_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
-            Environment="ETCD_CLIENT_CERT_AUTH=TRUE"
-            Environment="ETCD_DISCOVERY_SRV=${ internal-tld }"
-            Environment="ETCD_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
-            Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
-            Environment="ETCD_PEER_CLIENT_AUTH=true"
-            Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
-            Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
-            Environment="ETCD_PROXY=on"
-            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+        #- name: 10-environment.conf
+          #content: |
+            #[Service]
+            #Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
+            #Environment="ETCD_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
+            #Environment="ETCD_CLIENT_CERT_AUTH=TRUE"
+            #Environment="ETCD_DISCOVERY_SRV=${ internal-tld }"
+            #Environment="ETCD_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
+            #Environment="ETCD_PEER_CERT_FILE=/etc/ssl/certs/k8s-worker.pem"
+            #Environment="ETCD_PEER_CLIENT_AUTH=true"
+            #Environment="ETCD_PEER_KEY_FILE=/etc/ssl/certs/k8s-worker-key.pem"
+            #Environment="ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
+            #Environment="ETCD_PROXY=on"
+            #Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/ca.pem"
 
     - name: format-ephemeral.service
       command: start
@@ -92,7 +86,6 @@ coreos:
         [Unit]
         After=download-cfssl.service
         Requires=download-cfssl.service
-        Before=flannel.service
         Description=Get ssl artifacts from s3 bucket using IAM role and create local certificates
         [Service]
         Type=oneshot
@@ -101,28 +94,8 @@ coreos:
         ExecStartPre=/opt/bin/fetch-from-s3 ca.pem
         ExecStart=/opt/bin/create-certificates
 
-    - name: flanneld.service
-      command: start
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Service]
-            EnvironmentFile=-/etc/environment
-            Environment="ETCD_SSL_DIR=/etc/kubernetes/ssl"
-            Restart=always
-            RestartSec=10
-
     - name: docker.service
       command: start
-      drop-ins:
-        - name: 40-flannel.conf
-          content: |
-            [Unit]
-            After=flanneld.service
-            Requires=flanneld.service
-            [Service]
-            Restart=always
-            RestartSec=10
 
     - name: prefetch-rkt-hyperkube.service
       command: start
@@ -156,14 +129,12 @@ coreos:
         ConditionFileIsExecutable=/usr/lib/coreos/kubelet-wrapper
         ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker.pem
         ConditionFileNotEmpty=/etc/kubernetes/ssl/k8s-worker-key.pem
-        After=flanneld.service
         After=prefetch-rkt-hyperkube.service
         After=prefetch-docker-hyperkube.service
-        Requires=flanneld.service
         [Service]
         EnvironmentFile=/etc/environment
-        Environment="KUBELET_ACI=${ hyperkube-image }"
-        Environment="KUBELET_VERSION=${ hyperkube-tag }"
+        Environment="KUBELET_IMAGE_URL=${ hyperkube-image }"
+        Environment="KUBELET_IMAGE_TAG=${ hyperkube-tag }"
         Environment="RKT_OPTS=\
           --volume dns,kind=host,source=/etc/resolv.conf \
           --mount volume=dns,target=/etc/resolv.conf \
@@ -179,17 +150,15 @@ coreos:
         ExecStartPre=/usr/bin/mkdir -p /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --bind /var/lib/kubelet /var/lib/kubelet
         ExecStartPre=/usr/bin/mount --make-shared /var/lib/kubelet
-        ExecStartPre=/usr/bin/systemctl is-active flanneld.service
         ExecStartPre=/opt/bin/wait-for-apiserver
         ExecStart=/usr/lib/coreos/kubelet-wrapper \
           --allow-privileged=true \
-          --api-servers=https://master.${ internal-tld } \
           --cert-dir=/etc/kubernetes/ssl \
           --cloud-provider=aws \
           --cluster-dns=${ dns-service-ip } \
           --cluster-domain=${ cluster-domain } \
           --kubeconfig=/etc/kubernetes/kubeconfig.yml \
-          --node-labels node-role.kubernetes.io/node \
+          --node-labels ${ node-labels } \
           --pod-manifest-path=/etc/kubernetes/manifests \
           --register-node=true \
           --tls-cert-file=/etc/kubernetes/ssl/k8s-worker.pem \
@@ -380,13 +349,5 @@ write-files:
       mkdir -p $OUTDIR && cd $OUTDIR
 
       generate k8s-worker client "$${DEFAULT_HOSTS},*.*.compute.internal,*.ec2.internal"
-
-  - path: /etc/kubernetes/cni/net.d/10-flannel.conf
-    content: |
-        {
-            "name": "podnet",
-            "type": "flannel",
-            "delegate": {
-                "isDefaultGateway": true
-            }
-        }
+      # necessary for calico
+      generate k8s-etcd client-server "etcd.${ internal-tld }"

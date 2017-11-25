@@ -1,5 +1,5 @@
 resource "aws_elb" "external" {
-  name = "kz8s-apiserver-${replace(var.name, "/(.{0,17})(.*)/", "$1")}"
+  name = "apiserver-${replace(var.name, "/(.{0,22})(.*)/", "$1")}"
 
   cross_zone_load_balancing = false
 
@@ -21,7 +21,8 @@ resource "aws_elb" "external" {
   }
 
   security_groups = [ "${ var.external-elb-security-group-id }" ]
-  subnets = [ "${ var.subnet-id-public }" ]
+  #subnets = [ "${ var.subnet-id-public }" ]
+  subnets = [ "${ var.public-subnet-ids }" ]
 
   tags {
     builtWith = "terraform"
@@ -35,8 +36,9 @@ resource "aws_elb" "external" {
 }
 
 resource "aws_elb_attachment" "master" {
-  count = "${ length( split(",", var.etcd-ips) ) }"
+  #count = "${ length( split(",", var.etcd-ips) ) }"
+  count = "${ var.cluster-size }"
 
   elb      = "${ aws_elb.external.id }"
-  instance = "${ element(aws_instance.etcd.*.id, count.index) }"
+  instance = "${ element(aws_instance.apiserver.*.id, count.index) }"
 }
