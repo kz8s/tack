@@ -21,7 +21,10 @@ variable "k8s" {
 variable "name" {}
 variable "s3-bucket" {}
 variable "security-group-id" {}
-variable "subnet-id" {}
+variable "subnet-ids" {
+  type = "list"
+  description = "A list of subnets to launch worker nodes in"
+}
 variable "volume_size" {
   default = {
     ebs = 250
@@ -30,6 +33,10 @@ variable "volume_size" {
 }
 variable "vpc-id" {}
 variable "worker-name" {}
+variable "node-labels" {
+  type = "list"
+  default = ["node-role.kubernetes.io/node"]
+}
 
 output "autoscaling-group-name" { value = "${ aws_autoscaling_group.worker.name }" }
 output "depends-id" { value = "${ null_resource.dummy_dependency.id }" }

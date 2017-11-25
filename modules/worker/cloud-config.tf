@@ -9,5 +9,6 @@ data "template_file" "cloud-config" {
     internal-tld = "${ var.internal-tld }"
     s3-bucket = "${ var.s3-bucket }"
     region = "${ var.aws["region"] }"
+    node-labels = "${ join(",", var.node-labels) }"
   }
 }
