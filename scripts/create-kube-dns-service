@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo $KUBECONFIG
 DNS_SERVICE_IP=$(terraform output dns-service-ip)
 
 cat <<EOF | kubectl create -f -

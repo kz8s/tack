@@ -1,6 +1,7 @@
 #!/bin/bash -eu
 
 ELB=$(terraform output external-elb)
+echo $KUBECONFIG
 
 _retry() {
   [ -z "${2}" ] && return 1

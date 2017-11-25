@@ -1,6 +1,13 @@
 #!/bin/bash -eu
 
+if ! aws iam get-user > /dev/null; then
+	echo AWS_PROFILE not set or is misconfigured
+	exit 3
+fi
+
 source ${0%/*}/retry
+
+DIR_SSL=ssl
 
 echo $DIR_SSL
 PKI_S3_BUCKET=`terraform output s3-bucket`

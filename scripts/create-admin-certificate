@@ -1,6 +1,7 @@
 #!/bin/bash -eux
 
 
+DIR_SSL=ssl
 echo $DIR_SSL
 echo $CLUSTER_NAME
 echo $AWS_EC2_KEY_PATH

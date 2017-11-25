@@ -12,10 +12,6 @@ echo $INTERNAL_TLD
 echo $CLUSTER_NAME
 CIDR_ALLOW_SSH=`$CDIR/myip`
 echo $CIDR_VPC
-echo $CIDR_PODS
-echo $CIDR_SERVICE_CLUSTER
-echo $K8S_SERVICE_IP
-echo $K8S_DNS_IP
 echo $ETCD_IPS
 echo $HYPERKUBE_IMAGE
 echo $HYPERKUBE_TAG
@@ -47,8 +43,6 @@ aws = {
 }
 cidr = {
   allow-ssh = "${CIDR_ALLOW_SSH}"
-  pods = "${CIDR_PODS}"
-  service-cluster = "${CIDR_SERVICE_CLUSTER}"
   vpc = "${CIDR_VPC}"
 }
 coreos-aws = {
@@ -60,9 +54,7 @@ k8s = {
   hyperkube-image = "${HYPERKUBE_IMAGE}"
   hyperkube-tag = "${HYPERKUBE_TAG}"
 }
-dns-service-ip = "${K8S_DNS_IP}"
 internal-tld = "${INTERNAL_TLD}"
-k8s-service-ip = "${K8S_SERVICE_IP}"
 name = "${CLUSTER_NAME}"
 pki-ip = "${PKI_IP}"
 s3-bucket = "tack-${CLUSTER_NAME}"
