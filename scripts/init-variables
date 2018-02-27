@@ -27,7 +27,7 @@ COREOS_AMI_ID=`curl -s \
   $(printf "http://%s.release.core-os.net/amd64-usr/current/coreos_production_ami_%s_%s.txt" \
     $COREOS_CHANNEL $COREOS_VM_TYPE $AWS_REGION)`
 
-AWS_ACCOUNT_ID=`aws iam get-user --output json \
+AWS_ACCOUNT_ID=`aws sts get-caller-identity --output json \
 	| awk '/arn:aws:/{print $2}' \
 	| grep -Eo '[[:digit:]]{12}'`
 
